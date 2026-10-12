@@ -135,6 +135,12 @@ class Substrate:
         self.scope_engine = scope_engine
         self._conn = sqlite3.connect(str(self.db_path), isolation_level=None)
         self._conn.execute("PRAGMA journal_mode=WAL")
+        # Power-loss durability. SQLite's default `synchronous` is 2 (FULL), but
+        # relying on an undocumented default for a durability guarantee is not
+        # acceptable -- set it explicitly so the claim in the ADR is enforced by
+        # code rather than by whatever the library happens to default to.
+        # 0=OFF, 1=NORMAL, 2=FULL, 3=EXTRA. FULL fsyncs the WAL on every commit.
+        self._conn.execute("PRAGMA synchronous=FULL")
         self._conn.execute("PRAGMA foreign_keys=ON")
         self._conn.executescript(_SCHEMA)
         self._conn.execute(

@@ -158,6 +158,34 @@ class TestBasicOperations:
         assert callable(substrate._journal)
 
 
+class TestDurabilityPragmas:
+    """The ADR claims power-loss durability. Enforce it in code, not by default."""
+
+    def test_synchronous_is_full(self, tmp_path, engine):
+        s = Substrate(tmp_path / "d.db", scope_engine=engine)
+        try:
+            mode = s._conn.execute("PRAGMA synchronous").fetchone()[0]
+            assert mode == 2, f"synchronous must be FULL (2), got {mode}"
+        finally:
+            s.close()
+
+    def test_wal_mode_enabled(self, tmp_path, engine):
+        s = Substrate(tmp_path / "d.db", scope_engine=engine)
+        try:
+            mode = s._conn.execute("PRAGMA journal_mode").fetchone()[0]
+            assert mode.lower() == "wal", f"expected WAL, got {mode}"
+        finally:
+            s.close()
+
+    def test_foreign_keys_enabled(self, tmp_path, engine):
+        s = Substrate(tmp_path / "d.db", scope_engine=engine)
+        try:
+            fk = s._conn.execute("PRAGMA foreign_keys").fetchone()[0]
+            assert fk == 1
+        finally:
+            s.close()
+
+
 class TestProjectionIsDerived:
     def test_projection_written_and_detectable(self, substrate, tmp_path):
         substrate.put(make_record())
