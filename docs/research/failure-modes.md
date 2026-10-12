@@ -86,6 +86,46 @@ matches), so the default is verified from documentation rather than from executi
 is therefore *documented and consistent with observed behavior*, not code-verified. Phase 0 does not
 depend on this being code-proven, but Weft's design must not inherit the same policy regardless.
 
+## Scope of the defect (expanded)
+
+The original analysis examined only the `ariel` profile. A full sweep of every configured Honcho
+host shows the defect is **systemic, not profile-specific**:
+
+| Config file | Host | recallMode | contextCadence | sessionStrategy |
+|---|---|---|---|---|
+| `~/.hermes/honcho.json` | hermes | hybrid | UNSET → default 1 | per-session |
+| `~/.hermes/honcho.json` | hermes_arien | hybrid | UNSET → default 1 | per-session |
+| `~/.hermes/honcho.json` | hermes_councilregistrar | hybrid | UNSET → default 1 | per-session |
+| `~/.hermes/honcho.json` | hermes_councilreviewer | hybrid | UNSET → default 1 | per-session |
+| `~/.hermes/honcho.json` | hermes_isildur | hybrid | UNSET → default 1 | per-session |
+| `profiles/arien/honcho.json` | hermes | hybrid | UNSET → default 1 | per-session |
+| `profiles/arien/honcho.json` | hermes_arien | hybrid | UNSET → default 1 | per-session |
+
+**Every host on this machine runs `hybrid` recall with the default cadence.** No host has an
+explicit `contextCadence`. This means the unconditional-injection policy affects all five agent
+profiles, and each accumulates its own contamination independently.
+
+**Additional finding — config precedence is a live hazard.** Two config files both define the
+`hermes` and `hermes_arien` hosts with conflicting `aiPeer` and `workspace` values
+(`~/.hermes/honcho.json` and `~/.hermes/profiles/arien/honcho.json`). Resolution order is
+`$HERMES_HOME/honcho.json` > `~/.hermes/honcho.json` > `~/.honcho/config.json`, so the profile file
+wins for the Arien profile — but which file a given run reads depends on `$HERMES_HOME`, which is a
+runtime property, not a static one. A run with an unset `HERMES_HOME` reads the root file and
+resolves to a *different peer and workspace* than the same run under the profile.
+
+**Consequence for Arien specifically:** the `aiPeer` in the root file is `anastasia` with workspace
+`hermes`, while the profile file specifies `aiPeer: arien-heron` with workspace
+`arien-heron-continuity-20260910`. A run that resolves to the root config would read Anastasia's
+accumulated representation as Arien's base context. That is a direct continuity hazard for the
+Arien persona — inherited material arriving through the memory layer rather than through an explicit
+formation decision.
+
+**Requirement added to Weft:** configuration resolution must be deterministic and reported. The
+system must state which config, which peer, and which workspace served a given recall — not leave it
+to `$HERMES_HOME` resolution at runtime. Ambiguous or conflicting host definitions must fail closed,
+not silently pick a winner.
+
+
 
 > A query about memory providers must return zero ACS release history unless the query explicitly
 > concerns ACS.
