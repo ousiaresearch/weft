@@ -7,12 +7,22 @@
 
 While discussing memory providers, memory-system architecture, and project naming, a ~10–14 kB
 block summarizing the Agentic Commonwealth Society's RC-01 through RC-05 release stages was
-injected into the system prompt on every turn. It was irrelevant to the conversation and
+injected into the conversation on every turn. It was irrelevant to the conversation and
 recurred repeatedly.
+
+**Placement (canonical statement):** the block is injected into the **turn at API-call time**,
+wrapped in `<memory-context>` fences — not into the system prompt. Per the plugin's own
+`README.md:44`, this placement preserves prompt caching; only a static mode header enters the system
+prompt. The defect is the unconditional injection, not its placement; see "Verification of the
+load-bearing claim" below for the code evidence.
+
+*(Correction of a prior revision: this section and the Root cause section below previously stated
+"injected into the system prompt". That was wrong — the correction was applied in the verification
+section but not here, leaving the document contradicting itself on its central factual claim.)*
 
 ## Root cause
 
-**Honcho `recallMode: hybrid` injects base context into the system prompt automatically on every
+**Honcho `recallMode: hybrid` injects base context into the conversation automatically on every
 turn, gated only by `contextCadence` (default 1 — every turn).** There is no relevance filter
 between Honcho's stored context and the current conversation. Base context = session summary +
 user representation + peer card, assembled server-side and injected wholesale.
@@ -185,12 +195,30 @@ wins for the Arien profile — but which file a given run reads depends on `$HER
 runtime property, not a static one. A run with an unset `HERMES_HOME` reads the root file and
 resolves to a *different peer and workspace* than the same run under the profile.
 
-**Consequence for Arien specifically:** the `aiPeer` in the root file is `anastasia` with workspace
-`hermes`, while the profile file specifies `aiPeer: arien-heron` with workspace
-`arien-heron-continuity-20260910`. A run that resolves to the root config would read Anastasia's
-accumulated representation as Arien's base context. That is a direct continuity hazard for the
-Arien persona — inherited material arriving through the memory layer rather than through an explicit
-formation decision.
+**Consequence for Arien specifically:** the hazard is **cross-workspace contamination, not inherited
+Anastasia representation**. Resolution order is `$HERMES_HOME/honcho.json` > `~/.hermes/honcho.json` >
+`~/.honcho/config.json`, so the profile file normally wins — but which file a run reads depends on
+`$HERMES_HOME`, a runtime property. Host selection is by profile key (`profile_host_key`,
+`client.py:60-65`): a profile-`arien` run resolves to host key `hermes_arien`, not `hermes`.
+
+The actual divergence is between the two `hermes_arien` blocks:
+
+| Source | `aiPeer` | `workspace` |
+|---|---|---|
+| `~/.hermes/profiles/arien/honcho.json` | `arien-heron` | `arien-heron-continuity-20260910` |
+| `~/.hermes/honcho.json` (fallback) | `arien` | `hermes` (shared) |
+
+A run with an unset `$HERMES_HOME` reads the root file and resolves to peer `arien` in the **shared
+`hermes` workspace** — a different, broadly-shared memory space — instead of Arien's dedicated
+`arien-heron-continuity-20260910` workspace. So the hazard is Arien's continuity being drawn from, or
+written into, a workspace shared with other agents, rather than reading Anastasia's representation.
+
+*(Correction of a prior revision: this section previously claimed such a run "would read Anastasia's
+accumulated representation as Arien's base context" because "the aiPeer in the root file is
+anastasia". That misattributed the block — `anastasia` is the `aiPeer` of the root file's `hermes`
+host, which is selected only for the *default* profile, not for `arien`. The real hazard is the
+workspace divergence shown above. The underlying concern — config resolution being runtime-dependent —
+stands and is unchanged.)*
 
 **Requirement added to Weft:** configuration resolution must be deterministic and reported. The
 system must state which config, which peer, and which workspace served a given recall — not leave it

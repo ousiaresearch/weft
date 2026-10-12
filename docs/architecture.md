@@ -63,6 +63,7 @@ where known, and supersession links.
 | **Deletion** | A privacy removal request. Cascades to all derived records. | Overrides archival preservation; retains only a non-sensitive tombstone where policy permits |
 | **Verification** | An explicit act of checking a claim against its source. | The **only** path from stated/derived → verified |
 | **Conversation** | A session container: participants, project membership, time range. | First-class scope axis; join point for Observation location and Correction lineage |
+| **Summary** | A rebuildable projection over other records (e.g. a session or project overview). | **Projection, not authority.** Never an injectable unit; assembled at recall time from in-scope facts only. Deletable in cascade. |
 | **RecallReceipt** | What a recall did: scope consulted, sources read, records selected, exclusions and why. | Audit trail; no secrets |
 
 **Invariant:** retrieval can never upgrade an inference into a fact. Graph links and type
@@ -100,7 +101,25 @@ membership are not evidence.
    Constitutional Convention Letters` — ACS material resident in the identity layer. Under a
    naive "identity is always eligible" rule that fact would leak into every query, making the
    regression target below unachievable for the most identity-adjacent formulation.
-6. Cross-project recall requires an explicit **user-attributable** request in that query — a
+
+   **Derived artifacts are not injectable units.** A peer card, session summary, or representation is
+   a *composite derived artifact*, never a source of recall in itself. It is assembled **at recall
+   time** from individually scope-tagged facts that survive the scope filter. Consequences:
+   - Derived artifacts are stored decomposed into per-fact records, each with its own scope tag. A
+     composite block is never stored, cached, or injected as a whole.
+   - A composite artifact is therefore never "mostly in scope" — an out-of-scope fact inside it is
+     simply absent from the assembled result, with the exclusion recorded in the RecallReceipt.
+   - This closes the live leak path: the ACS ATTRIBUTE line inside the peer card cannot be injected by
+     assembling "the peer card", because no such injectable object exists. Only in-scope facts are
+     assembled, and that fact is scope-bound by rule 5.
+   - Rebuildable projections (summaries, indexes) may be cached for performance, but they are
+     **projections, not authority**, and they are never the thing a recall injects. A stale or
+     contaminated projection is detectable and discardable.
+
+7. Scope-engine rule 1 is read as: identity contributes *candidate facts*, not a scope grant. Identity
+   never confers eligibility by itself; every identity-sourced fact still passes rules 4 and 5.
+
+8. Cross-project recall requires an explicit **user-attributable** request in that query — a
    user-authored turn or a UI action, never agent-asserted. The agent cannot mint its own
    cross-scope authorization, because in the Hermes integration the query text is produced partly by
    the agent. Attribution is ambiguous → fail closed. Attribution is recorded in the RecallReceipt.
@@ -154,7 +173,10 @@ Rules:
    the source.
 2. Purge from rebuildable indexes and any model-configured store.
 3. Purge from exports and backups; backups carry an explicit deletion/expiry policy rather than
-   retaining deleted content indefinitely.
+   retaining deleted content indefinitely. **Phasing note:** the export/backup purge obligation is
+   *recorded* by the Phase 3 deletion receipt and *implemented* when the export path exists in
+   Phase 5. Phase 3 does not attempt to purge artifacts that do not yet exist; the receipt already
+   carries the obligation so it cannot be forgotten later.
 4. Emit an auditable **deletion receipt** (what was removed, when, by whose request) containing no
    sensitive residue.
 5. Where policy requires lineage retention alongside erasure, emit a **tombstone**: structure kept,
