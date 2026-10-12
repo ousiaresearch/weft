@@ -22,16 +22,26 @@ Live configuration inspected (`~/.hermes/profiles/arien/honcho.json`), host `her
 ```json
 {
   "recallMode": "hybrid",
-  "contextCadence": "not set → default 1",
-  "dialecticCadence": 2,
+  "writeFrequency": "async",
   "sessionStrategy": "per-session",
-  "workspace": "arien-heron-continuity-20260910"
+  "dialecticReasoningLevel": "low",
+  "saveMessages": true,
+  "peerName": "Anduril",
+  "aiPeer": "arien-heron",
+  "workspace": "arien-heron-continuity-20260910",
+  "enabled": true
 }
 ```
 
-`contextCadence` was never set, so it defaults to `1` — refresh every turn. `recallMode: hybrid`
-means auto-inject *and* expose tools. Nothing in that path evaluates whether the ACS material
-relates to the present question.
+Verbatim from `~/.hermes/profiles/arien/honcho.json`, host `hermes_arien`. Note what is **absent**:
+`contextCadence` and `dialecticCadence` are both unset, so both take their defaults (1 and 1
+respectively — see below).
+
+*(Correction of a prior revision: an earlier version of this document quoted `dialecticCadence: 2` in
+this block. That key does not exist here; the value 2 belongs to the `hermes` host in the root
+config file. The block was misquoted. Live `hermes honcho status` reports "Dialectic cad: every 1
+turn" for this profile, confirming the default.)*
+
 
 **Contributing factor:** the ACS summary is large and structurally prominent (session summary with
 five numbered sections), so it dominates the injected payload regardless of relevance.
@@ -74,21 +84,83 @@ stale material still enters. Weaker fix.
 
 ## Verification of the load-bearing claim
 
-The `contextCadence` default of `1` and the every-turn injection behavior were verified against
-Hermes's shipped documentation (`website/docs/user-guide/features/honcho.md`, line 119:
-`` `contextCadence` | `1` `` = "Minimum turns between `context()` API calls (base layer refresh)";
-line 60: base context is "Refreshed on `contextCadence`"; the injection applies to every turn in
-`hybrid` or `context` mode). The live `honcho.json` sets no `contextCadence`, so the default applies.
+The `contextCadence` default of `1` and the every-turn injection behavior are **code-verified**, not
+merely documented. The installed plugin at `~/.hermes/plugins/honcho/` contains:
 
-**Limitation of this verification:** the Honcho plugin's Python implementation was not located in
-this source tree (`grep` for `context_cadence` / `contextCadence` returned no implementation
-matches), so the default is verified from documentation rather than from executing code. The claim
-is therefore *documented and consistent with observed behavior*, not code-verified. Phase 0 does not
-depend on this being code-proven, but Weft's design must not inherit the same policy regardless.
+- `client.py:327` — `` `"context_cadence": look.parsed("contextCadence", int, 1)` `` — the config
+  lookup supplies `1` as the default when the key is absent.
+- `__init__.py:155` — `` self._context_cadence = 1  # minimum turns between context API calls ``
+- `__init__.py:662` — `` context_due = self._context_cadence <= 1 or (self._turn_count - self._last_context_turn) >= self._context_cadence ``
+  — with the default of 1, `context_due` is true on every turn.
+
+The live `honcho.json` sets no `contextCadence`, so `1` applies. Hermes's shipped documentation
+agrees (`website/docs/user-guide/features/honcho.md:119`, `` `contextCadence` | `1` `` = "Minimum
+turns between `context()` API calls (base layer refresh)").
+
+*(Correction of a prior revision: this section previously claimed the plugin implementation "was not
+located in this source tree" and that the default was only documentation-verified. That was wrong —
+the plugin is installed at `~/.hermes/plugins/honcho` and the default is code-confirmed at the
+lines above. The earlier search looked only under `~/.hermes/hermes-agent/`, which is the Hermes
+source tree, not the plugin directory.)*
+
+**Remaining limitation:** the code confirms the default and the gate. Behavior with `contextCadence`
+set greater than 1 has not been exercised against a live server, so cadence-based throttling is
+untested here. This does not affect the finding: at the default, injection is unconditional.
+
+**Injection placement (corrected):** the context is injected into the **turn at API-call time**,
+wrapped in `<memory-context>` fences — not into the system prompt. Per the plugin's own
+`README.md:44`, this placement preserves prompt caching; only a static mode header enters the system
+prompt. The mechanism (unconditional per-turn injection) is unaffected; only the placement is
+corrected. This is why the block reappears verbatim in each turn's context rather than being
+absorbed into the system prompt.
+
+## Ingestion side (added after adversarial review)
+
+The analysis above covers retrieval only. **The ingestion side is where the contamination entered.**
+
+`saveMessages: true` persists every turn — *including the injected `<memory-context>` block* — back
+into Honcho. So the ACS summary was:
+
+1. Injected into a turn (retrieval-side defect).
+2. Persisted verbatim as part of the next stored message (ingestion-side defect).
+3. Modeled upward into the peer card by peer modeling.
+
+The live Arien peer card proves step 3: it contains `ATTRIBUTE: Owner of the ACS Constitutional
+Convention Letters`. ACS material is not merely recalled — it has been **written into the derived
+identity layer**.
+
+**Consequence:** a scope gate at retrieval time does not remediate contamination already persisted
+in derived artifacts. Weft must address both:
+- Gate at injection/recall (prevent new contamination).
+- Provenance and scope on derived artifacts, plus an explicit remediation path for existing
+  contaminated state (tagging, re-derivation, or deletion — with lineage retained where policy
+  permits).
+
+## Refinement: peer modeling is the carrier, not the cause
+
+*(Corrected after adversarial review.)* The earlier statement "Not the cause: Honcho's peer-modeling
+or dialectic reasoning" was too categorical. Precisely:
+
+- **The defect** is the unconditional injection policy.
+- **The carrier** is peer modeling — it is what persists and amplifies the contamination across
+  sessions by writing it into the peer card, which is itself always-eligible context.
+
+Both must be addressed: gate at injection, and apply provenance + scope to derived artifacts. A fix
+that only stops injection leaves the already-contaminated peer card in place.
+
+## Pruning figure provenance
+
+*(Corrected after adversarial review.)* The earlier claim "Pruning local notes (1,194/3,500 chars
+remaining)" cited no source. The figure comes from the `memory` tool's own usage report after the
+prune operation in this conversation (`{"usage": "34% — 1,194/3,500 chars", "entry_count": 4}`),
+against the configured `memory_char_limit: 3500` in `config.yaml`. It is reproducible from the
+tool's return value, not from an independent measurement. The substantive point stands: local notes
+were pruned substantially, and the ACS block reappeared regardless — proving the two layers are
+independent.
 
 ## Scope of the defect (expanded)
 
-The original analysis examined only the `ariel` profile. A full sweep of every configured Honcho
+The original analysis examined only the `arien` profile. A full sweep of every configured Honcho
 host shows the defect is **systemic, not profile-specific**:
 
 | Config file | Host | recallMode | contextCadence | sessionStrategy |

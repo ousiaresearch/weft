@@ -29,6 +29,8 @@ model may discover useful connections; it may never grant itself access to out-o
 │ Ingestion  (Phase 3)                                        │
 │ conversations · documents · media(transcribe/describe)      │
 │ idempotent · durable jobs · recall receipts                 │
+│ CONTEXT FENCING: recalled/injected blocks stripped or       │
+│ tagged non-source before persistence                        │
 ├─────────────────────────────────────────────────────────────┤
 │ Knowledge model  (Phase 2)                                  │
 │ Person · Agent · Project · Source · Observation · Claim ·   │
@@ -57,21 +59,52 @@ where known, and supersession links.
 | **Hypothesis** | A tentative connection under evaluation. | Explicitly not a conclusion |
 | **Decision** | A chosen course, with effective time. | User-attributed; requires explicit confirmation |
 | **Commitment** | A promise or obligation. | User-attributed only; never inferred from assistant text |
-| **Correction** | A revision. Preserves original + new + lineage. | Supersedes; never erases |
+| **Correction** | A revision. Preserves original + new + lineage. | Supersedes; never erases (see Deletion for the erasure case) |
+| **Deletion** | A privacy removal request. Cascades to all derived records. | Overrides archival preservation; retains only a non-sensitive tombstone where policy permits |
+| **Verification** | An explicit act of checking a claim against its source. | The **only** path from stated/derived → verified |
+| **Conversation** | A session container: participants, project membership, time range. | First-class scope axis; join point for Observation location and Correction lineage |
 | **RecallReceipt** | What a recall did: scope consulted, sources read, records selected, exclusions and why. | Audit trail; no secrets |
 
 **Invariant:** retrieval can never upgrade an inference into a fact. Graph links and type
 membership are not evidence.
+
+**Enforced invariants (write-boundary rules, not aspirations):**
+
+1. **Epistemic status transitions.** Status `verified` requires a `Verification` record citing the
+   verifying actor, method, and timestamp. Retrieval paths are read-only with respect to status —
+   no read operation may change it. The only permitted transition to `verified` is
+   `stated|derived → verified` via a `Verification` record. The reasoning loop's step 5 writes a
+   *proposed* claim at status `derived`; it cannot write `verified`.
+
+2. **Correction vs. Deletion are distinct.** `Correction` supersedes and retains lineage (archival).
+   `Deletion` removes and cascades (privacy). Privacy deletion **overrides** archival preservation.
+   Where policy requires both — a corrected fact that must also be erased — the record becomes a
+   tombstone: lineage structure retained, content removed, and the tombstone carries no sensitive
+   residue. Per-record policy decides which applies; it is never silently chosen.
+
+3. **User attribution.** `Decision` and `Commitment` records require explicit user attribution.
+   Assistant text may *propose* a commitment; it may never create one. An assistant-authored turn
+   proposing a decision creates a `Hypothesis` or a `proposed Decision`, never a `Decision`.
 
 ## Scope engine (runs first)
 
 1. Resolve the query's permitted scopes from identity + project membership + explicit request.
 2. Unknown or unstated scope → **deny by default**. No silent widening.
 3. Candidate records outside permitted scopes are **excluded before ranking**, not merely ranked low.
-4. A small always-eligible set (identity, standing preferences, active project) may be granted
-   globally, explicitly and minimally.
-5. Cross-project recall requires an explicit user request in that query.
-6. Every exclusion is recorded in the RecallReceipt with its reason.
+4. A **user-curated, per-field-gated allowlist** may be granted globally. Every always-eligible
+   fact is explicitly approved and scope-tagged by the user. It is not derived automatically from
+   identity records.
+5. **Default rule: any fact referencing a project, organization, or body of work is scope-bound**,
+   regardless of where it is stored. A fact's location does not determine its scope; its content does.
+   The live Honcho peer card demonstrates why: it contains `ATTRIBUTE: Owner of the ACS
+   Constitutional Convention Letters` — ACS material resident in the identity layer. Under a
+   naive "identity is always eligible" rule that fact would leak into every query, making the
+   regression target below unachievable for the most identity-adjacent formulation.
+6. Cross-project recall requires an explicit **user-attributable** request in that query — a
+   user-authored turn or a UI action, never agent-asserted. The agent cannot mint its own
+   cross-scope authorization, because in the Hermes integration the query text is produced partly by
+   the agent. Attribution is ambiguous → fail closed. Attribution is recorded in the RecallReceipt.
+7. Every exclusion is recorded in the RecallReceipt with its reason.
 
 **Regression target:** a query about memory providers returns zero ACS history. This is a
 deterministic scope decision, not a relevance-model outcome — it must hold even with no model available.
@@ -98,6 +131,35 @@ which tier satisfied the query.
 External models are opt-in per query with a visible data-egress policy; local and external models
 share one interface. Reasoning explanations expose evidence and decisions, not hidden chain-of-thought.
 
+## Context fencing (ingestion-side defence)
+
+Recalled or injected context must never be re-ingested as new source. This is not hypothetical — the
+reference implementation exhibits exactly this failure: `saveMessages: true` persists the injected
+`<memory-context>` block back into storage, where it reappears through history and re-contaminates
+subsequent turns. That mechanism is what carried ACS material into the peer card.
+
+Rules:
+1. Any recalled/injected block is **stripped or tagged non-source** before persistence.
+2. Ingestion is idempotent on `(source_id, content_hash)` of **user-authored material only**.
+   Re-captured recall does not create a new source.
+3. A `Source` record carries a provenance marker distinguishing user-authored, assistant-authored,
+   document, and media-derived material. Only the first is eligible to become a `Source` of record
+   for observations about what the user said.
+
+## Deletion propagation
+
+`Deletion` is a first-class operation, not an absence of one. On request:
+
+1. Cascade to **all** derived records — Observations, Claims, Hypotheses, and any Summary built from
+   the source.
+2. Purge from rebuildable indexes and any model-configured store.
+3. Purge from exports and backups; backups carry an explicit deletion/expiry policy rather than
+   retaining deleted content indefinitely.
+4. Emit an auditable **deletion receipt** (what was removed, when, by whose request) containing no
+   sensitive residue.
+5. Where policy requires lineage retention alongside erasure, emit a **tombstone**: structure kept,
+   content removed.
+
 ## Media ingestion
 
 Audio → transcription, images → description, via the configured model layer. Derived records are
@@ -123,11 +185,31 @@ accepted operations for crash recovery. **Journal vs. file commit ordering is un
 must resolve it via fault injection before any durability claim is made. Indexes and summaries are
 rebuildable derived projections; a stale index is detectable, not silently trusted.
 
+## Adapter contract (Hermes, Phase 6)
+
+The adapter is a **consumer of the stack, bound by the scope engine** — not a bypass around it:
+
+1. All recall enters through the scope engine. There is no path to the retrieval layer that skips it.
+2. The adapter cannot request unscoped recall; ambiguous-scope calls fail closed.
+3. The adapter cannot mint cross-scope requests on the user's behalf. Cross-scope requires
+   user-attributable authorization (see scope engine rule 6).
+4. Shadow mode: the adapter observes and records what it *would* have injected, without that context
+   controlling live behavior, until the cutover gate passes.
+
 ## Phasing
 
-See "Staged execution" in the plan: Phase 1 substrate + scope spike, Phase 2 provenance/scope tests,
-Phase 3 ingestion/retrieval, Phase 4 reasoning, Phase 5 correction/privacy/portability, Phase 6
-Hermes shadow integration, Phase 7 gated cutover.
+See "Staged execution" in the plan: Phase 1 substrate + scope spike, Phase 2 knowledge model
+(**includes Correction lineage and the epistemic-status/Verification rule**), Phase 3 ingestion +
+retrieval (**includes context fencing and deletion propagation**), Phase 4 reasoning, Phase 5
+correction semantics + privacy + portability, Phase 6 Hermes shadow integration, Phase 7 gated cutover.
+
+**Phasing correction (after adversarial review):** Correction lineage and the status-transition rule
+were previously deferred to Phase 5 while the capability matrix marked them Alpha — a contradiction
+that would have shipped an alpha without them. Corrected: the *mechanism* (Correction record,
+Verification record, status gate) is built in Phase 2 as part of the knowledge model, because the
+retrieval layer cannot be tested meaningfully without it. Phase 5 then covers correction *semantics*
+(effective-time queries, supersession behaviour, summary invalidation) and the privacy/portability
+work. Deletion propagation moved to Phase 3 alongside the ingestion path it must purge.
 
 ## Open questions for Phase 1
 
