@@ -72,7 +72,20 @@ stale material still enters. Weaker fix.
    small, always-eligible set (identity, standing preferences, current active project) rather than
    the whole archive.
 
-## Regression test for Weft (from the acceptance suite)
+## Verification of the load-bearing claim
+
+The `contextCadence` default of `1` and the every-turn injection behavior were verified against
+Hermes's shipped documentation (`website/docs/user-guide/features/honcho.md`, line 119:
+`` `contextCadence` | `1` `` = "Minimum turns between `context()` API calls (base layer refresh)";
+line 60: base context is "Refreshed on `contextCadence`"; the injection applies to every turn in
+`hybrid` or `context` mode). The live `honcho.json` sets no `contextCadence`, so the default applies.
+
+**Limitation of this verification:** the Honcho plugin's Python implementation was not located in
+this source tree (`grep` for `context_cadence` / `contextCadence` returned no implementation
+matches), so the default is verified from documentation rather than from executing code. The claim
+is therefore *documented and consistent with observed behavior*, not code-verified. Phase 0 does not
+depend on this being code-proven, but Weft's design must not inherit the same policy regardless.
+
 
 > A query about memory providers must return zero ACS release history unless the query explicitly
 > concerns ACS.
