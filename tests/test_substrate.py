@@ -120,6 +120,43 @@ class TestBasicOperations:
     def test_delete_missing_returns_false(self, substrate):
         assert substrate.delete("nope") is False
 
+    def test_delete_clears_dangling_supersedes(self, substrate):
+        """Deleting a record must not leave a pointer to erased material.
+
+        A dangling `supersedes` link would let a later query reconstruct the
+        lineage of a record the user asked to have erased.
+        """
+        substrate.put(make_record("r1", text="original"))
+        substrate.correct("r1", make_record("r2", text="corrected"))
+        assert substrate.get("r2").supersedes == "r1"
+
+        substrate.delete("r1", reason="privacy request")
+
+        assert substrate.get("r1") is None
+        r2 = substrate.get("r2")
+        assert r2.supersedes is None, "dangling supersedes link survived deletion"
+
+        # The unlink is journalled for audit.
+        ops = [(j["op"], j["record_id"]) for j in substrate.journal_entries()]
+        assert ("unlink_supersedes", "r2") in ops
+
+    def test_delete_cannot_be_used_to_reconstruct_lineage(self, substrate):
+        """After deletion, no surviving record references the erased id."""
+        substrate.put(make_record("r1", text="sensitive original"))
+        substrate.correct("r1", make_record("r2", text="correction"))
+        substrate.correct("r2", make_record("r3", text="second correction"))
+        substrate.delete("r1", reason="privacy")
+
+        surviving = substrate.all_records()
+        assert not any("r1" in (r.supersedes or "") for r in surviving)
+
+    def test_journal_has_single_code_path(self, substrate):
+        """There is exactly one journalling path; no locked/unlocked split."""
+        assert not hasattr(substrate, "_journal_locked"), (
+            "_journal_locked was dead code and must not return"
+        )
+        assert callable(substrate._journal)
+
 
 class TestProjectionIsDerived:
     def test_projection_written_and_detectable(self, substrate, tmp_path):

@@ -168,7 +168,7 @@ class Substrate:
                    VALUES (?,?,?,?,?,?,?,?,?,?)""",
                 record.to_row(),
             )
-            self._journal_locked(
+            self._journal(
                 "put", record.record_id, record.scope,
                 f"type={record.record_type} status={record.epistemic_status}",
             )
@@ -182,6 +182,11 @@ class Substrate:
 
         Deletion OVERRIDES archival preservation. Only a non-sensitive tombstone
         may be retained by the caller's policy; the substrate removes the record.
+
+        Referential integrity: any record whose `supersedes` points at the
+        deleted record has that link cleared and is itself journalled, so no
+        dangling reference survives. A dangling supersedes link would let a
+        later query reconstruct the lineage of erased material.
         """
         cur = self._conn.execute("SELECT record_id, scope FROM records WHERE record_id=?", (record_id,))
         row = cur.fetchone()
@@ -189,8 +194,23 @@ class Substrate:
             return False
         try:
             self._conn.execute("BEGIN IMMEDIATE")
+
+            # Clear inbound supersedes links BEFORE removing the target, so
+            # lineage cannot be reconstructed from a pointer to erased data.
+            dependents = self._conn.execute(
+                "SELECT record_id FROM records WHERE supersedes = ?", (record_id,)
+            ).fetchall()
+            for (dep_id,) in dependents:
+                self._conn.execute(
+                    "UPDATE records SET supersedes = NULL WHERE record_id = ?", (dep_id,)
+                )
+                self._journal(
+                    "unlink_supersedes", dep_id, None,
+                    f"cleared dangling supersedes -> {record_id} (deleted)",
+                )
+
             self._conn.execute("DELETE FROM records WHERE record_id=?", (record_id,))
-            self._journal_locked("delete", record_id, row[1], f"reason={reason}")
+            self._journal("delete", record_id, row[1], f"reason={reason}")
             self._conn.execute("COMMIT")
         except Exception:
             self._conn.execute("ROLLBACK")
@@ -244,13 +264,19 @@ class Substrate:
     # ---- internals ----------------------------------------------------
 
     def _journal(self, op: str, record_id: str | None, scope: str | None, detail: str) -> None:
+        """Append a journal entry. Caller MUST hold the write lock (i.e. be
+        inside an open transaction) so the entry commits atomically with the
+        operation it describes.
+
+        The former `_journal_locked` alias was removed: it was dead code that
+        differed only in name, which invited the false impression that the
+        locked/unlocked distinction was meaningful. There is exactly one
+        journalling path, and it is always transactional.
+        """
         self._conn.execute(
             "INSERT INTO journal(op, record_id, scope, detail, recorded_at) VALUES (?,?,?,?,?)",
             (op, record_id, scope, detail, time.time()),
         )
-
-    def _journal_locked(self, op: str, record_id: str | None, scope: str | None, detail: str) -> None:
-        self._journal(op, record_id, scope, detail)
 
     def _validate(self, record: Record) -> None:
         """Advisory schema validation.
