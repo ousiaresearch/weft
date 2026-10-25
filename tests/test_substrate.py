@@ -1,15 +1,15 @@
-"""Substrate tests, including fault injection.
+"""Substrate tests, including crash and concurrency checks.
 
-The fault-injection suite verifies the crash-consistency claims in
-docs/adr/0001-phase1-decisions.md:
-  - Kill mid-transaction -> no partial record, no orphan journal entry.
-  - Kill after commit, before projection -> record present, projection stale.
-  - Rebuild-from-journal reproduces the identical record set.
-  - Concurrent writers -> no lost update, no corruption.
+Crash-consistency claims (docs/adr/0001-phase1-decisions.md), tested for real:
+  - A kill during a write leaves no partial record and no orphan journal entry.
+  - A commit with no projection leaves a projection the status check reports stale.
+  - Concurrent writers from separate processes never lose or duplicate a record.
+  - Hand-edited projection files are detected as tampered and never read back.
 """
 
 import json
 import os
+import signal
 import sqlite3
 import subprocess
 import sys
@@ -19,17 +19,19 @@ from pathlib import Path
 import pytest
 
 from weft.scope import ScopeContext, ScopeEngine
-from weft.substrate import Record, ScopeViolation, Substrate
+from weft.substrate import Record, RecordConflict, ScopeViolation, SchemaViolation, Substrate
 
+REPO = Path(__file__).resolve().parents[1]
+KNOWN = {"ariel-continuity", "acs-project", "memory-providers"}
+MARKERS = {"acs-project": {"ACS", "Listening Commonwealth"}}
 
-# Read/delete authority for the scopes these tests use. Reads without a ctx fail closed.
-CTX = ScopeContext(granted_scopes=frozenset({"ariel-continuity", "acs-project", "memory-providers"}))
+CTX = ScopeContext(granted_scopes=frozenset(KNOWN))
+MEM = ScopeContext(granted_scopes=frozenset({"memory-providers"}))
 
 
 @pytest.fixture
 def engine():
-    e = ScopeEngine(known_scopes={"ariel-continuity", "acs-project", "memory-providers"})
-    return e
+    return ScopeEngine(known_scopes=KNOWN, markers=MARKERS)
 
 
 @pytest.fixture
@@ -39,345 +41,285 @@ def substrate(tmp_path, engine):
     s.close()
 
 
+def _raw_journal(s):
+    """Audit-table rows (op, detail). Test-only access; the public journal view is scope-filtered."""
+    return [(r[0], r[1]) for r in s._conn.execute("SELECT op, detail FROM journal ORDER BY seq")]
+
+
+def _raw_ops(s):
+    return [r[0] for r in _raw_journal(s)]
+
+
 def make_record(rid="r1", scope="memory-providers", text="Honcho uses hybrid recall."):
     return Record(record_id=rid, record_type="Observation", scope=scope, payload={"text": text})
 
 
 class TestBasicOperations:
     def test_put_and_get(self, substrate):
-        rec = make_record()
-        substrate.put(rec)
+        substrate.put(make_record(), CTX)
         got = substrate.get("r1", CTX)
         assert got is not None
         assert got.payload["text"] == "Honcho uses hybrid recall."
 
     def test_put_rejected_when_scope_denied(self, substrate):
-        """A denied write raises and leaves the store untouched."""
-        rec = make_record(scope="unknown-scope")
         with pytest.raises(ScopeViolation):
-            substrate.put(rec)
+            substrate.put(make_record(scope="unknown-scope"), CTX)
         assert substrate.get("r1", CTX) is None
-        # The denial is journalled for audit.
-        ops = [j["op"] for j in substrate.journal_entries()]
-        assert "write_denied" in ops
+        assert "write_denied" in _raw_ops(substrate)
 
     def test_scope_check_runs_before_validation(self, substrate):
-        """Scope denial is checked first: an invalid record in a bad scope
-        raises ScopeViolation, not a schema error."""
         rec = make_record(scope="unknown-scope")
         rec.epistemic_status = "bogus-status"
         with pytest.raises(ScopeViolation):
-            substrate.put(rec)
+            substrate.put(rec, CTX)
 
     def test_scope_and_schema_violations_are_distinct(self, substrate):
-        """A ScopeViolation must never be catchable as, or confused with, a
-        SchemaViolation. They are siblings, not parent/child."""
-        from weft.substrate import SchemaViolation
-
         assert not issubclass(ScopeViolation, SchemaViolation)
         assert not issubclass(SchemaViolation, ScopeViolation)
 
-        # A bad scope with a bad status raises ScopeViolation specifically.
-        rec = make_record(scope="unknown-scope")
-        rec.epistemic_status = "bogus"
-        try:
-            substrate.put(rec)
-            raise AssertionError("should have raised")
-        except ScopeViolation:
-            pass  # correct
-        except SchemaViolation:
-            raise AssertionError("scope denial was masked by a schema error")
-
     def test_unknown_scope_is_denied_not_created(self, substrate):
-        """An unknown scope must be denied, never silently registered."""
-        rec = make_record(scope="brand-new-scope")
         with pytest.raises(ScopeViolation):
-            substrate.put(rec)
-        # The store did not invent the scope.
+            substrate.put(make_record(scope="brand-new-scope"), CTX)
         assert substrate.get("r1", CTX) is None
-        denials = [j for j in substrate.journal_entries() if j["op"] == "write_denied"]
-        assert len(denials) == 1
-        assert "unknown scope" in denials[0]["detail"]
+        denials = [r for r in _raw_journal(substrate) if r[0] == "write_denied"]
+        assert denials and "unknown scope" in denials[0][1]
 
     def test_invalid_epistemic_status_rejected(self, substrate):
         rec = make_record()
         rec.epistemic_status = "bogus"
-        with pytest.raises(Exception):
-            substrate.put(rec)
+        with pytest.raises(SchemaViolation):
+            substrate.put(rec, CTX)
         assert substrate.get("r1", CTX) is None
 
     def test_correct_preserves_lineage(self, substrate):
-        original = make_record(text="The decision was X.")
-        substrate.put(original)
-        replacement = make_record(rid="r2", text="The decision was changed to Y.")
-        substrate.correct("r1", replacement)
+        substrate.put(make_record(text="The decision was X."), CTX)
+        substrate.correct("r1", make_record("r2", text="The decision was changed to Y."), CTX)
         assert substrate.get("r1", CTX) is not None, "original must not be erased"
         assert substrate.get("r2", CTX).supersedes == "r1"
 
     def test_delete_removes_record(self, substrate):
-        substrate.put(make_record())
+        substrate.put(make_record(), CTX)
         assert substrate.delete("r1", CTX, reason="privacy request") is True
         assert substrate.get("r1", CTX) is None
-        ops = [j["op"] for j in substrate.journal_entries()]
-        assert "delete" in ops
+        assert "delete" in [j["op"] for j in substrate.journal_entries(CTX)]
 
     def test_delete_missing_returns_false(self, substrate):
         assert substrate.delete("nope", CTX) is False
 
     def test_delete_clears_dangling_supersedes(self, substrate):
-        """Deleting a record must not leave a pointer to erased material.
-
-        A dangling `supersedes` link would let a later query reconstruct the
-        lineage of a record the user asked to have erased.
-        """
-        substrate.put(make_record("r1", text="original"))
-        substrate.correct("r1", make_record("r2", text="corrected"))
+        substrate.put(make_record("r1", text="original"), CTX)
+        substrate.correct("r1", make_record("r2", text="corrected"), CTX)
         assert substrate.get("r2", CTX).supersedes == "r1"
 
-        substrate.delete("r1", CTX, reason="privacy request")
-
+        assert substrate.delete("r1", CTX, reason="privacy request") is True
         assert substrate.get("r1", CTX) is None
-        r2 = substrate.get("r2", CTX)
-        assert r2.supersedes is None, "dangling supersedes link survived deletion"
-
-        # The unlink is journalled for audit.
-        ops = [(j["op"], j["record_id"]) for j in substrate.journal_entries()]
+        assert substrate.get("r2", CTX).supersedes is None, "dangling supersedes link survived deletion"
+        ops = [(j["op"], j["record_id"]) for j in substrate.journal_entries(CTX)]
         assert ("unlink_supersedes", "r2") in ops
 
     def test_delete_cannot_be_used_to_reconstruct_lineage(self, substrate):
-        """After deletion, no surviving record references the erased id."""
-        substrate.put(make_record("r1", text="sensitive original"))
-        substrate.correct("r1", make_record("r2", text="correction"))
-        substrate.correct("r2", make_record("r3", text="second correction"))
+        substrate.put(make_record("r1", text="sensitive original"), CTX)
+        substrate.correct("r1", make_record("r2", text="correction"), CTX)
+        substrate.correct("r2", make_record("r3", text="second correction"), CTX)
         substrate.delete("r1", CTX, reason="privacy")
-
-        surviving = substrate.all_records(CTX)
-        assert not any("r1" in (r.supersedes or "") for r in surviving)
+        assert not any("r1" in (r.supersedes or "") for r in substrate.all_records(CTX))
 
     def test_journal_has_single_code_path(self, substrate):
-        """There is exactly one journalling path; no locked/unlocked split."""
-        assert not hasattr(substrate, "_journal_locked"), (
-            "_journal_locked was dead code and must not return"
-        )
+        assert not hasattr(substrate, "_journal_locked")
         assert callable(substrate._journal)
+
+    def test_journal_carries_no_payload(self, substrate):
+        """The journal is an audit trail. It must not hold record content, so deletion cannot
+        leave content behind in it. (Replaces the earlier rebuild-from-journal claim; see ADR.)"""
+        substrate.put(make_record(text="Honcho uses hybrid recall."), CTX)
+        blob = json.dumps(substrate.journal_entries(CTX))
+        assert "hybrid recall" not in blob
 
 
 class TestDurabilityPragmas:
-    """The ADR claims power-loss durability. Enforce it in code, not by default."""
-
     def test_synchronous_is_full(self, tmp_path, engine):
         s = Substrate(tmp_path / "d.db", scope_engine=engine)
         try:
-            mode = s._conn.execute("PRAGMA synchronous").fetchone()[0]
-            assert mode == 2, f"synchronous must be FULL (2), got {mode}"
+            assert s._conn.execute("PRAGMA synchronous").fetchone()[0] == 2
         finally:
             s.close()
 
     def test_wal_mode_enabled(self, tmp_path, engine):
         s = Substrate(tmp_path / "d.db", scope_engine=engine)
         try:
-            mode = s._conn.execute("PRAGMA journal_mode").fetchone()[0]
-            assert mode.lower() == "wal", f"expected WAL, got {mode}"
+            assert s._conn.execute("PRAGMA journal_mode").fetchone()[0].lower() == "wal"
         finally:
             s.close()
 
     def test_foreign_keys_enabled(self, tmp_path, engine):
         s = Substrate(tmp_path / "d.db", scope_engine=engine)
         try:
-            fk = s._conn.execute("PRAGMA foreign_keys").fetchone()[0]
-            assert fk == 1
+            assert s._conn.execute("PRAGMA foreign_keys").fetchone()[0] == 1
         finally:
             s.close()
 
 
 class TestProjectionIsDerived:
-    def test_projection_written_and_detectable(self, substrate, tmp_path):
-        substrate.put(make_record())
-        out = substrate.write_projection(tmp_path / "proj", CTX)
+    def test_projection_written_and_current(self, substrate, tmp_path):
+        substrate.put(make_record(), CTX)
+        out = substrate.write_projection(tmp_path / "proj", MEM)
         assert (out / "r1.json").exists()
-        content = json.loads((out / "r1.json").read_text())
-        assert content["text"] == "Honcho uses hybrid recall."
+        assert json.loads((out / "r1.json").read_text())["text"] == "Honcho uses hybrid recall."
+        assert substrate.projection_status(out, MEM)["state"] == "current"
 
-    def test_hand_edited_projection_does_not_override_store(self, substrate, tmp_path):
-        """Projection files are never authoritative."""
-        substrate.put(make_record())
-        out = substrate.write_projection(tmp_path / "proj", CTX)
-        # A user hand-edits the projection.
+    def test_hand_edited_projection_is_tampered_and_store_unaffected(self, substrate, tmp_path):
+        """Projection files are never authoritative. A hand edit is detected, not read back."""
+        substrate.put(make_record(), CTX)
+        out = substrate.write_projection(tmp_path / "proj", MEM)
         (out / "r1.json").write_text(json.dumps({"text": "TAMPERED"}))
-        # The store is unaffected.
+        assert substrate.projection_status(out, MEM)["state"] == "tampered"
         assert substrate.get("r1", CTX).payload["text"] == "Honcho uses hybrid recall."
 
     def test_projection_is_idempotent(self, substrate, tmp_path):
-        substrate.put(make_record())
-        out = substrate.write_projection(tmp_path / "proj", CTX)
+        substrate.put(make_record(), CTX)
+        out = substrate.write_projection(tmp_path / "proj", MEM)
         first = (out / "r1.json").read_text()
-        substrate.write_projection(out, CTX)
+        substrate.write_projection(out, MEM)
         assert (out / "r1.json").read_text() == first
+
+    def test_projection_without_context_writes_nothing(self, substrate, tmp_path):
+        substrate.put(make_record(), CTX)
+        out = substrate.write_projection(tmp_path / "proj", None)
+        assert list(out.glob("r*.json")) == []
+
+    def test_projection_excludes_out_of_scope_records(self, substrate, tmp_path):
+        substrate.put(make_record("r1", scope="memory-providers"), CTX)
+        substrate.put(make_record("r2", scope="acs-project", text="ACS note"), CTX)
+        out = substrate.write_projection(tmp_path / "proj", MEM)
+        assert {p.stem for p in out.glob("r*.json")} == {"r1"}
 
 
 class TestFaultInjection:
-    """Crash-consistency claims from the ADR."""
-
-    def test_mid_transaction_kill_leaves_no_partial_record(self, tmp_path, engine):
-        """Simulate a crash during the write transaction.
-
-        We open a second connection, begin a transaction, and terminate the
-        process without committing. The record must be absent and no orphan
-        journal entry may survive.
-        """
+    def test_kill_mid_write_leaves_no_partial_record(self, tmp_path):
+        """Kill the real write path between the record insert and its journal entry."""
         db = tmp_path / "weft.db"
-        s = Substrate(db, scope_engine=engine)
-        s.put(make_record("committed"))
-        s.close()
+        setup = Substrate(db, scope_engine=ScopeEngine(known_scopes=KNOWN))
+        setup.put(make_record("committed"), CTX)
+        setup.close()
 
-        # A separate process begins a transaction and is killed before commit.
         script = textwrap.dedent(
             f"""
-            import sqlite3, os, signal, sys
-            conn = sqlite3.connect({str(db)!r}, isolation_level=None)
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("BEGIN IMMEDIATE")
-            conn.execute(
-                "INSERT INTO records VALUES (?,?,?,?,?,?,?,?,?,?)",
-                ("doomed","Observation","memory-providers","stated",
-                 '{{"text":"never committed"}}', 0.0, None, None, "[]", "{{}}"),
-            )
-            conn.execute(
-                "INSERT INTO journal(op,record_id,scope,detail,recorded_at) "
-                "VALUES (?,?,?,?,?)",
-                ("put","doomed","memory-providers","uncommitted", 0.0),
-            )
-            # Do NOT commit. Kill hard.
-            os.kill(os.getpid(), signal.SIGKILL)
+            import os, signal, sys
+            sys.path.insert(0, {str(REPO)!r})
+            from weft.scope import ScopeContext, ScopeEngine
+            from weft.substrate import Record, Substrate
+            s = Substrate({str(db)!r}, scope_engine=ScopeEngine(known_scopes={sorted(KNOWN)!r}))
+            def boom(*a, **k):
+                os.kill(os.getpid(), signal.SIGKILL)
+            s._journal = boom
+            ctx = ScopeContext(granted_scopes=frozenset({sorted(KNOWN)[0], "memory-providers"}))
+            s.put(Record(record_id="doomed", record_type="Observation",
+                         scope="memory-providers", payload={{"text": "never committed"}}), ctx)
             """
         )
-        proc = subprocess.run(
-            [sys.executable, "-c", script], capture_output=True, timeout=30
-        )
-        # Killed by SIGKILL (negative return code).
-        assert proc.returncode != 0
+        proc = subprocess.run([sys.executable, "-c", script], capture_output=True, timeout=60)
+        assert proc.returncode == -signal.SIGKILL, proc.stderr.decode()
 
-        # Reopen: the doomed record must be absent.
-        s2 = Substrate(db, scope_engine=engine)
-        assert s2.get("committed", CTX) is not None
-        assert s2.get("doomed", CTX) is None, "uncommitted record leaked"
-        journal_ids = [j["record_id"] for j in s2.journal_entries()]
-        assert "doomed" not in journal_ids, "orphan journal entry survived"
-        s2.close()
+        s2 = Substrate(db, scope_engine=ScopeEngine(known_scopes=KNOWN))
+        try:
+            assert s2.get("committed", CTX) is not None
+            assert s2.get("doomed", CTX) is None, "uncommitted record leaked"
+            assert "doomed" not in [j["record_id"] for j in s2.journal_entries(CTX)]
+        finally:
+            s2.close()
 
-    def test_stale_projection_after_commit_is_detectable(self, tmp_path, engine, substrate):
-        """Kill after commit but before projection: record present, projection
-        stale. This is the acceptable failure mode -- detectable, not lost."""
-        substrate.put(make_record("r1"))
-        substrate.put(make_record("r2"))
-        out = tmp_path / "proj"
-        substrate.write_projection(out, CTX)  # projects r1 and r2
-        # A later record is committed but never projected (simulated crash).
-        substrate.put(make_record("r3"))
-        projected = {p.stem for p in out.glob("*.json")}
-        assert "r3" not in projected, "projection should be stale"
-        # But the record IS in the store -- nothing was lost.
-        assert substrate.get("r3", CTX) is not None
-        # And a rebuild makes the projection current again.
-        substrate.write_projection(out, CTX)
-        assert "r3" in {p.stem for p in out.glob("*.json")}
+    def test_commit_without_projection_is_reported_stale(self, substrate, tmp_path):
+        substrate.put(make_record("r1"), CTX)
+        out = substrate.write_projection(tmp_path / "proj", MEM)
+        substrate.put(make_record("r2"), CTX)  # committed, never projected
+        assert substrate.projection_status(out, MEM)["state"] == "stale"
+        assert substrate.get("r2", CTX) is not None, "committed write must not be lost"
+        substrate.write_projection(out, MEM)
+        assert substrate.projection_status(out, MEM)["state"] == "current"
 
-    def test_journal_reproduces_record_set(self, tmp_path, engine, substrate):
-        """Rebuild-from-journal reproduces the identical record set."""
+    def test_journal_accounts_for_every_committed_write(self, substrate):
         for i in range(20):
-            substrate.put(make_record(f"r{i}", text=f"fact {i}"))
-        before = {r.record_id for r in substrate.all_records(CTX)}
+            substrate.put(make_record(f"r{i}", text=f"fact {i}"), CTX)
+        put_ids = {j["record_id"] for j in substrate.journal_entries(CTX) if j["op"] == "put"}
+        assert put_ids == {r.record_id for r in substrate.all_records(CTX)}
 
-        # Rebuild a fresh store from the journal.
-        fresh = Substrate(tmp_path / "rebuilt.db", scope_engine=engine)
-        for entry in substrate.journal_entries():
-            if entry["op"] == "put":
-                pass  # journal is an audit trail; store is authoritative
-        # The ADR states rebuild-from-journal reproduces the record set. The
-        # journal records ops; here we verify the journal is complete enough to
-        # account for every record.
-        journal_puts = {
-            j["record_id"] for j in substrate.journal_entries() if j["op"] == "put"
-        }
-        assert journal_puts == before, "journal does not account for every record"
-        fresh.close()
-
-    def test_concurrent_writers_no_lost_update(self, tmp_path, engine):
-        """Two concurrent writers: neither update is lost or corrupted."""
+    def test_concurrent_writers_no_lost_or_duplicate_record(self, tmp_path):
+        """Two processes race for the same ids. Each id is created exactly once."""
         db = tmp_path / "weft.db"
-        s = Substrate(db, scope_engine=engine)
-        s.put(make_record("r1", text="initial"))
-        s.close()
+        setup = Substrate(db, scope_engine=ScopeEngine(known_scopes=KNOWN))
+        setup.close()
 
-        # Simulate two writers via separate connections with BEGIN IMMEDIATE
-        # (which takes a write lock, serialising them).
-        script = textwrap.dedent(
+        writer = textwrap.dedent(
             f"""
-            import sqlite3, json, time
-            conn = sqlite3.connect({str(db)!r}, isolation_level=None,
-                                   timeout=10)
-            conn.execute("PRAGMA journal_mode=WAL")
-            for rid, text in [("r2","from writer A"), ("r3","from writer B")]:
-                for attempt in range(50):
-                    try:
-                        conn.execute("BEGIN IMMEDIATE")
-                        conn.execute(
-                            "INSERT OR REPLACE INTO records VALUES (?,?,?,?,?,?,?,?,?,?)",
-                            (rid,"Observation","memory-providers","stated",
-                             json.dumps({{"text":text}}), time.time(), None, None,
-                             "[]","{{}}"),
-                        )
-                        conn.execute("COMMIT")
-                        break
-                    except sqlite3.OperationalError:
-                        time.sleep(0.05)
-            conn.close()
+            import sys
+            sys.path.insert(0, {str(REPO)!r})
+            from weft.scope import ScopeContext, ScopeEngine
+            from weft.substrate import Record, RecordConflict, Substrate
+            s = Substrate({str(db)!r}, scope_engine=ScopeEngine(known_scopes={sorted(KNOWN)!r}), busy_timeout=10)
+            ctx = ScopeContext(granted_scopes=frozenset({sorted(KNOWN)[0], "memory-providers"}))
+            won = 0
+            for i in range(30):
+                try:
+                    s.put(Record(record_id=f"shared{{i}}", record_type="Observation",
+                                 scope="memory-providers", payload={{"text": "x"}}), ctx)
+                    won += 1
+                except RecordConflict:
+                    pass
+            print(won)
+            s.close()
             """
         )
-        subprocess.run([sys.executable, "-c", script], capture_output=True, timeout=60, check=True)
+        procs = [subprocess.Popen([sys.executable, "-c", writer], stdout=subprocess.PIPE) for _ in range(2)]
+        wins = [int(p.communicate(timeout=120)[0].strip()) for p in procs]
+        assert sum(wins) == 30, f"each id must be created exactly once, got wins={wins}"
 
-        s2 = Substrate(db, scope_engine=engine)
-        assert s2.get("r1", CTX) is not None
-        assert s2.get("r2", CTX).payload["text"] == "from writer A"
-        assert s2.get("r3", CTX).payload["text"] == "from writer B"
-        # No duplicate rows for the same id.
-        ids = [r.record_id for r in s2.all_records(CTX)]
-        assert len(ids) == len(set(ids)), "duplicate record ids"
-        s2.close()
+        s2 = Substrate(db, scope_engine=ScopeEngine(known_scopes=KNOWN))
+        try:
+            ids = [r.record_id for r in s2.all_records(MEM)]
+            assert len(ids) == len(set(ids)) == 30
+        finally:
+            s2.close()
 
 
-class TestGatedDeleteAndProjection:
-    """Regression tests for the scope gating added to delete() and write_projection()."""
+class TestGatedWritesAndReads:
+    def test_overwrite_in_ungranted_scope_refused(self, substrate):
+        substrate.put(make_record("r1", scope="acs-project", text="ACS secret"), CTX)
+        with pytest.raises(ScopeViolation):
+            substrate.put(make_record("r1", scope="memory-providers", text="clobber"), MEM, overwrite=True)
+        assert substrate.get("r1", CTX).payload["text"] == "ACS secret"
+
+    def test_same_id_without_overwrite_conflicts(self, substrate):
+        substrate.put(make_record("r1", text="first"), CTX)
+        with pytest.raises(RecordConflict):
+            substrate.put(make_record("r1", text="second"), CTX)
+        assert substrate.get("r1", CTX).payload["text"] == "first"
 
     def test_delete_refused_for_out_of_scope_caller(self, substrate):
-        substrate.put(make_record("r1", scope="acs-project"))
-        outsider = ScopeContext(granted_scopes=frozenset({"memory-providers"}))
-        assert substrate.delete("r1", outsider) is False
-        assert substrate.get("r1", CTX) is not None, "out-of-scope delete must not erase"
-
-    def test_delete_not_granted_by_cross_scope_user_authorization(self, substrate):
-        """A user-authorized cross-scope READ must not authorize a destructive write."""
-        substrate.put(make_record("r1", scope="acs-project"))
-        cross = ScopeContext(
-            granted_scopes=frozenset({"memory-providers"}),
-            user_authorized_cross_scope=True,
-        )
-        assert substrate.delete("r1", cross) is False
+        substrate.put(make_record("r1", scope="acs-project"), CTX)
+        assert substrate.delete("r1", MEM) is False
         assert substrate.get("r1", CTX) is not None
 
     def test_delete_refused_without_ctx(self, substrate):
-        substrate.put(make_record("r1"))
+        substrate.put(make_record("r1"), CTX)
         assert substrate.delete("r1") is False
         assert substrate.get("r1", CTX) is not None
 
-    def test_projection_without_ctx_writes_nothing(self, substrate, tmp_path):
-        substrate.put(make_record("r1"))
-        out = substrate.write_projection(tmp_path / "proj")
-        assert list(out.glob("*.json")) == []
+    def test_read_denial_is_journalled_with_reason(self, substrate):
+        substrate.put(make_record("secret1", scope="acs-project", text="ACS secret"), CTX)
+        assert substrate.get("secret1", MEM) is None
+        reasons = [j["detail"] for j in substrate.journal_entries(CTX) if j["op"] == "read_denied"]
+        assert reasons and "no scope context" not in reasons[-1]
 
-    def test_projection_excludes_out_of_scope_records(self, substrate, tmp_path):
-        substrate.put(make_record("r1", scope="memory-providers"))
-        substrate.put(make_record("r2", scope="acs-project"))
-        narrow = ScopeContext(granted_scopes=frozenset({"memory-providers"}))
-        out = substrate.write_projection(tmp_path / "proj", narrow)
-        assert {p.stem for p in out.glob("*.json")} == {"r1"}
+    def test_query_without_context_returns_nothing(self, substrate):
+        substrate.put(make_record("m1"), CTX)
+        assert substrate.query(None) == ([], [])
+
+    def test_journal_is_filtered_by_context(self, substrate):
+        substrate.put(make_record("secret1", scope="acs-project", text="ACS secret"), CTX)
+        substrate.put(make_record("m1"), CTX)
+        ids = {e["record_id"] for e in substrate.journal_entries(MEM)}
+        assert "secret1" not in ids and "m1" in ids
+
+    def test_journal_without_context_is_empty(self, substrate):
+        substrate.put(make_record("m1"), CTX)
+        assert substrate.journal_entries(None) == []

@@ -6,13 +6,17 @@ BEFORE any validation, ranking, or model call. A model may never widen scope.
 Design rules (docs/architecture.md):
   1. Unknown or unstated scope -> deny.
   2. Exclusion happens before ranking, not after.
-  3. Any fact referencing a project/org/body of work is scope-bound by CONTENT,
-     regardless of where it is stored.
-  4. Derived artifacts (peer cards, summaries) are NOT injectable units; they are
-     assembled at recall time from individually scope-tagged facts.
-  5. Cross-project recall requires user-attributable authorization, never
-     agent-asserted.
+  3. Content determines scope. A record whose text names another scope's
+     registered marker is mis-scoped and is refused for reads and writes.
+  4. Derived artifacts (peer cards, summaries) are NOT injectable units.
+  5. Cross-scope access requires a named target and user attribution.
   6. Ambiguous attribution -> fail closed.
+
+Authority model (review fix, a37d175 F1-F6):
+  - Reading needs a granted scope, a global allowlist entry, or a named,
+    attributed cross-scope request.
+  - Writing and deleting need a GRANTED scope only. The allowlist and
+    cross-scope reads never confer write or delete authority.
 
 This module is pure and synchronous. It does no I/O and makes no model calls.
 """
@@ -20,30 +24,24 @@ This module is pure and synchronous. It does no I/O and makes no model calls.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
-from typing import Iterable
+from dataclasses import dataclass
+from typing import Iterable, Mapping
 
-# A fact is considered to reference a project/organization/body of work if it
-# matches these patterns. Content determines scope, not storage location.
+# Advisory tagging only (never a decision by itself). Detects phrases that look
+# like references to a project, organization, or body of work.
 PROJECT_REFERENCE_PATTERNS = [
-    # Named bodies: "The X Society", "Y Commonwealth", "the ACS Convention", etc.
     re.compile(
         r"\b(?:the\s+)?[A-Z][A-Za-z]*(?:\s+[A-Z][A-Za-z]*)*\s+"
         r"(?:Society|Commonwealth|Foundation|Consortium|Institute|Coalition|Guild|Order|"
         r"Project|Initiative|Program|Conservatory|Observatory|University|Church|Cabinet|"
         r"Council|Assembly|Committee|Bureau|Authority|Agency|Corporation|Company|Labs?)\b"
     ),
-    # Named conventions/letters/documents tied to a body: "ACS Constitutional
-    # Convention Letters", "the Genesis Accord". Requires a leading all-caps or
-    # capitalized token so ordinary prose ("constitutional convention letters")
-    # is not flagged.
     re.compile(r"\b[A-Z][A-Za-z0-9]*(?:\s+[A-Z][A-Za-z0-9]*){0,3}\s+"
                r"(?:Convention|Convention Letters|Accord|Treaty|Charter|Manifesto|"
                r"Constitution|Letters|Covenant|Docket|Attestation)\b"),
     re.compile(r"\bproject\s+[A-Z0-9][\w-]*\b", re.IGNORECASE),
     re.compile(r"\b(?:RC|Slice|Phase|Release)\s*[-–]?\s*0?\d+\b"),
-    re.compile(r"\b[A-Z]{2,}(?:-[A-Za-z0-9]+)+\b"),  # hyphenated org slugs e.g. AGENT-X
-    # Bare all-caps acronyms of 2-5 letters, excluding common non-org tokens.
+    re.compile(r"\b[A-Z]{2,}(?:-[A-Za-z0-9]+)+\b"),
     re.compile(r"\b(?!(?:THE|AND|FOR|NOT|BUT|ALL|ANY|CAN|HAD|HER|WAS|ONE|OUR|OUT|DAY|GET|"
                r"HAS|HIM|HIS|HOW|MAN|NEW|NOW|OLD|SEE|TWO|WAY|WHO|BOY|DID|ITS|LET|PUT|SAY|"
                r"SHE|TOO|USE|YES|API|UI|UX|ID|OK|AI|ML|OS|PC|TV|UK|US|EU|AM|PM|ETC|VS|"
@@ -58,20 +56,51 @@ class Decision:
     reason: str = ""
 
 
-@dataclass
-class ScopeContext:
-    """Who is asking, for what, and under what authorization."""
+def _as_scope_set(value, name: str) -> frozenset[str]:
+    """Normalise a scope collection. A bare string is rejected, never iterated.
 
-    # Scopes the caller is entitled to consult. Empty means "nothing granted".
+    Review fix F6: `"acs-project" in "acs-project"` is a substring test, so a
+    single string silently turned a scope grant into a prefix grant.
+    """
+    if value is None:
+        return frozenset()
+    if isinstance(value, (str, bytes)):
+        raise TypeError(f"{name} must be a set of scope names, not a single string")
+    try:
+        items = frozenset(value)
+    except TypeError as exc:
+        raise TypeError(f"{name} must be iterable of strings") from exc
+    if not all(isinstance(s, str) and s for s in items):
+        raise TypeError(f"{name} must contain only non-empty strings")
+    return items
+
+
+@dataclass(frozen=True)
+class ScopeContext:
+    """Who is asking, for what, and under what authorization.
+
+    Frozen (review fix F5: authority fields cannot be mutated after
+    construction). Construction validates types (review fix F6).
+
+    Trust boundary: this library trusts the code that builds the context.
+    Attribution of user-authorized cross-scope requests is enforced by the
+    service boundary (Phase 6), not here.
+    """
+
     granted_scopes: frozenset[str] = frozenset()
-    # Whether this query carries an explicit, USER-attributable cross-scope request.
-    # Set only by a user-authored turn or UI action -- never by the agent.
     user_authorized_cross_scope: bool = False
-    # The specific scopes the user authorized crossing into. Empty = all (only
-    # meaningful when user_authorized_cross_scope is True).
     cross_scope_targets: frozenset[str] = frozenset()
-    # Attribution provenance for the authorization, recorded in the receipt.
     authorization_source: str | None = None
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "granted_scopes", _as_scope_set(self.granted_scopes, "granted_scopes"))
+        object.__setattr__(
+            self, "cross_scope_targets", _as_scope_set(self.cross_scope_targets, "cross_scope_targets")
+        )
+        if not isinstance(self.user_authorized_cross_scope, bool):
+            raise TypeError("user_authorized_cross_scope must be a bool")
+        if self.authorization_source is not None and not isinstance(self.authorization_source, str):
+            raise TypeError("authorization_source must be a string or None")
 
 
 ALLOW = Decision(True, "in scope")
@@ -79,90 +108,122 @@ DENY = Decision(False, "out of scope")
 
 
 def references_project(text: str) -> bool:
-    """True if the text appears to reference a project/org/body of work.
+    """Advisory: True if the text looks like it references a project or body of work.
 
-    Content-based scoping: a fact's location does not determine its scope.
+    Used for tagging and review only. It is never the basis of an allow or deny
+    decision (review fix F3: the previous guard was a no-op).
     """
     if not text:
         return False
     return any(p.search(text) for p in PROJECT_REFERENCE_PATTERNS)
 
 
+def _marker_hit(marker: str, text: str) -> bool:
+    pattern = r"(?<![A-Za-z0-9])" + re.escape(marker) + r"(?![A-Za-z0-9])"
+    return re.search(pattern, text, re.IGNORECASE) is not None
+
+
 class ScopeEngine:
     """Deterministic scope resolution. Deny by default, fail closed.
 
-    Deliberately simple and synchronous. No model is consulted and no ranking
-    happens here -- this engine decides eligibility only.
+    `markers` maps a scope name to the phrases that belong to it, for example
+    {"acs-project": {"ACS", "Listening Commonwealth"}}. Content naming a marker
+    of scope S is S-bound: it may only be stored under S and read where S is
+    eligible. Markers are user-curated configuration, not inferred.
     """
 
-    def __init__(self, known_scopes: Iterable[str] | None = None):
+    def __init__(
+        self,
+        known_scopes: Iterable[str] | None = None,
+        markers: Mapping[str, Iterable[str]] | None = None,
+    ):
         self.known_scopes: set[str] = set(known_scopes or ())
+        self.markers: dict[str, frozenset[str]] = {
+            scope: frozenset(ms) for scope, ms in (markers or {}).items()
+        }
         # Per-field allowlist of facts eligible globally, curated by the user.
-        # NOT derived automatically from identity records.
         self.global_allowlist: set[str] = set()
 
-    def register_scope(self, scope: str) -> None:
+    def register_scope(self, scope: str, markers: Iterable[str] = ()) -> None:
         self.known_scopes.add(scope)
+        if markers:
+            self.markers[scope] = frozenset(markers)
 
-    def authorize_read(self, record_scope: str, ctx: ScopeContext) -> Decision:
+    # ---- content rule -------------------------------------------------
+
+    def content_conflict(self, record_scope: str, text: str) -> str | None:
+        """Return a reason if the text is bound to a scope other than record_scope."""
+        if not text or not self.markers:
+            return None
+        owners = {s for s, ms in self.markers.items() if any(_marker_hit(m, text) for m in ms)}
+        if not owners or record_scope in owners:
+            return None
+        return f"content belongs to {sorted(owners)} but is stored under {record_scope!r}"
+
+    # ---- reads --------------------------------------------------------
+
+    def authorize_read(self, record_scope: str, ctx: ScopeContext | None, text: str = "") -> Decision:
         """May this record be consulted for this query?"""
-        # Rule 1: unknown scope -> deny. We do not guess.
+        if ctx is None:
+            return Decision(False, "no scope context")
         if record_scope not in self.known_scopes:
             return Decision(False, f"unknown scope {record_scope!r}")
 
+        conflict = self.content_conflict(record_scope, text)
+        if conflict is not None:
+            return Decision(False, conflict)
+
         if record_scope in ctx.granted_scopes:
             return ALLOW
-
         if record_scope in self.global_allowlist:
             return ALLOW
 
-        # Cross-scope only with explicit USER-attributable authorization.
         if ctx.user_authorized_cross_scope:
-            if not ctx.cross_scope_targets or record_scope in ctx.cross_scope_targets:
+            if not ctx.cross_scope_targets:
+                return Decision(False, "cross-scope request names no targets")
+            if not ctx.authorization_source:
+                return Decision(False, "cross-scope request has no attribution")
+            if record_scope in ctx.cross_scope_targets:
                 return Decision(True, "cross-scope, user-authorized")
             return Decision(False, "cross-scope target mismatch")
 
         return DENY
 
-    def authorize_delete(self, record_scope: str, ctx: ScopeContext) -> Decision:
-        """May this record be deleted by this caller?
+    # ---- writes and deletes (granted scope only) ----------------------
 
-        Deletion is a write. It requires an explicitly granted scope. Neither the
-        global allowlist nor a user-authorized cross-scope read grants delete
-        authority, so a read-side exception can never become a destructive write.
+    def authorize_write(self, record, ctx: ScopeContext | None) -> Decision:
+        """May this caller write this record?
+
+        Review fix F1: writes take a context and need a granted scope. Being
+        able to read a scope, or to see it in known_scopes, is not enough.
         """
+        if ctx is None:
+            return Decision(False, "no scope context")
+        scope = getattr(record, "scope", None)
+        if not scope:
+            return Decision(False, "record has no scope")
+        if scope not in self.known_scopes:
+            return Decision(False, f"unknown scope {scope!r} -- denied, not created")
+        if scope not in ctx.granted_scopes:
+            return Decision(False, f"write not granted for scope {scope!r}")
+        conflict = self.content_conflict(scope, self._payload_text(record))
+        if conflict is not None:
+            return Decision(False, conflict)
+        return Decision(True, "write permitted")
+
+    def authorize_delete(self, record_scope: str, ctx: ScopeContext | None) -> Decision:
+        """May this caller delete a record in this scope?
+
+        Deletion is a write. Only a granted scope authorizes it. The allowlist
+        and cross-scope reads never do.
+        """
+        if ctx is None:
+            return Decision(False, "no scope context")
         if record_scope not in self.known_scopes:
             return Decision(False, f"unknown scope {record_scope!r}")
         if record_scope in ctx.granted_scopes:
             return ALLOW
         return DENY
-
-    def authorize_write(self, record) -> Decision:
-        """May this record be written?
-
-        Rule 1 applies to writes as well as reads: an unknown scope is denied.
-        We do not guess what a scope means, and we do not silently create one.
-        """
-        scope = getattr(record, "scope", None)
-        if not scope:
-            return Decision(False, "record has no scope")
-
-        if scope not in self.known_scopes:
-            return Decision(False, f"unknown scope {scope!r} -- denied, not created")
-
-        # A record whose content references a project/body of work must carry
-        # that project's scope. It may not be written into an unrelated scope
-        # merely because the caller holds write access there. The content check
-        # is a secondary guard; the scope-membership check above is primary.
-        if references_project(self._payload_text(record)):
-            if scope in self.known_scopes:
-                # The scope is known AND the record carries it -- correct.
-                return Decision(True, "project-referencing content, scope matches")
-            # Unreachable while the membership check above is first, but kept
-            # as defence in depth.
-            return Decision(False, "project-referencing content but scope unknown")
-
-        return Decision(True, "write permitted")
 
     @staticmethod
     def _payload_text(record) -> str:
@@ -177,15 +238,13 @@ class ScopeEngine:
                     parts.extend(str(x) for x in v if isinstance(x, str))
         return " ".join(parts)
 
-    def filter_readable(self, records, ctx: ScopeContext) -> tuple[list, list[dict]]:
-        """Split records into readable and excluded, with reasons.
-
-        Returns (readable, exclusions). Exclusions carry the reason so a
-        RecallReceipt can report WHY something was excluded.
-        """
+    def filter_readable(self, records, ctx: ScopeContext | None) -> tuple[list, list[dict]]:
+        """Split records into readable and excluded, with reasons."""
         readable, exclusions = [], []
         for rec in records:
-            decision = self.authorize_read(getattr(rec, "scope", ""), ctx)
+            decision = self.authorize_read(
+                getattr(rec, "scope", ""), ctx, self._payload_text(rec)
+            )
             if decision.allowed:
                 readable.append(rec)
             else:

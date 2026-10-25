@@ -1,103 +1,82 @@
 """Scope engine tests.
 
-The first test is the Phase 0 regression target: a query about memory providers
-must return ZERO ACS release history. This is the failure we are building to fix.
+The first class is the Phase 0 regression target: a query about memory providers
+must return ZERO ACS release history. Expectations follow the review fixes for
+a37d175 (F1-F6, F3 in particular).
 """
 
 import pytest
 
-from weft.scope import (
-    ScopeContext,
-    ScopeEngine,
-    references_project,
-)
+from weft.scope import ScopeContext, ScopeEngine, references_project
+from weft.substrate import Record
+
+KNOWN = {"ariel-continuity", "acs-project", "memory-providers", "identity"}
+MARKERS = {
+    "acs-project": {"ACS", "Listening Commonwealth", "Constitutional Convention Letters"},
+}
 
 
 @pytest.fixture
 def engine():
-    e = ScopeEngine(known_scopes={"ariel-continuity", "acs-project", "memory-providers"})
-    return e
+    return ScopeEngine(known_scopes=KNOWN, markers=MARKERS)
+
+
+def mem_ctx():
+    return ScopeContext(granted_scopes=frozenset({"memory-providers"}))
 
 
 class TestRegressionTarget:
-    """The ACS-class contamination must be impossible."""
-
     def test_memory_provider_query_returns_no_acs_history(self, engine):
-        """REGRESSION TARGET (Phase 0): a query about memory providers returns
-        zero ACS release history unless ACS is explicitly authorized.
-
-        Simulates the live failure: an ACS summary sitting in the store while an
-        unrelated conversation about memory providers occurs.
-        """
-        acs_summary_scope = "acs-project"
-
-        # The query grants only the memory-providers scope.
-        ctx = ScopeContext(granted_scopes=frozenset({"memory-providers"}))
-
-        # The ACS record exists in the store and is perfectly well-formed.
-        assert acs_summary_scope in engine.known_scopes
-
-        decision = engine.authorize_read(acs_summary_scope, ctx)
-        assert not decision.allowed, (
-            "ACS material leaked into an unrelated conversation -- regression target violated"
+        """REGRESSION TARGET (Phase 0): ACS material is not returned to an unrelated query."""
+        acs_record = Record(
+            record_id="acs1", record_type="Observation", scope="acs-project",
+            payload={"text": "RC-05 released; ACS attestation chain updated."},
         )
+        readable, exclusions = engine.filter_readable([acs_record], mem_ctx())
+        assert readable == []
+        assert exclusions and exclusions[0]["record_id"] == "acs1"
 
-    def test_acs_returned_only_when_explicitly_authorized(self, engine):
+    def test_acs_returned_only_when_explicitly_granted(self, engine):
         ctx = ScopeContext(granted_scopes=frozenset({"acs-project"}))
         assert engine.authorize_read("acs-project", ctx).allowed
 
-    def test_identity_resident_acs_fact_is_still_scoped_by_content(self, engine):
-        """A fact referencing a project is scope-bound by its content, even if it
-        would otherwise sit in an always-eligible identity location.
-
-        This is the live leak: the peer card contains
-        'ATTRIBUTE: Owner of the ACS Constitutional Convention Letters'.
-        """
-        # Even with the identity scope granted, project-referencing content must
-        # not be eligible unless the project scope is granted.
-        engine.register_scope("identity")
+    def test_identity_resident_acs_fact_is_scoped_by_content(self, engine):
+        """A peer-card fact naming ACS, stored under identity, is not readable under identity alone."""
+        card_fact = "Owner of the ACS Constitutional Convention Letters"
         ctx = ScopeContext(granted_scopes=frozenset({"identity"}))
-        # A record stored under identity scope but referencing ACS:
-        assert references_project("Owner of the ACS Constitutional Convention Letters")
+        decision = engine.authorize_read("identity", ctx, text=card_fact)
+        assert not decision.allowed
+        assert "content belongs to" in decision.reason
 
     def test_no_global_allowlist_by_default(self, engine):
-        """Nothing is globally eligible unless the user curated it."""
         assert engine.global_allowlist == set()
-        ctx = ScopeContext(granted_scopes=frozenset())
-        assert not engine.authorize_read("acs-project", ctx).allowed
+        assert not engine.authorize_read("acs-project", ScopeContext()).allowed
 
 
 class TestDenyByDefault:
     def test_unknown_scope_denied(self, engine):
-        ctx = ScopeContext(granted_scopes=frozenset())
-        d = engine.authorize_read("never-heard-of-this", ctx)
+        d = engine.authorize_read("never-heard-of-this", ScopeContext(granted_scopes=frozenset()))
         assert not d.allowed
         assert "unknown scope" in d.reason
 
     def test_empty_context_denies_everything(self, engine):
-        ctx = ScopeContext()
         for scope in engine.known_scopes:
-            assert not engine.authorize_read(scope, ctx).allowed
+            assert not engine.authorize_read(scope, ScopeContext()).allowed
+
+    def test_no_context_denies(self, engine):
+        assert not engine.authorize_read("memory-providers", None).allowed
 
     def test_exclusions_carry_reasons(self, engine):
-        from weft.substrate import Record
-
         rec = Record(record_id="r1", record_type="Observation", scope="acs-project", payload={})
-        ctx = ScopeContext(granted_scopes=frozenset({"memory-providers"}))
-        readable, exclusions = engine.filter_readable([rec], ctx)
+        readable, exclusions = engine.filter_readable([rec], mem_ctx())
         assert readable == []
-        assert len(exclusions) == 1
-        assert exclusions[0]["record_id"] == "r1"
         assert exclusions[0]["reason"]
 
 
 class TestCrossScopeAuthorization:
     def test_cross_scope_requires_user_attribution(self, engine):
         """The agent cannot mint its own cross-scope authorization."""
-        ctx = ScopeContext(
-            granted_scopes=frozenset({"memory-providers"}),
-            user_authorized_cross_scope=False,
-        )
+        ctx = ScopeContext(granted_scopes=frozenset({"memory-providers"}), user_authorized_cross_scope=False)
         assert not engine.authorize_read("acs-project", ctx).allowed
 
     def test_user_authorized_cross_scope_permitted(self, engine):
@@ -115,69 +94,76 @@ class TestCrossScopeAuthorization:
         ctx = ScopeContext(
             granted_scopes=frozenset({"memory-providers"}),
             user_authorized_cross_scope=True,
-            cross_scope_targets=frozenset({"some-other-project"}),
+            cross_scope_targets=frozenset({"identity"}),
+            authorization_source="user-typed-directive",
         )
         assert not engine.authorize_read("acs-project", ctx).allowed
 
     def test_ambiguous_attribution_fails_closed(self, engine):
-        """Authorized but with no targets and no source -> still denied.
-
-        A blanket cross-scope grant with no attribution is not acceptable.
-        """
-        ctx = ScopeContext(
+        """Review fix F4: no targets, or no attribution, means denial, not a blanket grant."""
+        no_targets = ScopeContext(
             granted_scopes=frozenset({"memory-providers"}),
             user_authorized_cross_scope=True,
             cross_scope_targets=frozenset(),
+            authorization_source="user-typed-directive",
+        )
+        assert not engine.authorize_read("acs-project", no_targets).allowed
+
+        no_source = ScopeContext(
+            granted_scopes=frozenset({"memory-providers"}),
+            user_authorized_cross_scope=True,
+            cross_scope_targets=frozenset({"acs-project"}),
             authorization_source=None,
         )
-        # No targets means "all", but with no attribution source we fail closed.
-        d = engine.authorize_read("acs-project", ctx)
-        # This documents current behaviour: blanket grant allowed, source unset.
-        # Tighten when the adapter can carry attribution.
-        assert d.allowed  # TODO: fail closed once attribution signal exists
+        assert not engine.authorize_read("acs-project", no_source).allowed
 
 
 class TestWriteAuthorization:
-    def test_project_referencing_content_requires_known_scope(self, engine):
-        from weft.scope import Decision  # noqa
-        from weft.substrate import Record
+    def test_write_needs_context(self, engine):
+        rec = Record(record_id="x", record_type="Observation", scope="memory-providers", payload={})
+        assert not engine.authorize_write(rec, None).allowed
 
-        rec = Record(
-            record_id="x",
-            record_type="Observation",
-            scope="totally-unknown-scope",
-            payload={"text": "The Listening Commonwealth released RC-05."},
-        )
-        d = engine.authorize_write(rec)
-        assert not d.allowed
+    def test_write_needs_granted_scope(self, engine):
+        """Review fix F1: knowing a scope exists is not authority to write to it."""
+        rec = Record(record_id="x", record_type="Observation", scope="acs-project",
+                     payload={"text": "RC-05 notes"})
+        assert not engine.authorize_write(rec, mem_ctx()).allowed
 
-    def test_project_referencing_content_in_known_scope_permitted(self, engine):
-        from weft.substrate import Record
+    def test_unknown_scope_denied(self, engine):
+        rec = Record(record_id="x", record_type="Observation", scope="totally-unknown", payload={})
+        assert not engine.authorize_write(rec, ScopeContext(granted_scopes=frozenset({"totally-unknown"}))).allowed
 
-        rec = Record(
-            record_id="x",
-            record_type="Observation",
-            scope="acs-project",
-            payload={"text": "The Listening Commonwealth released RC-05."},
-        )
-        assert engine.authorize_write(rec).allowed
+    def test_acs_content_refused_under_other_scope(self, engine):
+        """Review fix F3: the content guard decides; it is not a no-op."""
+        rec = Record(record_id="x", record_type="Observation", scope="memory-providers",
+                     payload={"text": "The Listening Commonwealth released RC-05."})
+        assert not engine.authorize_write(rec, mem_ctx()).allowed
+
+    def test_acs_content_accepted_under_its_own_scope(self, engine):
+        rec = Record(record_id="x", record_type="Observation", scope="acs-project",
+                     payload={"text": "The Listening Commonwealth released RC-05."})
+        ctx = ScopeContext(granted_scopes=frozenset({"acs-project"}))
+        assert engine.authorize_write(rec, ctx).allowed
 
     def test_ordinary_content_writable(self, engine):
-        from weft.substrate import Record
-
-        rec = Record(
-            record_id="x",
-            record_type="Observation",
-            scope="memory-providers",
-            payload={"text": "Honcho uses hybrid recall."},
-        )
-        assert engine.authorize_write(rec).allowed
+        rec = Record(record_id="x", record_type="Observation", scope="memory-providers",
+                     payload={"text": "Honcho uses hybrid recall."})
+        assert engine.authorize_write(rec, mem_ctx()).allowed
 
     def test_record_without_scope_denied(self, engine):
-        from weft.substrate import Record
-
         rec = Record(record_id="x", record_type="Observation", scope="", payload={})
-        assert not engine.authorize_write(rec).allowed
+        assert not engine.authorize_write(rec, mem_ctx()).allowed
+
+    def test_delete_needs_granted_scope_only(self, engine):
+        cross = ScopeContext(
+            granted_scopes=frozenset(),
+            user_authorized_cross_scope=True,
+            cross_scope_targets=frozenset({"acs-project"}),
+            authorization_source="user-typed-directive",
+        )
+        assert not engine.authorize_delete("acs-project", cross).allowed
+        assert not engine.authorize_delete("acs-project", None).allowed
+        assert engine.authorize_delete("acs-project", ScopeContext(granted_scopes=frozenset({"acs-project"}))).allowed
 
 
 class TestContentScoping:
@@ -192,13 +178,28 @@ class TestContentScoping:
     def test_detects_project_references(self, text):
         assert references_project(text), f"should detect project reference: {text!r}"
 
-    @pytest.mark.parametrize(
-        "text",
-        [
-            "prefers concise responses",
-            "the weather is mild today",
-            "",
-        ],
-    )
+    @pytest.mark.parametrize("text", ["prefers concise responses", "the weather is mild today", ""])
     def test_does_not_flag_ordinary_text(self, text):
         assert not references_project(text), f"false positive on: {text!r}"
+
+    def test_marker_match_is_whole_token(self, engine):
+        """'ACSX' must not match the 'ACS' marker."""
+        assert engine.content_conflict("memory-providers", "ACSX is a different thing") is None
+        assert engine.content_conflict("memory-providers", "The ACS charter") is not None
+
+
+class TestContextTypeSafety:
+    """Review fixes F5 and F6."""
+
+    def test_string_granted_scopes_rejected(self):
+        with pytest.raises(TypeError):
+            ScopeContext(granted_scopes="acs-project")
+
+    def test_string_targets_rejected(self):
+        with pytest.raises(TypeError):
+            ScopeContext(cross_scope_targets="acs-project")
+
+    def test_context_is_frozen(self):
+        ctx = ScopeContext(granted_scopes=frozenset({"memory-providers"}))
+        with pytest.raises(Exception):
+            ctx.granted_scopes = frozenset({"acs-project"})  # type: ignore[misc]

@@ -84,3 +84,15 @@ being killed.
 Phase 1 completes only after an independent adversarial audit of the substrate and scope engine,
 including an attempt to defeat the scope gate. The regression target from Phase 0 is the acceptance
 criterion: *a query about memory providers returns zero ACS history.*
+
+## Addendum (Phase 1 fixes after adversarial review of a37d175)
+
+Codex review of a37d175 returned BLOCK (21 findings). The fixes below change decisions above; each is covered by tests in `tests/test_regressions.py` and `tests/test_substrate.py`.
+
+- **Authority.** Writes, overwrites, deletes, and corrections require a granted scope on the caller's `ScopeContext`. Knowing that a scope exists is not authority. The global allowlist and cross-scope reads never confer write or delete authority.
+- **Journal is an audit trail, not a rebuild source.** The earlier claim that rebuild-from-journal reproduces the record set is withdrawn. The journal holds operations and reasons, never payloads, so deletion cannot leave content behind in it. SQLite remains the only authority. Journal reads are filtered by the caller's scope.
+- **Content rule replaces the no-op guard.** Scopes may declare markers. Content naming another scope's marker is refused on write and withheld on read. Regex project detection stays advisory.
+- **Overwrite is explicit.** `put` raises `RecordConflict` for an existing id unless `overwrite=True`, and an overwrite needs a granted scope for the incumbent.
+- **Projections.** Gated by context, pruned of files no longer in scope, written atomically, and validated by a manifest with per-file hashes and a store version. `projection_status` reports `current`, `stale`, `tampered`, or `missing`.
+- **Record ids** are restricted to `[A-Za-z0-9][A-Za-z0-9_-]{0,127}` on every write, regardless of schema validation, because they are file names.
+- **Known limits, unchanged:** the library trusts the code that constructs a `ScopeContext`. Attribution of user-authorized cross-scope requests is enforced at the service boundary (Phase 6). Global allowlist and scope registration are configuration, not authenticated.
