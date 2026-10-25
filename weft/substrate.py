@@ -17,6 +17,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable
 
+from weft.scope import ScopeContext, ScopeEngine
+
 SCHEMA_VERSION = 1
 
 
@@ -130,9 +132,18 @@ class Substrate:
     """
 
     def __init__(self, db_path: str | os.PathLike, scope_engine: "ScopeEngine | None" = None):
+        """Open or create the substrate.
+
+        The scope engine is effectively mandatory. Passing None yields a
+        deny-all engine (no known scopes, no allowlist) so the store FAILS
+        CLOSED rather than silently accepting records under invented scopes.
+        A caller who forgets the engine gets a store that refuses writes, not
+        one that leaks.
+        """
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        self.scope_engine = scope_engine
+        # Fail closed: never operate without a gate.
+        self.scope_engine = scope_engine if scope_engine is not None else ScopeEngine()
         self._conn = sqlite3.connect(str(self.db_path), isolation_level=None)
         self._conn.execute("PRAGMA journal_mode=WAL")
         # Power-loss durability. SQLite's default `synchronous` is 2 (FULL), but
@@ -183,21 +194,36 @@ class Substrate:
             self._conn.execute("ROLLBACK")
             raise
 
-    def delete(self, record_id: str, *, reason: str = "") -> bool:
+    def delete(self, record_id: str, ctx: "ScopeContext | None" = None, *, reason: str = "") -> bool:
         """Hard delete: remove the record and journal the removal.
 
         Deletion OVERRIDES archival preservation. Only a non-sensitive tombstone
         may be retained by the caller's policy; the substrate removes the record.
+
+        Deletion is a WRITE and is scope-gated like any other. An ungated or
+        out-of-scope delete is refused -- otherwise deletion would be an
+        unauthenticated cross-scope write.
 
         Referential integrity: any record whose `supersedes` points at the
         deleted record has that link cleared and is itself journalled, so no
         dangling reference survives. A dangling supersedes link would let a
         later query reconstruct the lineage of erased material.
         """
+        if ctx is None:
+            self._journal("delete_denied", record_id, None, "no scope context")
+            return False
+
         cur = self._conn.execute("SELECT record_id, scope FROM records WHERE record_id=?", (record_id,))
         row = cur.fetchone()
         if row is None:
             return False
+
+        # Gate the delete on write authority for the record's own scope.
+        decision = self.scope_engine.authorize_delete(record_scope=row[1], ctx=ctx)
+        if not decision.allowed:
+            self._journal("delete_denied", record_id, row[1], decision.reason)
+            return False
+
         try:
             self._conn.execute("BEGIN IMMEDIATE")
 
@@ -234,14 +260,68 @@ class Substrate:
 
     # ---- reads --------------------------------------------------------
 
-    def get(self, record_id: str) -> Record | None:
-        cur = self._conn.execute("SELECT * FROM records WHERE record_id=?", (record_id,))
-        row = cur.fetchone()
-        return Record.from_row(row) if row else None
+    def get(self, record_id: str, ctx: "ScopeContext | None" = None) -> Record | None:
+        """Fetch one record, gated by scope.
 
-    def all_records(self) -> list[Record]:
-        cur = self._conn.execute("SELECT * FROM records ORDER BY created_at")
-        return [Record.from_row(r) for r in cur.fetchall()]
+        With no context supplied the read FAILS CLOSED and returns None -- an
+        ungated read is never permitted, because the entire purpose of this
+        component is that out-of-scope material cannot be retrieved.
+        """
+        row = self._conn.execute(
+            "SELECT * FROM records WHERE record_id=?", (record_id,)
+        ).fetchone()
+        if row is None:
+            return None
+        rec = Record.from_row(row)
+        if ctx is None:
+            return None
+        if not self.scope_engine.authorize_read(rec.scope, ctx).allowed:
+            self._journal("read_denied", record_id, rec.scope, "no scope context")
+            return None
+        return rec
+
+    def query(
+        self,
+        ctx: "ScopeContext",
+        *,
+        record_type: str | None = None,
+        scope: str | None = None,
+    ) -> tuple[list[Record], list[dict]]:
+        """The scoped read path. Returns (readable, exclusions).
+
+        This is the only supported way to read records. Filtering happens
+        BEFORE ranking, and every exclusion carries its reason so a
+        RecallReceipt can report why material was withheld.
+        """
+        sql = "SELECT * FROM records"
+        clauses, params = [], []
+        if record_type is not None:
+            clauses.append("record_type = ?")
+            params.append(record_type)
+        if scope is not None:
+            clauses.append("scope = ?")
+            params.append(scope)
+        if clauses:
+            sql += " WHERE " + " AND ".join(clauses)
+        sql += " ORDER BY created_at"
+
+        rows = self._conn.execute(sql, params).fetchall()
+        records = [Record.from_row(r) for r in rows]
+        return self.scope_engine.filter_readable(records, ctx)
+
+    def all_records(self, ctx: "ScopeContext | None" = None) -> list[Record]:
+        """Return every readable record. Ungated callers get nothing.
+
+        Retained for administrative use (backup, projection) where the caller
+        passes an explicitly administrative context. Defaults to fail-closed.
+        """
+        if ctx is None:
+            return []
+        readable, _ = self.scope_engine.filter_readable(
+            [Record.from_row(r) for r in self._conn.execute("SELECT * FROM records ORDER BY created_at")],
+            ctx,
+        )
+        return readable
 
     def journal_entries(self) -> list[dict]:
         cur = self._conn.execute(
@@ -254,15 +334,18 @@ class Substrate:
 
     # ---- projections --------------------------------------------------
 
-    def write_projection(self, out_dir: str | os.PathLike) -> Path:
+    def write_projection(self, out_dir: str | os.PathLike, ctx: "ScopeContext | None" = None) -> Path:
         """Write human-readable projection files. Derived, never authoritative.
+
+        A projection writes records to disk, so it is scope-gated like a read:
+        only records the caller may consult are projected. No ctx -> nothing.
 
         Idempotent: rewrites the same content for the same record set. A stale
         projection is detectable by comparing against the store.
         """
         out = Path(out_dir)
         out.mkdir(parents=True, exist_ok=True)
-        for rec in self.all_records():
+        for rec in self.all_records(ctx):
             path = out / f"{rec.record_id}.json"
             path.write_text(json.dumps(rec.payload, indent=2, sort_keys=True))
         return out

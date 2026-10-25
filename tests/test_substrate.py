@@ -18,8 +18,12 @@ from pathlib import Path
 
 import pytest
 
-from weft.scope import ScopeEngine
+from weft.scope import ScopeContext, ScopeEngine
 from weft.substrate import Record, ScopeViolation, Substrate
+
+
+# Read/delete authority for the scopes these tests use. Reads without a ctx fail closed.
+CTX = ScopeContext(granted_scopes=frozenset({"ariel-continuity", "acs-project", "memory-providers"}))
 
 
 @pytest.fixture
@@ -43,7 +47,7 @@ class TestBasicOperations:
     def test_put_and_get(self, substrate):
         rec = make_record()
         substrate.put(rec)
-        got = substrate.get("r1")
+        got = substrate.get("r1", CTX)
         assert got is not None
         assert got.payload["text"] == "Honcho uses hybrid recall."
 
@@ -52,7 +56,7 @@ class TestBasicOperations:
         rec = make_record(scope="unknown-scope")
         with pytest.raises(ScopeViolation):
             substrate.put(rec)
-        assert substrate.get("r1") is None
+        assert substrate.get("r1", CTX) is None
         # The denial is journalled for audit.
         ops = [j["op"] for j in substrate.journal_entries()]
         assert "write_denied" in ops
@@ -90,7 +94,7 @@ class TestBasicOperations:
         with pytest.raises(ScopeViolation):
             substrate.put(rec)
         # The store did not invent the scope.
-        assert substrate.get("r1") is None
+        assert substrate.get("r1", CTX) is None
         denials = [j for j in substrate.journal_entries() if j["op"] == "write_denied"]
         assert len(denials) == 1
         assert "unknown scope" in denials[0]["detail"]
@@ -100,25 +104,25 @@ class TestBasicOperations:
         rec.epistemic_status = "bogus"
         with pytest.raises(Exception):
             substrate.put(rec)
-        assert substrate.get("r1") is None
+        assert substrate.get("r1", CTX) is None
 
     def test_correct_preserves_lineage(self, substrate):
         original = make_record(text="The decision was X.")
         substrate.put(original)
         replacement = make_record(rid="r2", text="The decision was changed to Y.")
         substrate.correct("r1", replacement)
-        assert substrate.get("r1") is not None, "original must not be erased"
-        assert substrate.get("r2").supersedes == "r1"
+        assert substrate.get("r1", CTX) is not None, "original must not be erased"
+        assert substrate.get("r2", CTX).supersedes == "r1"
 
     def test_delete_removes_record(self, substrate):
         substrate.put(make_record())
-        assert substrate.delete("r1", reason="privacy request") is True
-        assert substrate.get("r1") is None
+        assert substrate.delete("r1", CTX, reason="privacy request") is True
+        assert substrate.get("r1", CTX) is None
         ops = [j["op"] for j in substrate.journal_entries()]
         assert "delete" in ops
 
     def test_delete_missing_returns_false(self, substrate):
-        assert substrate.delete("nope") is False
+        assert substrate.delete("nope", CTX) is False
 
     def test_delete_clears_dangling_supersedes(self, substrate):
         """Deleting a record must not leave a pointer to erased material.
@@ -128,12 +132,12 @@ class TestBasicOperations:
         """
         substrate.put(make_record("r1", text="original"))
         substrate.correct("r1", make_record("r2", text="corrected"))
-        assert substrate.get("r2").supersedes == "r1"
+        assert substrate.get("r2", CTX).supersedes == "r1"
 
-        substrate.delete("r1", reason="privacy request")
+        substrate.delete("r1", CTX, reason="privacy request")
 
-        assert substrate.get("r1") is None
-        r2 = substrate.get("r2")
+        assert substrate.get("r1", CTX) is None
+        r2 = substrate.get("r2", CTX)
         assert r2.supersedes is None, "dangling supersedes link survived deletion"
 
         # The unlink is journalled for audit.
@@ -145,9 +149,9 @@ class TestBasicOperations:
         substrate.put(make_record("r1", text="sensitive original"))
         substrate.correct("r1", make_record("r2", text="correction"))
         substrate.correct("r2", make_record("r3", text="second correction"))
-        substrate.delete("r1", reason="privacy")
+        substrate.delete("r1", CTX, reason="privacy")
 
-        surviving = substrate.all_records()
+        surviving = substrate.all_records(CTX)
         assert not any("r1" in (r.supersedes or "") for r in surviving)
 
     def test_journal_has_single_code_path(self, substrate):
@@ -189,7 +193,7 @@ class TestDurabilityPragmas:
 class TestProjectionIsDerived:
     def test_projection_written_and_detectable(self, substrate, tmp_path):
         substrate.put(make_record())
-        out = substrate.write_projection(tmp_path / "proj")
+        out = substrate.write_projection(tmp_path / "proj", CTX)
         assert (out / "r1.json").exists()
         content = json.loads((out / "r1.json").read_text())
         assert content["text"] == "Honcho uses hybrid recall."
@@ -197,17 +201,17 @@ class TestProjectionIsDerived:
     def test_hand_edited_projection_does_not_override_store(self, substrate, tmp_path):
         """Projection files are never authoritative."""
         substrate.put(make_record())
-        out = substrate.write_projection(tmp_path / "proj")
+        out = substrate.write_projection(tmp_path / "proj", CTX)
         # A user hand-edits the projection.
         (out / "r1.json").write_text(json.dumps({"text": "TAMPERED"}))
         # The store is unaffected.
-        assert substrate.get("r1").payload["text"] == "Honcho uses hybrid recall."
+        assert substrate.get("r1", CTX).payload["text"] == "Honcho uses hybrid recall."
 
     def test_projection_is_idempotent(self, substrate, tmp_path):
         substrate.put(make_record())
-        out = substrate.write_projection(tmp_path / "proj")
+        out = substrate.write_projection(tmp_path / "proj", CTX)
         first = (out / "r1.json").read_text()
-        substrate.write_projection(out)
+        substrate.write_projection(out, CTX)
         assert (out / "r1.json").read_text() == first
 
 
@@ -255,8 +259,8 @@ class TestFaultInjection:
 
         # Reopen: the doomed record must be absent.
         s2 = Substrate(db, scope_engine=engine)
-        assert s2.get("committed") is not None
-        assert s2.get("doomed") is None, "uncommitted record leaked"
+        assert s2.get("committed", CTX) is not None
+        assert s2.get("doomed", CTX) is None, "uncommitted record leaked"
         journal_ids = [j["record_id"] for j in s2.journal_entries()]
         assert "doomed" not in journal_ids, "orphan journal entry survived"
         s2.close()
@@ -267,22 +271,22 @@ class TestFaultInjection:
         substrate.put(make_record("r1"))
         substrate.put(make_record("r2"))
         out = tmp_path / "proj"
-        substrate.write_projection(out)  # projects r1 and r2
+        substrate.write_projection(out, CTX)  # projects r1 and r2
         # A later record is committed but never projected (simulated crash).
         substrate.put(make_record("r3"))
         projected = {p.stem for p in out.glob("*.json")}
         assert "r3" not in projected, "projection should be stale"
         # But the record IS in the store -- nothing was lost.
-        assert substrate.get("r3") is not None
+        assert substrate.get("r3", CTX) is not None
         # And a rebuild makes the projection current again.
-        substrate.write_projection(out)
+        substrate.write_projection(out, CTX)
         assert "r3" in {p.stem for p in out.glob("*.json")}
 
     def test_journal_reproduces_record_set(self, tmp_path, engine, substrate):
         """Rebuild-from-journal reproduces the identical record set."""
         for i in range(20):
             substrate.put(make_record(f"r{i}", text=f"fact {i}"))
-        before = {r.record_id for r in substrate.all_records()}
+        before = {r.record_id for r in substrate.all_records(CTX)}
 
         # Rebuild a fresh store from the journal.
         fresh = Substrate(tmp_path / "rebuilt.db", scope_engine=engine)
@@ -333,10 +337,47 @@ class TestFaultInjection:
         subprocess.run([sys.executable, "-c", script], capture_output=True, timeout=60, check=True)
 
         s2 = Substrate(db, scope_engine=engine)
-        assert s2.get("r1") is not None
-        assert s2.get("r2").payload["text"] == "from writer A"
-        assert s2.get("r3").payload["text"] == "from writer B"
+        assert s2.get("r1", CTX) is not None
+        assert s2.get("r2", CTX).payload["text"] == "from writer A"
+        assert s2.get("r3", CTX).payload["text"] == "from writer B"
         # No duplicate rows for the same id.
-        ids = [r.record_id for r in s2.all_records()]
+        ids = [r.record_id for r in s2.all_records(CTX)]
         assert len(ids) == len(set(ids)), "duplicate record ids"
         s2.close()
+
+
+class TestGatedDeleteAndProjection:
+    """Regression tests for the scope gating added to delete() and write_projection()."""
+
+    def test_delete_refused_for_out_of_scope_caller(self, substrate):
+        substrate.put(make_record("r1", scope="acs-project"))
+        outsider = ScopeContext(granted_scopes=frozenset({"memory-providers"}))
+        assert substrate.delete("r1", outsider) is False
+        assert substrate.get("r1", CTX) is not None, "out-of-scope delete must not erase"
+
+    def test_delete_not_granted_by_cross_scope_user_authorization(self, substrate):
+        """A user-authorized cross-scope READ must not authorize a destructive write."""
+        substrate.put(make_record("r1", scope="acs-project"))
+        cross = ScopeContext(
+            granted_scopes=frozenset({"memory-providers"}),
+            user_authorized_cross_scope=True,
+        )
+        assert substrate.delete("r1", cross) is False
+        assert substrate.get("r1", CTX) is not None
+
+    def test_delete_refused_without_ctx(self, substrate):
+        substrate.put(make_record("r1"))
+        assert substrate.delete("r1") is False
+        assert substrate.get("r1", CTX) is not None
+
+    def test_projection_without_ctx_writes_nothing(self, substrate, tmp_path):
+        substrate.put(make_record("r1"))
+        out = substrate.write_projection(tmp_path / "proj")
+        assert list(out.glob("*.json")) == []
+
+    def test_projection_excludes_out_of_scope_records(self, substrate, tmp_path):
+        substrate.put(make_record("r1", scope="memory-providers"))
+        substrate.put(make_record("r2", scope="acs-project"))
+        narrow = ScopeContext(granted_scopes=frozenset({"memory-providers"}))
+        out = substrate.write_projection(tmp_path / "proj", narrow)
+        assert {p.stem for p in out.glob("*.json")} == {"r1"}

@@ -124,6 +124,19 @@ class ScopeEngine:
 
         return DENY
 
+    def authorize_delete(self, record_scope: str, ctx: ScopeContext) -> Decision:
+        """May this record be deleted by this caller?
+
+        Deletion is a write. It requires an explicitly granted scope. Neither the
+        global allowlist nor a user-authorized cross-scope read grants delete
+        authority, so a read-side exception can never become a destructive write.
+        """
+        if record_scope not in self.known_scopes:
+            return Decision(False, f"unknown scope {record_scope!r}")
+        if record_scope in ctx.granted_scopes:
+            return ALLOW
+        return DENY
+
     def authorize_write(self, record) -> Decision:
         """May this record be written?
 
