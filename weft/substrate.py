@@ -180,6 +180,12 @@ class Substrate:
             (str(SCHEMA_VERSION),),
         )
         self._conn.execute("INSERT OR IGNORE INTO meta(key, value) VALUES('store_version', '0')")
+        # Review fix F-E / F21: the store holds every scope in plaintext. Keep it
+        # owner-only on this machine. Encryption at rest is a later phase.
+        for suffix in ("", "-wal", "-shm"):
+            path = str(self.db_path) + suffix
+            if os.path.exists(path):
+                os.chmod(path, 0o600)
 
     # ---- transaction helpers ------------------------------------------
 
@@ -337,9 +343,11 @@ class Substrate:
                 ).fetchall()
                 for dep_id, dep_scope in dependents:
                     if not self.scope_engine.authorize_delete(dep_scope, ctx).allowed:
+                        # Review fix F-B: name neither the dependent nor its scope in the
+                        # audit detail, so the caller learns nothing about it.
                         self._journal(
                             "delete_denied", record_id, row[1],
-                            f"dependent {dep_id} in ungranted scope {dep_scope!r}",
+                            "delete refused: a dependent record is outside your granted scopes",
                         )
                         self._conn.execute("COMMIT")
                         return False
@@ -477,6 +485,9 @@ class Substrate:
         with self._lock:
             out = Path(out_dir)
             out.mkdir(parents=True, exist_ok=True)
+            if ctx is None:
+                # Review fix F-C: no context means no authority. Touch nothing.
+                return out
             previous = self._read_manifest(out) or {}
             prev_names = set((previous.get("files") or {}).keys())
 

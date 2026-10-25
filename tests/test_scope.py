@@ -46,7 +46,7 @@ class TestRegressionTarget:
         ctx = ScopeContext(granted_scopes=frozenset({"identity"}))
         decision = engine.authorize_read("identity", ctx, text=card_fact)
         assert not decision.allowed
-        assert "content belongs to" in decision.reason
+        assert "different scope" in decision.reason
 
     def test_no_global_allowlist_by_default(self, engine):
         assert engine.global_allowlist == set()

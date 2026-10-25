@@ -260,3 +260,121 @@ def test_F18_read_denial_reason_is_accurate(sub):
 def test_F20_empty_id_rejected_without_validation(sub):
     with pytest.raises(SchemaViolation):
         sub.put(rec("", "memory-providers"), ALL, validate_schema=False)
+
+
+# ---- Second review of 126cfc1 (BLOCK). Each test names its finding. ----
+
+# F-A: content rule evaded by nested payloads, split tokens, and case/unicode variants.
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"text": "note", "meta": {"secret": "The Listening Commonwealth"}},
+        {"items": [{"body": "ACS attestation"}]},
+        {"text": "A.C.S. attestation"},
+        {"text": "A C S attestation"},
+        {"text": "ＡＣＳ attestation"},  # fullwidth
+        {"text": "acs attestation"},
+        {"text": "Listening-Commonwealth charter"},
+        {"keyword ACS": "value"},  # marker in a key name
+    ],
+)
+def test_F_A_marker_variants_refused_under_other_scope(engine, payload):
+    rec = Record(record_id="rn", record_type="Observation", scope="memory-providers", payload=payload)
+    assert not engine.authorize_write(rec, MEM_ONLY).allowed, payload
+
+
+def test_F_A_marker_variants_withheld_on_read(engine):
+    rec = Record(record_id="rn", record_type="Observation", scope="memory-providers",
+                 payload={"text": "note", "meta": {"secret": "The Listening Commonwealth"}})
+    readable, _ = engine.filter_readable([rec], MEM_ONLY)
+    assert readable == []
+
+
+def test_F_A_no_false_positive_on_substring_words(engine):
+    """'impacts' contains 'acs' but is a different word; must not be treated as the ACS marker."""
+    rec = Record(record_id="ok", record_type="Observation", scope="memory-providers",
+                 payload={"text": "The impacts were small."})
+    assert engine.authorize_write(rec, MEM_ONLY).allowed
+
+
+# F-B: a refused cascade must not disclose the dependent's id or scope to the caller.
+def test_F_B_refused_cascade_journal_does_not_name_dependent(sub):
+    sub.put(rec("r1", "acs-project", "ACS original"), ALL)
+    sub.correct("r1", rec("r2", "memory-providers", "correction"), ALL)
+    assert sub.delete("r1", ACS_ONLY) is False
+    visible = " ".join(f"{e['detail']} {e['record_id']}" for e in sub.journal_entries(ACS_ONLY))
+    assert "r2" not in visible
+    assert "memory-providers" not in visible
+
+
+# F-C: projection with no context must not delete anything.
+def test_F_C_projection_without_context_is_non_destructive(sub, tmp_path):
+    sub.put(rec("r1", "memory-providers", "mp fact"), ALL)
+    out = tmp_path / "proj"
+    sub.write_projection(out, ALL)
+    before = sorted(p.name for p in out.iterdir())
+    sub.write_projection(out, None)
+    assert sorted(p.name for p in out.iterdir()) == before
+
+
+# F-D: denial reasons must not name scopes the caller cannot see.
+def test_F_D_content_denial_reason_names_no_other_scope(engine):
+    rec = Record(record_id="rn", record_type="Observation", scope="memory-providers",
+                 payload={"text": "The Listening Commonwealth"})
+    reason = engine.authorize_write(rec, MEM_ONLY).reason
+    assert "acs-project" not in reason
+
+
+def test_F_D_read_denial_reason_names_no_other_scope(engine):
+    rec = Record(record_id="rn", record_type="Observation", scope="memory-providers",
+                 payload={"text": "The Listening Commonwealth"})
+    reason = engine.authorize_read("memory-providers", MEM_ONLY, text="The Listening Commonwealth").reason
+    assert "acs-project" not in reason
+
+
+# F-E / F21: the database file must not be readable by other local users.
+def test_F_E_database_file_is_owner_only(tmp_path, engine):
+    db = tmp_path / "weft.db"
+    s = Substrate(db, scope_engine=engine)
+    s.put(rec("r1", "memory-providers", "x"), ALL)
+    s.close()
+    assert (os.stat(db).st_mode & 0o077) == 0
+
+
+# F17: concurrent writers, same ids, no silent last-writer-wins.
+def test_F17_same_id_race_has_exactly_one_winner_across_processes(tmp_path, engine):
+    db = tmp_path / "weft.db"
+    Substrate(db, scope_engine=ScopeEngine(known_scopes=KNOWN)).close()
+    script = (
+        "import sys; sys.path.insert(0, %r)\n"
+        "from weft.scope import ScopeContext, ScopeEngine\n"
+        "from weft.substrate import Record, RecordConflict, Substrate\n"
+        "s = Substrate(%r, scope_engine=ScopeEngine(known_scopes=%r), busy_timeout=10)\n"
+        "ctx = ScopeContext(granted_scopes=frozenset({'memory-providers'}))\n"
+        "won = 0\n"
+        "for i in range(20):\n"
+        "    try:\n"
+        "        s.put(Record(record_id='race%%d' %% i, record_type='Observation',\n"
+        "                     scope='memory-providers', payload={'text': 'x'}), ctx)\n"
+        "        won += 1\n"
+        "    except RecordConflict:\n"
+        "        pass\n"
+        "print(won)\n"
+    ) % (str(REPO), str(db), sorted(KNOWN))
+    procs = [subprocess.Popen([sys.executable, "-c", script], stdout=subprocess.PIPE) for _ in range(3)]
+    wins = [int(p.communicate(timeout=120)[0].strip()) for p in procs]
+    assert sum(wins) == 20, wins
+
+
+# F19: the global allowlist must not be mutable from outside the engine.
+def test_F19_global_allowlist_not_directly_mutable(engine):
+    with pytest.raises(AttributeError):
+        engine.global_allowlist.add("acs-project")  # type: ignore[attr-defined]
+    assert not engine.authorize_read("acs-project", ScopeContext()).allowed
+
+
+# F-A (homoglyphs): Cyrillic and Greek lookalikes must fold to the Latin marker.
+@pytest.mark.parametrize("text", ["\u0410\u0421S attestation", "Listening Commonwealth \u0430\u0441s"])
+def test_F_A_homoglyph_variants_refused(engine, text):
+    rec = Record(record_id="rh", record_type="Observation", scope="memory-providers", payload={"text": text})
+    assert not engine.authorize_write(rec, MEM_ONLY).allowed, text

@@ -24,8 +24,9 @@ This module is pure and synchronous. It does no I/O and makes no model calls.
 from __future__ import annotations
 
 import re
+import unicodedata
 from dataclasses import dataclass
-from typing import Iterable, Mapping
+from typing import Any, Iterable, Mapping
 
 # Advisory tagging only (never a decision by itself). Detects phrases that look
 # like references to a project, organization, or body of work.
@@ -118,9 +119,69 @@ def references_project(text: str) -> bool:
     return any(p.search(text) for p in PROJECT_REFERENCE_PATTERNS)
 
 
+_WORD = re.compile(r"[^\W_]+")
+
+
+# Common Cyrillic and Greek lookalikes folded to their Latin counterparts. This is
+# a small, explicit table, not full Unicode confusables. Extend it with tests.
+_CONFUSABLES = str.maketrans({
+    "а": "a", "с": "c", "е": "e", "о": "o", "р": "p", "х": "x", "у": "y",
+    "і": "i", "ј": "j", "ѕ": "s", "һ": "h", "ԁ": "d", "ɡ": "g", "ѵ": "v",
+    "ν": "v", "ο": "o", "α": "a", "ι": "i", "κ": "k", "ρ": "p", "τ": "t",
+})
+
+
+def _normalise_tokens(text: str) -> list[str]:
+    """Split text into lowercase word tokens after Unicode NFKC normalisation.
+
+    Fullwidth and compatibility forms fold to ASCII, then common confusables fold
+    to Latin. Punctuation, hyphens, and spaces separate tokens.
+    """
+    folded = unicodedata.normalize("NFKC", text).casefold().translate(_CONFUSABLES)
+    return _WORD.findall(folded)
+
+
 def _marker_hit(marker: str, text: str) -> bool:
-    pattern = r"(?<![A-Za-z0-9])" + re.escape(marker) + r"(?![A-Za-z0-9])"
-    return re.search(pattern, text, re.IGNORECASE) is not None
+    """True if the marker appears in text as a token run, with or without separators.
+
+    'ACS', 'A.C.S.', 'A C S', and 'ＡＣＳ' all match. 'impacts' does not, because
+    the match must cover whole tokens: a run of tokens whose joined form equals the
+    marker's joined form, and whose boundaries fall on token edges.
+    """
+    marker_tokens = _normalise_tokens(marker)
+    if not marker_tokens:
+        return False
+    compact = "".join(marker_tokens)
+    tokens = _normalise_tokens(text)
+    n = len(tokens)
+    for i in range(n):
+        acc = ""
+        for j in range(i, n):
+            acc += tokens[j]
+            if len(acc) > len(compact):
+                break
+            if acc == compact:
+                return True
+    return False
+
+
+def _flatten_payload(value: Any, out: list[str]) -> None:
+    """Collect every string in a payload: keys, values, and nested containers.
+
+    Review fix F-A: the previous flattener read only top-level strings and so was
+    evadable by nesting. Non-string scalars are rendered as text.
+    """
+    if isinstance(value, dict):
+        for k, v in value.items():
+            out.append(str(k))
+            _flatten_payload(v, out)
+    elif isinstance(value, (list, tuple, set, frozenset)):
+        for item in value:
+            _flatten_payload(item, out)
+    elif value is None:
+        return
+    else:
+        out.append(str(value))
 
 
 class ScopeEngine:
@@ -141,8 +202,21 @@ class ScopeEngine:
         self.markers: dict[str, frozenset[str]] = {
             scope: frozenset(ms) for scope, ms in (markers or {}).items()
         }
-        # Per-field allowlist of facts eligible globally, curated by the user.
-        self.global_allowlist: set[str] = set()
+        # Per-scope global read eligibility, curated by the user. Review fix F19:
+        # read-only from outside. Change it only through allow_globally().
+        self._global_allowlist: set[str] = set()
+
+    @property
+    def global_allowlist(self) -> frozenset[str]:
+        return frozenset(self._global_allowlist)
+
+    def allow_globally(self, scope: str, *, attribution: str) -> None:
+        """Make a scope globally readable. Requires an explicit user attribution string."""
+        if not isinstance(attribution, str) or not attribution.strip():
+            raise ValueError("allow_globally requires a non-empty user attribution")
+        if scope not in self.known_scopes:
+            raise ValueError(f"unknown scope {scope!r}")
+        self._global_allowlist.add(scope)
 
     def register_scope(self, scope: str, markers: Iterable[str] = ()) -> None:
         self.known_scopes.add(scope)
@@ -158,7 +232,9 @@ class ScopeEngine:
         owners = {s for s, ms in self.markers.items() if any(_marker_hit(m, text) for m in ms)}
         if not owners or record_scope in owners:
             return None
-        return f"content belongs to {sorted(owners)} but is stored under {record_scope!r}"
+        # Review fix F-D: the reason names no other scope. A caller who cannot see
+        # that scope must not learn that it exists or what it covers.
+        return "content is bound to a different scope"
 
     # ---- reads --------------------------------------------------------
 
@@ -175,7 +251,7 @@ class ScopeEngine:
 
         if record_scope in ctx.granted_scopes:
             return ALLOW
-        if record_scope in self.global_allowlist:
+        if record_scope in self._global_allowlist:
             return ALLOW
 
         if ctx.user_authorized_cross_scope:
@@ -227,15 +303,9 @@ class ScopeEngine:
 
     @staticmethod
     def _payload_text(record) -> str:
-        """Flatten a record's payload for content inspection."""
+        """Every string in a record's payload, for content inspection."""
         parts: list[str] = []
-        payload = getattr(record, "payload", None)
-        if isinstance(payload, dict):
-            for v in payload.values():
-                if isinstance(v, str):
-                    parts.append(v)
-                elif isinstance(v, (list, tuple)):
-                    parts.extend(str(x) for x in v if isinstance(x, str))
+        _flatten_payload(getattr(record, "payload", None), parts)
         return " ".join(parts)
 
     def filter_readable(self, records, ctx: ScopeContext | None) -> tuple[list, list[dict]]:
