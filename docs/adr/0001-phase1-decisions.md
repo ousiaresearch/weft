@@ -96,3 +96,15 @@ Codex review of a37d175 returned BLOCK (21 findings). The fixes below change dec
 - **Projections.** Gated by context, pruned of files no longer in scope, written atomically, and validated by a manifest with per-file hashes and a store version. `projection_status` reports `current`, `stale`, `tampered`, or `missing`.
 - **Record ids** are restricted to `[A-Za-z0-9][A-Za-z0-9_-]{0,127}` on every write, regardless of schema validation, because they are file names.
 - **Known limits, unchanged:** the library trusts the code that constructs a `ScopeContext`. Attribution of user-authorized cross-scope requests is enforced at the service boundary (Phase 6). Global allowlist and scope registration are configuration, not authenticated.
+
+### Accepted residuals (recorded before round 4 review)
+
+1. **Content markers are best-effort, not a security boundary.** They are defence in depth against mis-filed content. The security guarantee rests on granted scopes. Lookalike coverage is a short explicit table (Cyrillic, Greek, and some Latin variants), not full Unicode confusables. Rounds 1-3 found evasions in this category; they are documented, and new ones in this category are residuals unless they defeat the granted-scope gate.
+2. **In-process trust.** Code that holds a `Substrate` can reach its raw SQLite connection (`_conn`). The library enforces scope for its own API only. The service boundary (Phase 6) must not expose the connection or the database file to callers.
+3. **Plaintext at rest.** The database holds all scopes unencrypted. It is created owner-only (0600, umask 077, and sidecars chmod'ed). Encryption at rest is a later phase.
+4. **Global allowlist is configuration.** It is set at engine construction and exposed read-only. An attacker who can construct or mutate the engine object already controls the process.
+5. **Same-scope overwrite is last-writer-wins.** `put(..., overwrite=True)` by a caller with a granted scope replaces the record. Cross-process races without overwrite produce exactly one winner per id (tested).
+
+### Stopping rule for the review loop
+
+Round 4 is the last open review round for Phase 1. If its BLOCK findings are limited to residuals 1 and 2 above, or to new heuristic-coverage gaps that do not defeat the granted-scope gate, they are accepted and recorded here, and Phase 2 begins. Any finding that defeats the granted-scope gate, or that discloses content or ids to a caller without the scope, blocks Phase 1 and is fixed first.

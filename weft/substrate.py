@@ -164,24 +164,31 @@ class Substrate:
         # Fail closed: never operate without a gate.
         self.scope_engine = scope_engine if scope_engine is not None else ScopeEngine()
         self._lock = threading.RLock()
-        self._conn = sqlite3.connect(
-            str(self.db_path),
-            isolation_level=None,
-            timeout=busy_timeout,
-            check_same_thread=False,
-        )
-        self._conn.execute("PRAGMA journal_mode=WAL")
-        # Explicit, not the library default (ADR 0001 durability claim).
-        self._conn.execute("PRAGMA synchronous=FULL")
-        self._conn.execute("PRAGMA foreign_keys=ON")
-        self._conn.executescript(_SCHEMA)
-        self._conn.execute(
-            "INSERT OR IGNORE INTO meta(key, value) VALUES('schema_version', ?)",
-            (str(SCHEMA_VERSION),),
-        )
-        self._conn.execute("INSERT OR IGNORE INTO meta(key, value) VALUES('store_version', '0')")
-        # Review fix F-E / F21: the store holds every scope in plaintext. Keep it
-        # owner-only on this machine. Encryption at rest is a later phase.
+        # The store holds every scope in plaintext. Create the database and its
+        # sidecar files owner-only from the start (review N8, F-E, F21). Encryption
+        # at rest is a later phase.
+        old_umask = os.umask(0o077)
+        try:
+            fd = os.open(str(self.db_path), os.O_CREAT | os.O_RDWR, 0o600)
+            os.close(fd)
+            self._conn = sqlite3.connect(
+                str(self.db_path),
+                isolation_level=None,
+                timeout=busy_timeout,
+                check_same_thread=False,
+            )
+            self._conn.execute("PRAGMA journal_mode=WAL")
+            # Explicit, not the library default (ADR 0001 durability claim).
+            self._conn.execute("PRAGMA synchronous=FULL")
+            self._conn.execute("PRAGMA foreign_keys=ON")
+            self._conn.executescript(_SCHEMA)
+            self._conn.execute(
+                "INSERT OR IGNORE INTO meta(key, value) VALUES('schema_version', ?)",
+                (str(SCHEMA_VERSION),),
+            )
+            self._conn.execute("INSERT OR IGNORE INTO meta(key, value) VALUES('store_version', '0')")
+        finally:
+            os.umask(old_umask)
         for suffix in ("", "-wal", "-shm"):
             path = str(self.db_path) + suffix
             if os.path.exists(path):
@@ -280,6 +287,12 @@ class Substrate:
                     self._journal("correct_denied", original_id, orig.scope, read.reason)
                     self._conn.execute("COMMIT")
                     raise ScopeViolation(read.reason)
+                if record.scope != orig.scope:
+                    # Review N10: a correction stays in its original's scope.
+                    reason = "correction must stay within the original record's scope"
+                    self._journal("correct_denied", original_id, orig.scope, reason)
+                    self._conn.execute("COMMIT")
+                    raise ScopeViolation(reason)
                 record.supersedes = original_id
 
             existing = self._conn.execute(
@@ -354,9 +367,10 @@ class Substrate:
 
                 for dep_id, dep_scope in dependents:
                     self._conn.execute("UPDATE records SET supersedes = NULL WHERE record_id = ?", (dep_id,))
+                    # Review N7: the detail names no deleted id.
                     self._journal(
                         "unlink_supersedes", dep_id, dep_scope,
-                        f"cleared dangling supersedes -> {record_id} (deleted)",
+                        "cleared dangling supersedes link (target deleted)",
                     )
 
                 self._conn.execute("DELETE FROM records WHERE record_id=?", (record_id,))
@@ -484,17 +498,22 @@ class Substrate:
         """
         with self._lock:
             out = Path(out_dir)
-            out.mkdir(parents=True, exist_ok=True)
             if ctx is None:
-                # Review fix F-C: no context means no authority. Touch nothing.
+                # Review fix F-C / N5: no context means no authority. Touch nothing,
+                # not even the directory.
                 return out
+            out.mkdir(parents=True, exist_ok=True)
             previous = self._read_manifest(out) or {}
             prev_names = set((previous.get("files") or {}).keys())
 
             expected = self._expected_files(ctx)
             for name, (body, _digest) in expected.items():
                 _atomic_write(out / name, body)
-            for name in prev_names - set(expected):
+            # Review N3: prune every record-named file in this directory that is no
+            # longer in scope, not only those a previous manifest named. The
+            # directory belongs to the projection.
+            on_disk = {p.name for p in out.glob("*.json") if _safe_projection_name(p.name)}
+            for name in (prev_names | on_disk) - set(expected):
                 if _safe_projection_name(name):
                     (out / name).unlink(missing_ok=True)
 
@@ -532,10 +551,11 @@ class Substrate:
                 if name not in expected and _safe_projection_name(name):
                     unexpected.append(name)
 
-            stale_version = manifest.get("store_version") != self._store_version()
+            # Review N6: staleness is judged on this caller's view only. A write in a
+            # scope the caller cannot see does not make the projection stale.
             if modified:
                 state = "tampered"
-            elif missing or unexpected or stale_version:
+            elif missing or unexpected:
                 state = "stale"
             else:
                 state = "current"

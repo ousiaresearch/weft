@@ -12,6 +12,14 @@ Design rules (docs/architecture.md):
   5. Cross-scope access requires a named target and user attribution.
   6. Ambiguous attribution -> fail closed.
 
+Security boundary (decision, Oct 24, after three review rounds):
+  The GRANTED-SCOPE checks are the security boundary. Read, write, and delete
+  are decided by ScopeContext.granted_scopes and by explicit, attributed
+  cross-scope requests. Content markers are a best-effort defence in depth that
+  catches mis-filed content. They are not a guarantee, because no character
+  table covers every lookalike. The residuals are recorded in
+  docs/adr/0001-phase1-decisions.md.
+
 Authority model (review fix, a37d175 F1-F6):
   - Reading needs a granted scope, a global allowlist entry, or a named,
     attributed cross-scope request.
@@ -128,7 +136,12 @@ _CONFUSABLES = str.maketrans({
     "а": "a", "с": "c", "е": "e", "о": "o", "р": "p", "х": "x", "у": "y",
     "і": "i", "ј": "j", "ѕ": "s", "һ": "h", "ԁ": "d", "ɡ": "g", "ѵ": "v",
     "ν": "v", "ο": "o", "α": "a", "ι": "i", "κ": "k", "ρ": "p", "τ": "t",
+    "ɑ": "a", "ς": "s", "σ": "s", "ϲ": "c", "ϳ": "j", "ѡ": "w", "ԛ": "q", "ɩ": "i",
 })
+
+# Characters with no visible content: combining marks (Mn, Mc, Me) and format
+# characters (Cf) such as zero-width spaces and soft hyphens.
+_INVISIBLE_CATEGORIES = frozenset({"Mn", "Mc", "Me", "Cf"})
 
 
 def _normalise_tokens(text: str) -> list[str]:
@@ -137,7 +150,9 @@ def _normalise_tokens(text: str) -> list[str]:
     Fullwidth and compatibility forms fold to ASCII, then common confusables fold
     to Latin. Punctuation, hyphens, and spaces separate tokens.
     """
-    folded = unicodedata.normalize("NFKC", text).casefold().translate(_CONFUSABLES)
+    decomposed = unicodedata.normalize("NFKD", text)
+    visible = "".join(ch for ch in decomposed if unicodedata.category(ch) not in _INVISIBLE_CATEGORIES)
+    folded = visible.casefold().translate(_CONFUSABLES)
     return _WORD.findall(folded)
 
 
@@ -197,26 +212,23 @@ class ScopeEngine:
         self,
         known_scopes: Iterable[str] | None = None,
         markers: Mapping[str, Iterable[str]] | None = None,
+        global_allowlist: Iterable[str] | None = None,
     ):
         self.known_scopes: set[str] = set(known_scopes or ())
         self.markers: dict[str, frozenset[str]] = {
             scope: frozenset(ms) for scope, ms in (markers or {}).items()
         }
-        # Per-scope global read eligibility, curated by the user. Review fix F19:
-        # read-only from outside. Change it only through allow_globally().
-        self._global_allowlist: set[str] = set()
+        # Configuration time only (review N9). There is no runtime mutator, and
+        # the value is exposed read-only.
+        allow = frozenset(global_allowlist or ())
+        unknown = allow - self.known_scopes
+        if unknown:
+            raise ValueError(f"global allowlist names unknown scopes: {sorted(unknown)}")
+        self._global_allowlist: frozenset[str] = allow
 
     @property
     def global_allowlist(self) -> frozenset[str]:
-        return frozenset(self._global_allowlist)
-
-    def allow_globally(self, scope: str, *, attribution: str) -> None:
-        """Make a scope globally readable. Requires an explicit user attribution string."""
-        if not isinstance(attribution, str) or not attribution.strip():
-            raise ValueError("allow_globally requires a non-empty user attribution")
-        if scope not in self.known_scopes:
-            raise ValueError(f"unknown scope {scope!r}")
-        self._global_allowlist.add(scope)
+        return self._global_allowlist
 
     def register_scope(self, scope: str, markers: Iterable[str] = ()) -> None:
         self.known_scopes.add(scope)
@@ -309,7 +321,11 @@ class ScopeEngine:
         return " ".join(parts)
 
     def filter_readable(self, records, ctx: ScopeContext | None) -> tuple[list, list[dict]]:
-        """Split records into readable and excluded, with reasons."""
+        """Split records into readable and excluded.
+
+        Exclusions carry a reason only. They never name a record id, so a caller
+        learns nothing about records it cannot read (review N4).
+        """
         readable, exclusions = [], []
         for rec in records:
             decision = self.authorize_read(
@@ -318,7 +334,5 @@ class ScopeEngine:
             if decision.allowed:
                 readable.append(rec)
             else:
-                exclusions.append(
-                    {"record_id": getattr(rec, "record_id", None), "reason": decision.reason}
-                )
+                exclusions.append({"reason": decision.reason})
         return readable, exclusions

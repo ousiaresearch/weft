@@ -34,7 +34,8 @@ class TestRegressionTarget:
         )
         readable, exclusions = engine.filter_readable([acs_record], mem_ctx())
         assert readable == []
-        assert exclusions and exclusions[0]["record_id"] == "acs1"
+        assert exclusions and "reason" in exclusions[0]
+        assert "acs1" not in str(exclusions)
 
     def test_acs_returned_only_when_explicitly_granted(self, engine):
         ctx = ScopeContext(granted_scopes=frozenset({"acs-project"}))

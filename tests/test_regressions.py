@@ -233,8 +233,10 @@ def test_F14_real_lock_error_is_not_masked_by_rollback(tmp_path, engine):
 
 # F15: delete cascaded supersedes-unlinks into scopes the caller cannot write.
 def test_F15_delete_refused_when_dependent_is_out_of_scope(sub):
+    # Corrections now stay in one scope (N10), so a cross-scope dependent can only
+    # exist as a legacy row. Insert one directly to exercise the cascade check.
     sub.put(rec("r1", "acs-project", "ACS original"), ALL)
-    sub.correct("r1", rec("r2", "memory-providers", "correction"), ALL)
+    _legacy_dependent(sub, "r2", "memory-providers", "r1")
     # ACS_ONLY may delete r1, but the dependent r2 lives in memory-providers,
     # which ACS_ONLY cannot write. The cascade would write into that scope.
     assert sub.delete("r1", ACS_ONLY) is False
@@ -263,6 +265,14 @@ def test_F20_empty_id_rejected_without_validation(sub):
 
 
 # ---- Second review of 126cfc1 (BLOCK). Each test names its finding. ----
+
+def _legacy_dependent(sub, rid, scope, supersedes):
+    """Insert a row directly, as a pre-existing legacy record would appear."""
+    sub._conn.execute(
+        "INSERT INTO records VALUES (?,?,?,?,?,?,?,?,?,?)",
+        (rid, "Observation", scope, "stated", '{"text": "correction"}', 0.0, None, supersedes, "[]", "{}"),
+    )
+
 
 # F-A: content rule evaded by nested payloads, split tokens, and case/unicode variants.
 @pytest.mark.parametrize(
@@ -300,7 +310,7 @@ def test_F_A_no_false_positive_on_substring_words(engine):
 # F-B: a refused cascade must not disclose the dependent's id or scope to the caller.
 def test_F_B_refused_cascade_journal_does_not_name_dependent(sub):
     sub.put(rec("r1", "acs-project", "ACS original"), ALL)
-    sub.correct("r1", rec("r2", "memory-providers", "correction"), ALL)
+    _legacy_dependent(sub, "r2", "memory-providers", "r1")
     assert sub.delete("r1", ACS_ONLY) is False
     visible = " ".join(f"{e['detail']} {e['record_id']}" for e in sub.journal_entries(ACS_ONLY))
     assert "r2" not in visible
@@ -378,3 +388,89 @@ def test_F19_global_allowlist_not_directly_mutable(engine):
 def test_F_A_homoglyph_variants_refused(engine, text):
     rec = Record(record_id="rh", record_type="Observation", scope="memory-providers", payload={"text": text})
     assert not engine.authorize_write(rec, MEM_ONLY).allowed, text
+
+
+# ---- Third review of 83657e0 (BLOCK). ----
+
+# N1: combining marks must not split or merge a marker token.
+@pytest.mark.parametrize("text", ["A\u0301CS charter", "AC\u0308S charter", "A\u200bC\u200bS charter", "A\u00adCS charter"])
+def test_N1_combining_and_invisible_marks_do_not_hide_marker(engine, text):
+    rec = Record(record_id="rc", record_type="Observation", scope="memory-providers", payload={"text": text})
+    assert not engine.authorize_write(rec, MEM_ONLY).allowed, repr(text)
+
+
+# N2: lookalike letters with diacritics or in the Greek/Latin range.
+@pytest.mark.parametrize("text", ["\u00e5CS charter", "\u00e2CS charter", "\u0251CS charter", "AC\u03c2 charter"])
+def test_N2_diacritic_and_lookalike_letters_fold(engine, text):
+    rec = Record(record_id="rl", record_type="Observation", scope="memory-providers", payload={"text": text})
+    assert not engine.authorize_write(rec, MEM_ONLY).allowed, repr(text)
+
+
+# N3: projection prunes any record-named file in its directory that is no longer in scope.
+def test_N3_projection_prunes_unmanifested_record_files(sub, tmp_path):
+    sub.put(rec("r1", "memory-providers", "mp fact"), ALL)
+    out = tmp_path / "proj"
+    out.mkdir()
+    (out / "r9.json").write_text('{"text": "leftover acs"}')  # not named in any manifest
+    sub.write_projection(out, MEM_ONLY)
+    assert not (out / "r9.json").exists()
+    assert (out / "r1.json").exists()
+
+
+# N4: exclusions must not disclose record ids the caller cannot see.
+def test_N4_exclusions_do_not_name_out_of_scope_records(engine):
+    acs = Record(record_id="acs1", record_type="Observation", scope="acs-project", payload={"text": "x"})
+    _readable, exclusions = engine.filter_readable([acs], MEM_ONLY)
+    assert all("acs1" not in str(e) for e in exclusions)
+
+
+# N5: projection with no context must not create anything, including the directory.
+def test_N5_projection_without_context_creates_nothing(sub, tmp_path):
+    out = tmp_path / "never-created"
+    sub.write_projection(out, None)
+    assert not out.exists()
+
+
+# N6: a write in an invisible scope must not mark the caller's projection stale.
+def test_N6_invisible_write_does_not_mark_projection_stale(sub, tmp_path):
+    sub.put(rec("r1", "memory-providers", "mp fact"), ALL)
+    out = tmp_path / "proj"
+    sub.write_projection(out, MEM_ONLY)
+    sub.put(rec("secret", "acs-project", "ACS secret"), ALL)
+    assert sub.projection_status(out, MEM_ONLY)["state"] == "current"
+
+
+# N7: the unlink journal entry must not name the deleted record to readers of the dependent's scope.
+def test_N7_unlink_journal_does_not_name_deleted_record(sub):
+    sub.put(rec("r1", "memory-providers", "original"), ALL)
+    sub.correct("r1", rec("r2", "memory-providers", "correction"), ALL)
+    assert sub.delete("r1", ALL) is True
+    details = [e["detail"] for e in sub.journal_entries(MEM_ONLY) if e["op"] == "unlink_supersedes"]
+    assert details and all("r1" not in d for d in details)
+
+
+# N8: the database and its sidecar files are never created with loose permissions.
+def test_N8_sidecars_are_owner_only_from_creation(tmp_path, engine):
+    db = tmp_path / "fresh.db"
+    s = Substrate(db, scope_engine=engine)
+    s.put(rec("r1", "memory-providers", "x"), ALL)
+    for suffix in ("", "-wal", "-shm"):
+        p = str(db) + suffix
+        if os.path.exists(p):
+            assert (os.stat(p).st_mode & 0o077) == 0, p
+    s.close()
+
+
+# N9: the global allowlist is configuration-time only; there is no runtime mutator.
+def test_N9_no_runtime_method_grants_global_read(engine):
+    assert not hasattr(engine, "allow_globally")
+    ctor = ScopeEngine(known_scopes=KNOWN, global_allowlist={"memory-providers"})
+    assert ctor.authorize_read("memory-providers", ScopeContext()).allowed
+
+
+# N10: a correction must stay in the original's scope.
+def test_N10_correction_cannot_move_scope(sub):
+    sub.put(rec("r1", "memory-providers", "original"), ALL)
+    with pytest.raises(ScopeViolation):
+        sub.correct("r1", rec("r2", "acs-project", "moved"), ALL)
+    assert sub.get("r2", ALL) is None
