@@ -249,7 +249,11 @@ class Substrate:
         written before attribution existed. A failure rolls the whole step back.
         """
         version = self._conn.execute("PRAGMA user_version").fetchone()[0]
+        cols = {r[1] for r in self._conn.execute("PRAGMA table_info(records)")}
         if version >= SCHEMA_VERSION:
+            # R-5: the recorded version is not trusted on its own. Fail closed.
+            if "attribution" not in cols:
+                raise SubstrateError("schema version 2 without records.attribution; refusing to open")
             return
         self._conn.execute("BEGIN IMMEDIATE")
         try:
@@ -464,6 +468,20 @@ class Substrate:
                         )
                         self._conn.execute("COMMIT")
                         return False
+
+                # R-2 (review): a verified Claim depends on the Verification that names it.
+                # Removing the Verification would leave the Claim verified with no support.
+                relied_on = [
+                    cid for cid, csrc in self._conn.execute(
+                        "SELECT record_id, source_ids FROM records "
+                        "WHERE record_type = 'Claim' AND epistemic_status = 'verified'"
+                    ).fetchall()
+                    if record_id in json.loads(csrc)
+                ]
+                if relied_on:
+                    self._journal("delete_denied", None, None, "delete not permitted")
+                    self._conn.execute("COMMIT")
+                    return False
 
                 summaries = [
                     (sid, sscope)

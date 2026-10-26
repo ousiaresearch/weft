@@ -9,7 +9,7 @@ import sqlite3
 import pytest
 
 from weft.scope import ScopeContext, ScopeEngine
-from weft.substrate import Record, RecordConflict, ScopeViolation, SchemaViolation, Substrate
+from weft.substrate import Record, RecordConflict, ScopeViolation, SchemaViolation, Substrate, SubstrateError
 
 KNOWN = {"acs-project", "memory-providers", "ariel-continuity"}
 MARKERS = {"acs-project": {"ACS", "Listening Commonwealth", "Constitutional Convention Letters"}}
@@ -320,3 +320,63 @@ def test_failed_migration_rolls_back(tmp_path, engine):
         assert s._conn.execute("PRAGMA user_version").fetchone()[0] == 2
     finally:
         s.close()
+
+
+# ---- Review round 1 of Phase 2 (f942747): R-2, R-5, and the test gaps ----
+
+# R-2: a Verification cannot be removed out from under a verified Claim.
+def test_R2_deleting_verification_under_verified_claim_refused(sub):
+    vctx = verifier_ctx(sub)
+    sub.put(Record(record_id="v-1", record_type="Verification", scope="acs-project",
+                   payload={"claim_id": "c1"}, attribution="verifier", source_ids=[]), vctx)
+    sub.put(rec("c1", "acs-project", "Claim", attribution="verifier", status="verified",
+                source_ids=("v-1",)), vctx)
+    assert sub.delete("v-1", vctx) is False
+    assert sub.get("v-1", vctx) is not None
+    assert sub.get("c1", vctx).epistemic_status == "verified"
+
+
+def test_R2_claim_removed_first_then_verification_may_go(sub):
+    vctx = verifier_ctx(sub)
+    sub.put(Record(record_id="v-1", record_type="Verification", scope="acs-project",
+                   payload={"claim_id": "c1"}, attribution="verifier", source_ids=[]), vctx)
+    sub.put(rec("c1", "acs-project", "Claim", attribution="verifier", status="verified",
+                source_ids=("v-1",)), vctx)
+    assert sub.delete("c1", vctx) is True
+    assert sub.delete("v-1", vctx) is True
+
+
+# R-5: a database that claims version 2 but lacks the column is refused, not used.
+def test_R5_version2_without_attribution_column_refused(tmp_path, engine):
+    db = tmp_path / "bad.db"
+    _make_phase1_db(db)
+    conn = sqlite3.connect(db)
+    conn.execute("PRAGMA user_version = 2")
+    conn.commit()
+    conn.close()
+    with pytest.raises(SubstrateError):
+        Substrate(db, scope_engine=engine)
+
+
+# Review gaps: each new refusal path is generic and leaves no row in the target scope.
+def test_knowledge_refusal_leaves_no_row_in_target_scope(sub):
+    with pytest.raises(ScopeViolation):
+        sub.put(rec("d1", "acs-project", "Decision", attribution="agent", source_ids=()), AGENT)
+    rows = sub._conn.execute("SELECT op, scope FROM journal").fetchall()
+    assert not any(r[1] == "acs-project" for r in rows)
+
+
+def test_unsafe_verifier_id_refused(sub):
+    with pytest.raises(Exception):
+        sub.register_verifier("../evil", USER)
+
+
+def test_read_side_classifier_error_denies(sub, engine, monkeypatch):
+    sub.put(rec("m1", "memory-providers", text="harmless"), MEM_AGENT)
+
+    def boom(*_a, **_k):
+        raise RuntimeError("classifier down")
+    monkeypatch.setattr(engine, "content_conflict", boom)
+    assert sub.get("m1", MEM_AGENT) is None
+    readable, _ = sub.query(MEM_AGENT)
+    assert readable == []

@@ -129,7 +129,7 @@ None blocking Phase 2 implementation.
 
 - **Rules table:** `weft/knowledge.py` (`RULES`, `check_record`). Runs inside the write transaction, after lineage is set. Refusals are generic (G4/G10).
 - **Attribution:** `Record.attribution`, required. Column added by migration 2 (`PRAGMA user_version`), with legacy rows backfilled to `system`. Migration is transactional; a failure rolls back (tested with a SQL trigger).
-- **User-authored:** `ScopeContext.user_authored` (default False). Required for attribution `user` and for any cross-scope request. The library enforces this. Cross-scope requests without it are refused, which closes the agent-minted cross-scope path at the library level.
+- **User-authored:** `ScopeContext.user_authored` (default False). Required for attribution `user` and for any cross-scope request. The library trusts this flag from the context it is given. It refuses the request when the flag is absent, but it cannot verify who built the context. The agent-minted cross-scope path is closed only at the Phase 6 service boundary (review residual R-1).
 - **Verifiers:** table `verifiers`, populated only through `register_verifier(actor, ctx)`, which requires `user_authored`. A verifier must be registered before it can write `verifier`-attributed records.
 - **Verified status:** a Claim may be `verified` only with attribution `verifier`, a registered actor, and a Verification record in the same scope that names it (`payload.claim_id`) and is cited in `source_ids`.
 - **Correction:** `Correction` records are written only through `correct()`. A `correct()` replacement must be a Correction.
@@ -138,3 +138,10 @@ None blocking Phase 2 implementation.
 - **Summary cascade:** deleting a record also removes derived Summary records that cite it in `source_ids`. Refused if the caller cannot delete any of them.
 - **Known gap, deliberately deferred:** a document Observation's `source_ids` must be non-empty, but the referenced Source is not checked for existence. Phase 3 ingestion creates Sources, and the existence check belongs there.
 - **Phase 1 test changes (documented, not weakened):** test helpers now supply attribution and source; cross-scope test contexts are user-authored; `correct()` replacements are Corrections written from a user-authored context.
+
+## 10. Review record
+
+- **Round 1 (f942747):** APPROVE_WITH_RESIDUALS. All nine invariants hold. No gate-class findings.
+- **Residuals carried:** R-1 (`user_authored` is trusted from the context; service boundary enforces, Phase 6), R-3 (a registered verifier given a user-authored context can write user records; same trust as R-1), R-4 (delete scans every Summary row, no leak, bare False), R-6 (source existence deferred to Phase 3).
+- **Fixed in round 2:** R-2, a Verification that a verified Claim relies on cannot be deleted (generic refusal; the Claim must be removed first). R-5, a database recorded as version 2 without the attribution column is refused at open with a typed error.
+- **Test gaps closed:** knowledge refusals leave no row in the target scope; unsafe verifier ids refused; read-side classifier error denies.
