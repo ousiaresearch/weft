@@ -45,6 +45,8 @@ def _seed_source(s, scopes):
     s._conn.commit()
 
 
+SEEDED_SOURCE_IDS = {"src-1-acs-project", "src-1-memory-providers", "src-1-ariel-continuity"}
+
 @pytest.fixture
 def engine():
     return ScopeEngine(known_scopes=KNOWN, markers=MARKERS)
@@ -107,7 +109,7 @@ def test_F3_acs_content_under_memory_scope_not_returned_to_memory_reader(sub, tm
     )
     assert sub.get("legacy", MEM_ONLY) is None
     readable, _ = sub.query(MEM_ONLY)
-    readable = [r for r in readable if r.record_type != "Source"]
+    readable = [r for r in readable if r.record_id not in SEEDED_SOURCE_IDS]
     assert all(r.record_id != "legacy" for r in readable)
 
 
@@ -325,7 +327,7 @@ def test_F_A_marker_variants_withheld_on_read(engine):
     rec = Record(record_id="rn", record_type="Observation", attribution="document", source_ids=[f"src-1-memory-providers"], scope="memory-providers",
                  payload={"text": "note", "meta": {"secret": "The Listening Commonwealth"}})
     readable = engine.filter_readable([rec], MEM_ONLY)
-    assert [r for r in readable if r.record_type != "Source"] == []
+    assert [r for r in readable if r.record_id not in SEEDED_SOURCE_IDS] == []
 
 
 def test_F_A_no_false_positive_on_substring_words(engine):
@@ -586,7 +588,7 @@ def test_G6_G7_query_exclusions_are_empty_and_reveal_nothing(sub):
     sub.put(rec("secret1", "acs-project", "ACS secret"), ALL)
     sub.put(rec("secret2", "acs-project", "ACS secret 2"), ALL)
     readable, exclusions = sub.query(MEM_ONLY)
-    assert [r for r in readable if r.record_type != "Source"] == []
+    assert [r for r in readable if r.record_id not in SEEDED_SOURCE_IDS] == []
     assert exclusions == []
 
 

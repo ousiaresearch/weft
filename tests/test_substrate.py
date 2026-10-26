@@ -46,6 +46,8 @@ def _seed_source(s, scopes):
     s._conn.commit()
 
 
+SEEDED_SOURCE_IDS = {"src-1-acs-project", "src-1-memory-providers", "src-1-ariel-continuity"}
+
 @pytest.fixture
 def engine():
     return ScopeEngine(known_scopes=KNOWN, markers=MARKERS)
@@ -272,7 +274,7 @@ class TestFaultInjection:
         put_ids = {j["record_id"] for j in substrate.journal_entries(CTX) if j["op"] == "put"}
         # the seeded Source is written by the fixture, not by the test; exclude it explicitly
         put_ids.discard("src-1-memory-providers")
-        assert put_ids == {r.record_id for r in substrate.all_records(CTX) if r.record_type != "Source"}
+        assert put_ids == {r.record_id for r in substrate.all_records(CTX) if r.record_id not in SEEDED_SOURCE_IDS}
 
     def test_concurrent_writers_no_lost_or_duplicate_record(self, tmp_path):
         """Two processes race for the same ids. Each id is created exactly once."""

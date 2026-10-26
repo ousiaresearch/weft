@@ -89,8 +89,11 @@ def main(gold_path: str, out_path: str):
     n = len(entries)
     recall_at = {m: {"recall@1": round(hits[m][1] / n, 3), "recall@5": round(hits[m][K] / n, 3)}
                  for m in modes}
-    enable_vector = (recall_at["hybrid"]["recall@5"] >= RECALL5_FLOOR
-                     and recall_at["hybrid"]["recall@5"] >= recall_at["lexical"]["recall@5"])
+    approved = str(gold.get("status", "")).upper().startswith("APPROVED")
+    passes = (recall_at["hybrid"]["recall@5"] >= RECALL5_FLOOR
+              and recall_at["hybrid"]["recall@5"] >= recall_at["lexical"]["recall@5"])
+    # R-B6-3: a draft gold set is never a decision. Only an approved set can enable vector.
+    enable_vector = passes if approved else None  # None = not decided
     result = {
         "gold_status": gold.get("status", ""),
         "gold_entries": n,
@@ -101,7 +104,9 @@ def main(gold_path: str, out_path: str):
         "query_seconds": query_seconds,
         "recall": recall_at,
         "recall5_floor": RECALL5_FLOOR,
+        "gate_passes_floor": passes,
         "vector_default_on": enable_vector,
+        "decision": "decided" if approved else "not decided: gold set is not approved",
         "per_entry": per_entry,
     }
     json.dump(result, open(out_path, "w", encoding="utf-8"), ensure_ascii=False, indent=2)

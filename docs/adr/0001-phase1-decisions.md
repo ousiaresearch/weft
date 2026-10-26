@@ -212,3 +212,11 @@ Verdict APPROVE_WITH_RESIDUALS, no gate-class findings. Build pass 2 addresses t
   - Default mode in code stays "lexical". Vector is not enabled by default until the gold set is approved and the gate re-run.
   - Index time for 249 notes: about 1,300 s on this Mac (single-item embedding; batching is a later optimisation).
 - Dependency licences added: sqlite-vec 0.1.9 (MIT per package metadata; Apache-2.0 also listed), mlx-embeddings 0.1.0 (GPL-3.0, compatible with an AGPL-3.0 Weft distribution; record and review), harrier-oss-v1-0.6b model weights (MIT).
+
+### Recall gate result on gold set v0.2 (approved by user, Oct 26)
+
+- recall@5: lexical 0.975, vector 0.95, hybrid 0.975. recall@1: 0.85 / 0.80 / 0.875. Floor 0.90 (user-confirmed as the proposal).
+- Gate passes the floor and hybrid does not fall below lexical. Vector default-on decision is NOT made: the user has asked for a decision after paraphrase queries are added (the set has no paraphrase entries, so it does not test what vector adds).
+- Harness fix (review b32f4d9, R-B6-3): the gate reports vector_default_on only for an approved gold set; otherwise "not decided".
+- Review b32f4d9: APPROVE_WITH_RESIDUALS, no gate findings. Residuals open: R-B6-1 (Source-wide test filtering, narrowed to seed ids in this build), R-B6-2 (machine-derived label is mutable provenance, not enforced at write), R-B6-4 (newer user_version opens silently), R-B6-5 (vector_put does not check the record exists in the scope), R-B6-6 (sqlite-vec is a hard open-time dependency), R-B6-7 (fence drops text between two recall blocks), R-B6-8 (ingest_document raises instead of a named rejection for a content-rule paragraph), R-B6-9 (receipt.exclusions unreachable), R-B6-10 (D3-8 batch consent thresholds not implemented; they are a Phase 6 interaction concern and need a consent mechanism).
+- Test flakiness: two real-model tests (VLM, whisper) failed once in a full run and passed on rerun. Recorded; not yet root-caused.

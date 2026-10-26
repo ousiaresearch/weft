@@ -37,6 +37,8 @@ def _seed_source(s, scopes):
     s._conn.commit()
 
 
+SEEDED_SOURCE_IDS = {"src-1-acs-project", "src-1-memory-providers", "src-1-ariel-continuity"}
+
 @pytest.fixture
 def engine():
     return ScopeEngine(known_scopes=KNOWN, markers=MARKERS)
@@ -231,7 +233,7 @@ def test_memory_provider_query_returns_zero_acs_records(sub):
     sub.put(rec("a1", "acs-project", text="ACS release plan"), USER)
     sub.put(rec("m1", "memory-providers", text="Honcho uses hybrid recall"), USER)
     readable, _ = sub.query(MEM_AGENT)
-    assert [r.record_id for r in readable if r.record_type != "Source"] == ["m1"]
+    assert [r.record_id for r in readable if r.record_id not in SEEDED_SOURCE_IDS] == ["m1"]
 
 
 def test_positive_same_project_recall_returns_relevant_records(sub):
@@ -269,7 +271,7 @@ def test_identity_sourced_acs_fact_excluded_from_unrelated_queries(sub):
     sub.put(rec("p1", "acs-project", "Person", attribution="user", source_ids=(),
                 text="Johann", provenance={"origin": "ACS Listening Commonwealth roster"}), USER)
     readable, _ = sub.query(MEM_AGENT)
-    assert [r for r in readable if r.record_type != "Source"] == []
+    assert [r for r in readable if r.record_id not in SEEDED_SOURCE_IDS] == []
 
 
 # ---- Migrations (spec §4) ----------------------------------------------------
@@ -403,7 +405,7 @@ def test_read_side_classifier_error_denies(sub, engine, monkeypatch):
     monkeypatch.setattr(engine, "content_conflict", boom)
     assert sub.get("m1", MEM_AGENT) is None
     readable, _ = sub.query(MEM_AGENT)
-    assert [r for r in readable if r.record_type != "Source"] == []
+    assert [r for r in readable if r.record_id not in SEEDED_SOURCE_IDS] == []
 
 
 # Round 2 review (4c3f062), BLOCK: the R-2 guard must also cover overwrite.
