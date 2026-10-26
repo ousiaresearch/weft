@@ -100,7 +100,7 @@ class Record:
         )
 
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS records (
@@ -123,12 +123,13 @@ CREATE TABLE IF NOT EXISTS verifiers (
 CREATE VIRTUAL TABLE IF NOT EXISTS fts USING fts5(record_id UNINDEXED, scope UNINDEXED, text);
 CREATE TABLE IF NOT EXISTS jobs (
     job_id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    scope        TEXT NOT NULL,
     source_id    TEXT NOT NULL,
     stage        TEXT NOT NULL,
     content_hash TEXT NOT NULL,
     state        TEXT NOT NULL,
     reason       TEXT,
-    UNIQUE (source_id, stage, content_hash)
+    UNIQUE (scope, source_id, stage, content_hash)
 );
 CREATE TABLE IF NOT EXISTS receipts (
     receipt_id       INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -285,6 +286,15 @@ class Substrate:
                 self._conn.execute(
                     "UPDATE records SET attribution = 'system' WHERE attribution IS NULL"
                 )
+            if version < 4:
+                # Version 4 (review G-P3-3): jobs are keyed by scope. The jobs table is
+                # Phase 3 idempotency state, unreleased; it is rebuilt, not migrated.
+                self._conn.execute("DROP TABLE IF EXISTS jobs")
+                self._conn.execute(
+                    "CREATE TABLE jobs (job_id INTEGER PRIMARY KEY AUTOINCREMENT, scope TEXT NOT NULL, "
+                    "source_id TEXT NOT NULL, stage TEXT NOT NULL, content_hash TEXT NOT NULL, "
+                    "state TEXT NOT NULL, reason TEXT, UNIQUE (scope, source_id, stage, content_hash))"
+                )
             if version < 3:
                 self._conn.execute("DELETE FROM fts")
                 for row in self._conn.execute("SELECT * FROM records").fetchall():
@@ -366,8 +376,8 @@ class Substrate:
             if ctx is None or not self.scope_engine.authorize_read(scope, ctx, "").allowed:
                 return None
             row = self._conn.execute(
-                "SELECT state FROM jobs WHERE source_id=? AND stage=? AND content_hash=?",
-                (source_id, stage, content_hash),
+                "SELECT state FROM jobs WHERE scope=? AND source_id=? AND stage=? AND content_hash=?",
+                (scope, source_id, stage, content_hash),
             ).fetchone()
             return row[0] if row else None
 
@@ -386,9 +396,9 @@ class Substrate:
             self._conn.execute("BEGIN IMMEDIATE")
             try:
                 self._conn.execute(
-                    "INSERT INTO jobs(source_id, stage, content_hash, state, reason) VALUES (?,?,?,?,?) "
-                    "ON CONFLICT(source_id, stage, content_hash) DO UPDATE SET state=excluded.state, reason=excluded.reason",
-                    (source_id, stage, content_hash, state, reason),
+                    "INSERT INTO jobs(scope, source_id, stage, content_hash, state, reason) VALUES (?,?,?,?,?,?) "
+                    "ON CONFLICT(scope, source_id, stage, content_hash) DO UPDATE SET state=excluded.state, reason=excluded.reason",
+                    (scope, source_id, stage, content_hash, state, reason),
                 )
                 self._conn.execute("COMMIT")
             except Exception:

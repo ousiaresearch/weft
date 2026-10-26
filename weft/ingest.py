@@ -102,6 +102,7 @@ class Ingestor:
         parsed = _parse(name, data)
         if isinstance(parsed, Rejection):
             return parsed
+        parsed, _ = fence(parsed)  # review G-P3-4: recall blocks never persist from documents
         content_hash = _digest(data)
         sid = "doc-" + hashlib.sha256(f"{scope}\0{content_hash}".encode()).hexdigest()[:24]
         if self.sub.job_state(sid, "ingest", content_hash, scope=scope, ctx=ctx) == "done":
@@ -150,6 +151,8 @@ class Ingestor:
         except Exception:
             self.sub.set_job(sid, "derive", content_hash, "failed", "adapter_failed", scope=scope, ctx=ctx)
             return Rejection(name, "adapter_failed")
+        if isinstance(text, str):
+            text, _ = fence(text)  # review G-P3-4: derived text is fenced like any other input
         if not isinstance(text, str) or not text.strip():
             self.sub.set_job(sid, "derive", content_hash, "failed", "empty_output", scope=scope, ctx=ctx)
             return Rejection(name, "empty_output")

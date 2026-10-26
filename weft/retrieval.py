@@ -22,6 +22,15 @@ class Item:
     text: str
     tier: str
 
+    def render(self) -> str:
+        """The only form recalled text may take when handed back to a model (D3-5).
+
+        Wrapped in the recall fence so re-ingestion strips it instead of storing it as
+        user speech (review G-P3-4). Best-effort: a caller that bypasses render() is a
+        Phase 6 service-boundary concern, recorded as a residual.
+        """
+        return f'<weft-recall scope="{self.scope}">{self.text}</weft-recall>'
+
 
 @dataclass
 class Receipt:

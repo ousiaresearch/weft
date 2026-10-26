@@ -176,3 +176,9 @@ Verdict APPROVE_WITH_RESIDUALS, no gate-class findings. Build pass 2 addresses t
 - G-P3-2: job_state, set_job and record_receipt were ungated. Now they take the named scope and ctx: job_state needs read on that scope, set_job needs write, record_receipt requires ctx and read on every named scope.
 - Residual R-P3-1 (open): WhisperTranscriber leaks the ffmpeg output temp file on failure.
 - Residual R-P3-2 (open): a crash mid-document leaves complete Observations and a 'running' job row. Rerun is idempotent but the partial output is not rolled back; to be decided with the crash-consistency ADR item.
+
+### Phase 3 review round 3 (commit 581c19f, BLOCK, G-P3-3 and G-P3-4)
+
+- G-P3-3: jobs were keyed without scope, so the scope gate checked a name the row did not carry. Fixed: jobs are keyed by (scope, source_id, stage, content_hash), schema version 4. The jobs table is Phase 3 idempotency state and unreleased, so migration 4 rebuilds it rather than migrating rows.
+- G-P3-4: recalled text could be re-ingested as user speech. Fixed: Item.render() wraps recalled text in the recall fence; fence() is now applied to document text and derived media text as well as conversation turns. Residual: render() is best-effort; a caller that hands raw Item.text back is a Phase 6 service-boundary concern.
+- Open residuals from review 581c19f: G-P3-5 (ffmpeg temp file on failure), G-P3-6 (malformed MATCH raises raw sqlite3 error), G-P3-7 (a version-3 database with an empty index opens without reindexing).
