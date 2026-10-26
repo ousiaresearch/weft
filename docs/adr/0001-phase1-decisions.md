@@ -152,3 +152,10 @@ Residuals carried forward unchanged from round 5: R1 (content rule does not insp
 ### Decision: OCR is in alpha (Oct 25)
 
 The user accepted OCR for alpha. The OCR adapter (Qwen3.5-2B via mlx-vlm) joins the four alpha adapters, for five in total. Known gap to resolve in the conformance suite: the smoke test lowercased its output, so the adapter must report case fidelity as a measured property, not a claim.
+
+### Phase 2 closure
+
+- **Review:** rounds 1–4 (f942747, 4c3f062, aaec341, a8ee2d7). Round 4 returned APPROVE_WITH_RESIDUALS, no gate-class defects. Gate defects found and fixed in earlier rounds: R-2 and R-5 (round 1 items), the overwrite bypass of a relied-on Verification (round 2), and the overwrite of a verified Claim (round 3).
+- **Residuals accepted for Phase 2:** R-1 (`user_authored` is trusted from the context; enforced at the Phase 6 service boundary), R-3 (a registered verifier given a user-authored context), R-4 (delete scans all Summaries; no leak), R-6 (Source existence not checked; closed in Phase 3), RESIDUAL-1 (overwrite authority is by scope, not readability), RESIDUAL-2 (full scan in the reliance check), RESIDUAL-3 (version-2 check covers only the attribution column), RESIDUAL-4 (`meta.schema_version` written, never read).
+- **Test gaps to fill:** a verified record remains deletable after the overwrite guard; `correct()` leaves a verified row unchanged; RESIDUAL-1 behaviour.
+- **Phase 2 status:** closed with the residuals above. Phase 3 spec drafted at `docs/design/phase3-ingestion-retrieval.md`; implementation awaits go-ahead.
