@@ -182,3 +182,18 @@ Verdict APPROVE_WITH_RESIDUALS, no gate-class findings. Build pass 2 addresses t
 - G-P3-3: jobs were keyed without scope, so the scope gate checked a name the row did not carry. Fixed: jobs are keyed by (scope, source_id, stage, content_hash), schema version 4. The jobs table is Phase 3 idempotency state and unreleased, so migration 4 rebuilds it rather than migrating rows.
 - G-P3-4: recalled text could be re-ingested as user speech. Fixed: Item.render() wraps recalled text in the recall fence; fence() is now applied to document text and derived media text as well as conversation turns. Residual: render() is best-effort; a caller that hands raw Item.text back is a Phase 6 service-boundary concern.
 - Open residuals from review 581c19f: G-P3-5 (ffmpeg temp file on failure), G-P3-6 (malformed MATCH raises raw sqlite3 error), G-P3-7 (a version-3 database with an empty index opens without reindexing).
+
+### Phase 3 review round 4 (commit fcc7961, BLOCK, G-P3-8)
+
+- G-P3-8: a stored close tag could end the rendered recall block early, so the remainder was re-ingested as user speech. Fixed: Item.render() escapes recall-tag tokens in text; fence() removes from the first open tag through the last close tag, repeatedly, then strips stray tags.
+- Open residuals from fcc7961 (to be decided, not yet fixed):
+  - R-P3-8 whisper temp .wav leaked on ffmpeg failure (same as R-P3-1 / G-P3-5).
+  - R-P3-9 crash mid-document leaves a committed Source and a prefix of its Observations readable; job stays 'running'.
+  - R-P3-10 deleting an imported Source does not clear its jobs row, so a re-import is treated as done and returns without re-ingesting.
+  - R-P3-11 an Observation may cite any same-scope record type, not only a Source (spec §4 / D3-3).
+  - R-P3-12 media text returned at L2 without a machine-derived label on the read side (D3-6 not enforced on read).
+  - R-P3-13 record attribution can change between the knowledge check and the row write (object mutation).
+  - R-P3-14 fts_candidates scans all matches before the row-level gate (performance and exposure of counts only by timing).
+  - R-P3-15 ingest_document parses before any authorization check (resource use by unauthorized callers).
+  - R-P3-16 adapter scratch path is operator-specific and hard-coded.
+  - R-P3-17 delete refusal confirms that some derived record exists in a scope the caller cannot delete (generic, no id).

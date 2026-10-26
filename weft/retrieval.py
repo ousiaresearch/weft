@@ -29,7 +29,10 @@ class Item:
         user speech (review G-P3-4). Best-effort: a caller that bypasses render() is a
         Phase 6 service-boundary concern, recorded as a residual.
         """
-        return f'<weft-recall scope="{self.scope}">{self.text}</weft-recall>'
+        # Escape any recall-tag token inside the text so it cannot close the block early
+        # (review G-P3-8). Only the tag tokens are escaped; other text is unchanged.
+        safe = re.sub(r"<(/?weft-recall)", r"&lt;\1", self.text, flags=re.IGNORECASE)
+        return f'<weft-recall scope="{self.scope}">{safe}</weft-recall>'
 
 
 @dataclass

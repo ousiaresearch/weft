@@ -19,6 +19,8 @@ from weft.substrate import Record, RecordConflict
 _TURN_ATTRIBUTION = {"user": "user", "assistant": "agent", "system": "system"}
 _FENCE = re.compile(r"<weft-recall\b[^>]*>.*?</weft-recall>", re.DOTALL | re.IGNORECASE)
 _STRAY = re.compile(r"</?weft-recall\b[^>]*>", re.IGNORECASE)
+_OPEN = re.compile(r"<weft-recall\b[^>]*>", re.IGNORECASE)
+_CLOSE = re.compile(r"</weft-recall>", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -28,8 +30,21 @@ class Rejection:
 
 
 def fence(text: str) -> tuple[str, bool]:
-    """Strip recall blocks and stray recall tags (D3-5). Returns (text, changed)."""
-    cleaned = _FENCE.sub("", text)
+    """Strip recall blocks and stray recall tags (D3-5). Returns (text, changed).
+
+    Blocks are removed until none remain (review G-P3-8: nested or repeated blocks
+    must not leave recalled content behind), then any stray tag token is removed.
+    """
+    cleaned = text
+    while True:
+        opened = _OPEN.search(cleaned)
+        if opened is None:
+            break
+        closes = list(_CLOSE.finditer(cleaned, opened.end()))
+        if not closes:
+            break
+        # Conservative: everything from the first open tag through the last close tag goes.
+        cleaned = cleaned[:opened.start()] + cleaned[closes[-1].end():]
     cleaned = _STRAY.sub("", cleaned)
     return cleaned, cleaned != text
 
