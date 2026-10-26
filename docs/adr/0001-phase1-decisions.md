@@ -63,7 +63,7 @@ from losing an accepted write, and it is the correct one.
 **To verify by fault injection in Phase 1:**
 - Kill mid-transaction → no partial record, no orphan journal entry.
 - Kill after commit, before projection → record present, projection stale and flagged.
-- Rebuild-from-journal reproduces the identical record set.
+- ~~Rebuild-from-journal reproduces the identical record set.~~ Withdrawn: the journal is an audit trail, not a rebuild source (see the addendum above).
 - Concurrent writers → no lost update, no interleaved corruption.
 
 ## Phase 1 deliverables
@@ -129,3 +129,22 @@ Round 4 is the last open review round for Phase 1. If its BLOCK findings are lim
 - **Projection directory is owner-only (F-E residual R3).** `write_projection` sets the directory to 0700.
 
 Residuals carried forward unchanged from round 5: R1 (content rule does not inspect provenance and source fields), R2 (multi-marker co-occurrence), R4 (confusables outside the table), R6 (`register_scope` is a runtime mutator), R7 (unauthenticated manifest), R8 and R9 (crash and mutation windows).
+
+### Phase 1 closure
+
+- **Review:** round 6 on `98dbcf7` returned APPROVE_WITH_RESIDUALS. No gate-class findings.
+- **Post-review cleanup (not re-reviewed; no behaviour change):** dead `reason` assignments removed; the projection directory is created owner-only (0700) from the start, closing the umask window; the stale rebuild-from-journal verification line is struck through.
+- **Residuals accepted for Phase 1, carried into later phases:**
+  - R1: the content rule inspects only `payload`. Provenance and source fields are not scanned. Phase 2 classifier must cover them.
+  - R2: in-process code can reach `_conn`. Enforced at the service boundary in Phase 6.
+  - R3: content-marker coverage is best-effort. Confusables outside the table are accepted residuals.
+  - R4: over-blocking of unrelated text that names another scope's marker. Accepted; the marker list is configuration.
+  - R5: `register_scope` is a runtime mutator for markers. Phase 6 service boundary must restrict it.
+  - R6: the projection manifest is unauthenticated. Forging it requires write access to the owner-only projection directory, which is in-process trust.
+  - R7: non-`ScopeContext` objects raise `AttributeError` rather than failing closed with a typed error. No data is returned.
+  - R8: delete with `ctx=None` journals the caller-supplied id into the raw audit table (scope NULL, not visible to any view).
+  - R9: the delete reason is free text with no length cap. Written only into the record's own scope journal, by a holder of that scope.
+  - R10: the marker token-run matcher is separator-insensitive by design and over-blocks some strings.
+  - R11: crash windows between record write and manifest rewrite can report `tampered` rather than `stale`.
+- **Traceability:** the round-1 finding labelled F11 has no recoverable text in the repository; reviewer treats it as a numbering gap and judged the gated paths it would cover to be covered by F1, F7, F12, and F16.
+- **Phase 1 status:** closed with the residuals above. Phase 2 may start.

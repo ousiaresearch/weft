@@ -299,7 +299,6 @@ class Substrate:
                     raise ScopeViolation("correction not permitted")
                 if record.scope != orig.scope:
                     # Review N10: a correction stays in its original's scope.
-                    reason = "correction must stay within the original record's scope"  # noqa: F841
                     self._journal("correct_denied", None, None, "correction not permitted")
                     self._conn.execute("COMMIT")
                     raise ScopeViolation("correction not permitted")
@@ -314,7 +313,6 @@ class Substrate:
                 if ctx is None or existing[0] not in ctx.granted_scopes:
                     # Review fix F2 / G4: overwrite needs the incumbent's scope. The
                     # caller gets the same generic refusal as any denied write.
-                    reason = f"write to existing record in scope {existing[0]!r} not granted"
                     self._journal("write_denied", None, None, "write not permitted")
                     self._conn.execute("COMMIT")
                     raise ScopeViolation("write not permitted")
@@ -541,7 +539,10 @@ class Substrate:
                     if (out / name).exists():
                         raise ScopeViolation("projection directory holds unmanaged files")
 
-            out.mkdir(parents=True, exist_ok=True)
+            # Create the projection directory owner-only from the start (no umask window).
+            out.parent.mkdir(parents=True, exist_ok=True)
+            if not out.exists():
+                os.mkdir(out, 0o700)
             os.chmod(out, 0o700)
             prev_names = {
                 n for n in ((manifest or {}).get("files") or {}) if _safe_projection_name(n)
