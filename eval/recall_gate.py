@@ -68,6 +68,23 @@ class CachedEmbedder:
             pickle.dump(self._cache, open(self._path, "wb"))
 
 
+EMBEDDER = "harrier"
+
+
+def make_embedder():
+    if EMBEDDER == "qwen3":
+        from weft.adapters import Qwen3Embedder
+        model = glob.glob(os.path.expanduser(
+            "~/.cache/huggingface/hub/models--Qwen--Qwen3-Embedding-0.6B/snapshots/*"))[0]
+        return Qwen3Embedder(model)
+    return HarrierEmbedder(MODEL)
+
+
+def cache_path_for(name):
+    # one cache per model: vectors from different models must never mix
+    return SCRATCH / f"embed_cache-{name}.pkl"
+
+
 def _doc_name(sub, rid):
     rec = sub.get(rid, USER)
     if rec is None or not isinstance(rec.provenance, dict):
@@ -83,7 +100,7 @@ def main(gold_path: str, out_path: str, doc_vectors: bool = False, centroid: boo
         if os.path.exists(str(db) + suffix):
             os.remove(str(db) + suffix)
     sub = Substrate(db, scope_engine=ScopeEngine(known_scopes={SCOPE}, markers={}))
-    emb = CachedEmbedder(HarrierEmbedder(MODEL), SCRATCH / "embed_cache.pkl")
+    emb = CachedEmbedder(make_embedder(), cache_path_for(EMBEDDER))
     ing = Ingestor(sub, embedder=emb, doc_vectors=doc_vectors, doc_centroid=centroid)
 
     t0 = time.time()
@@ -158,9 +175,13 @@ def main(gold_path: str, out_path: str, doc_vectors: bool = False, centroid: boo
 
 if __name__ == "__main__":
     args = sys.argv[1:]
+    if "qwen3" in args:
+        EMBEDDER = "qwen3"  # noqa: F811 (module-level switch for this run)
     doc_vec = "doc-vectors" in args
     centroid = "centroid" in args
     out = {"centroid": "recall_gate_results-centroid.json", "doc-vectors": "recall_gate_results-docvectors.json"}.get(
         "centroid" if centroid else ("doc-vectors" if doc_vec else ""), "recall_gate_results.json")
     gold = next((a for a in args if a.endswith(".json")), str(REPO / "eval" / "gold-set-draft.json"))
+    if EMBEDDER == "qwen3":
+        out = out.replace(".json", "-qwen3.json")
     main(gold, str(REPO / "eval" / out), doc_vectors=doc_vec, centroid=centroid)

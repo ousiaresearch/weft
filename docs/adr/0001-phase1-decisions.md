@@ -239,3 +239,12 @@ Verdict APPROVE_WITH_RESIDUALS, no gate-class findings. Build pass 2 addresses t
 - Paraphrase ranks (vector, one per document): [36, 14, 1, 1, none, 8, 14, 1, 24, 9]. Four right at rank 1; several at 8–14; some far off.
 - Two paraphrases are vague by construction (the "groundwork file ..." and "bundle that brings ..." queries fit several notes). The paraphrase set needs review before the gate counts it.
 - Options not yet taken: a larger embedding model (Colab, needs per-run authorization); reranking (an extra model); tuning fusion weights (not done: tuning on a 10-item set would overfit).
+
+
+### Embedding model comparison (sub-4B only; 27B Harrier dropped by user direction)
+
+- Harrier-oss-v1-0.6b (MIT, 1024-dim), centroid vectors: vector recall@5 0.84 overall; paraphrase 0.40; keyword 0.95; vector recall@1 0.68.
+- Qwen/Qwen3-Embedding-0.6B (Apache-2.0, 1024-dim, mlx-embeddings), centroid vectors: vector recall@5 0.86 overall; paraphrase 0.60; keyword 0.925; vector recall@1 0.58. Hybrid recall@5 0.84 overall, paraphrase 0.40.
+- Read: Qwen3 is better on paraphrases (the reason vector exists) and slightly worse on keyword and top-1. Neither clears the 0.90 floor, so vector stays off by default.
+- Candidates not yet measured: BAAI/bge-m3 (MIT, 0.57B). Excluded: Qwen3-Embedding-4B (over 4B); EmbeddingGemma-300M (Gemma terms).
+- Index time for the Qwen3 run was about 21 minutes on this machine under load; vectors are model-specific, so switching models requires re-indexing.

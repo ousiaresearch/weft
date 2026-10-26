@@ -156,3 +156,19 @@ class HarrierEmbedder:
     def embed_query(self, text: str) -> list:
         return self._embed(self.QUERY_PREFIX + text)
 
+
+class Qwen3Embedder(HarrierEmbedder):
+    """Qwen/Qwen3-Embedding-0.6B (Apache-2.0), 1024-dim, last-token pooling, Qwen3 query instruction.
+
+    Same mlx-embeddings path as HarrierEmbedder; only the model and the query prefix differ.
+    """
+
+    QUERY_PREFIX = (
+        "Instruct: Given a web search query, retrieve relevant passages that answer the query\n"
+        "Query:"
+    )
+
+    def __init__(self, model_dir):
+        super().__init__(model_dir)
+        self.model_id = "Qwen/Qwen3-Embedding-0.6B (mlx-embeddings)"
+
