@@ -99,4 +99,5 @@ echo drafted
 
 - D3-1 revised: vector retrieval on at ship, subject to a measured-recall pass before ship.
 - Formats: Markdown, plain text, PDF with text layer, DOCX, images, and audio.
-- Open: batch consent thresholds (recommendation pending) and the gold set (explanation pending).
+- Batch consent thresholds (user: "you're clear", recommendation adopted): ask before processing any batch over 10 files, over 30 minutes of audio, or over 100 MB; always ask before any external provider call. Config values, changeable.
+- Gold set: explained to the user; not yet authorized. Draft from the Arien vault awaits approval.
