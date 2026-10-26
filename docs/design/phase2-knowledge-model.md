@@ -32,6 +32,10 @@ Out (later phases): ingestion, retrieval ranking, reasoning loop, correction-as-
 
 **D2-7. Cross-scope is user-attributed only.** `ScopeContext.user_authorized_cross_scope` is set only from a user-authored turn or UI action. Attribution ambiguity denies.
 
+**D2-8. Classifier is rules-only in Phase 2 (decided).** The classifier uses the scope markers already defined in configuration, with the Phase 1 normaliser. No model-based classifier in Phase 2. Reason: rules are deterministic and reviewable, and the Phase 1 gate already rests on them. Known limit: paraphrased references to a project pass unless they contain a marker. A model-based classifier is a Phase 4 option, judged against the same §6 tests before adoption.
+
+**D2-9. Verifiers are user-created scope-holding actors (decided).** Only a verifier can promote a Claim to `verified`, and only with a Verification record naming that Claim. The user creates verifiers through an explicit action. The agent cannot create, modify, or grant a verifier. Reason: otherwise the agent could mint its own verification, which defeats the status gate.
+
 ## 3. Record types and creation rules
 
 | Type | Created by | Attribution allowed | Status allowed | Lineage |
@@ -113,8 +117,10 @@ Migration
 - Fresh independent adversarial review (Codex, per standing rule) returns APPROVE or APPROVE_WITH_RESIDUALS with no gate-class findings.
 - Residuals recorded in the ADR.
 
-## 8. Open items (need decisions before implementation)
+## 8. Open items
 
-- OCR in alpha: **resolved.** Accepted by the user (Oct 25). Phase 2 does not depend on it; OCR output enters through the Phase 3 ingestion path as machine-derived Observations.
-- Classifier implementation: rule-based markers only in Phase 2, or a local model? Recommendation: rules only in Phase 2; a model classifier is a Phase 4 option, evaluated against the same tests.
-- Verifier actor identity: how a verifier is registered. Recommendation: a verifier is a scope-holding actor created by the user; it cannot be created by the agent.
+None blocking Phase 2 implementation.
+
+- OCR in alpha: resolved (accepted by the user, Oct 25). OCR output enters through the Phase 3 ingestion path as machine-derived Observations.
+- Classifier: resolved as D2-8.
+- Verifier registration: resolved as D2-9.
