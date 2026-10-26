@@ -417,7 +417,8 @@ class Substrate:
                 raise KnowledgeRefusal(reason)
 
             existing = self._conn.execute(
-                "SELECT scope, record_type FROM records WHERE record_id=?", (record.record_id,)
+                "SELECT scope, record_type, epistemic_status FROM records WHERE record_id=?",
+                (record.record_id,),
             ).fetchone()
             if existing is not None:
                 # Review G5: check authority over the incumbent BEFORE reporting a
@@ -430,6 +431,10 @@ class Substrate:
                     raise ScopeViolation("write not permitted")
                 if not overwrite:
                     raise RecordConflict(f"record {record.record_id!r} already exists")
+                if existing[2] == "verified":
+                    # Round 3 BLOCK: a verified record can only be removed, never rewritten.
+                    # Otherwise a Claim could be demoted to derived and its Verification deleted.
+                    raise KnowledgeRefusal("verified record cannot be overwritten")
                 if existing[1] == "Verification" and self._relied_on(record.record_id):
                     # Round 2 BLOCK: overwrite must not re-point a relied-on Verification.
                     raise KnowledgeRefusal("verification is relied on by a verified claim")
@@ -477,6 +482,15 @@ class Substrate:
 
                 decision = self.scope_engine.authorize_delete(row[1], ctx)
                 if not decision.allowed:
+                    self._journal("delete_denied", None, None, "delete not permitted")
+                    self._conn.execute("COMMIT")
+                    return False
+                # D2-4: the classifier must be able to run. Its verdict does not block
+                # deletion (removing contaminated content is the point), only its failure does.
+                try:
+                    full = self._lookup_record(record_id)
+                    self.scope_engine.content_conflict(row[1], self.scope_engine._payload_text(full))
+                except Exception:
                     self._journal("delete_denied", None, None, "delete not permitted")
                     self._conn.execute("COMMIT")
                     return False
@@ -629,7 +643,7 @@ class Substrate:
         directory belongs to exactly one view (review G2)."""
         return _sha256(json.dumps(
             [sorted(ctx.granted_scopes), ctx.user_authorized_cross_scope,
-             sorted(ctx.cross_scope_targets), ctx.authorization_source],
+             sorted(ctx.cross_scope_targets), ctx.authorization_source, ctx.user_authored],
             sort_keys=True,
         ))
 

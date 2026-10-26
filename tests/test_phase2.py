@@ -409,3 +409,51 @@ def test_corrupt_source_ids_fail_closed_on_delete(sub):
     with pytest.raises(SubstrateError):
         sub.delete("o1", USER)
     assert sub.get("o1", USER) is not None
+
+
+# Round 3 review (aaec341), BLOCK: a verified Claim cannot be rewritten into an unsupported state.
+def test_R3_overwrite_of_relied_on_claim_refused(sub):
+    vctx = verifier_ctx(sub)
+    sub.put(Record(record_id="v-1", record_type="Verification", scope="acs-project",
+                   payload={"claim_id": "c1"}, attribution="verifier", source_ids=[]), vctx)
+    sub.put(rec("c1", "acs-project", "Claim", attribution="verifier", status="verified",
+                source_ids=("v-1",)), vctx)
+    demoted = rec("c1", "acs-project", "Claim", attribution="agent", status="derived", source_ids=())
+    with pytest.raises(ScopeViolation):
+        sub.put(demoted, AGENT, overwrite=True)
+    assert sub.get("c1", vctx).epistemic_status == "verified"
+    assert sub.delete("v-1", vctx) is False
+
+
+def test_overwrite_of_any_verified_record_refused(sub):
+    vctx = verifier_ctx(sub)
+    sub.put(Record(record_id="v-1", record_type="Verification", scope="acs-project",
+                   payload={"claim_id": "c1"}, attribution="verifier", source_ids=[]), vctx)
+    sub.put(rec("c1", "acs-project", "Claim", attribution="verifier", status="verified",
+                source_ids=("v-1",)), vctx)
+    same_again = rec("c1", "acs-project", "Claim", attribution="verifier", status="verified",
+                     source_ids=("v-1",))
+    with pytest.raises(ScopeViolation):
+        sub.put(same_again, vctx, overwrite=True)
+
+
+# Round 3 review: classifier error fails closed on delete too.
+def test_delete_fails_closed_when_classifier_errors(sub, engine, monkeypatch):
+    sub.put(rec("m1", "memory-providers", text="harmless"), USER)
+
+    def boom(*_a, **_k):
+        raise RuntimeError("classifier down")
+    monkeypatch.setattr(engine, "content_conflict", boom)
+    assert sub.delete("m1", USER) is False
+    monkeypatch.undo()
+    assert sub.get("m1", USER) is not None
+
+
+# Round 3 review: the projection view must distinguish user-authored contexts.
+def test_projection_view_distinguishes_user_authored(sub, tmp_path):
+    sub.put(rec("m1", "memory-providers", text="fact"), USER)
+    out = tmp_path / "proj"
+    sub.write_projection(out, MEM_AGENT)
+    user_mem = ScopeContext(granted_scopes=frozenset({"memory-providers"}), user_authored=True, actor="johann")
+    with pytest.raises(ScopeViolation):
+        sub.write_projection(out, user_mem)
