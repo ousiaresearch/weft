@@ -30,6 +30,22 @@ USER_CTX = ScopeContext(granted_scopes=frozenset(KNOWN), user_authored=True, act
 MEM = ScopeContext(granted_scopes=frozenset({"memory-providers"}))
 
 
+def _seed_source(s, scopes):
+    """Phase 3 (R-6): observations must cite an existing same-scope Source.
+
+    Seeds one Source per scope with a raw insert: no journal row and no index row,
+    so the seeds do not show up in journal or search assertions.
+    """
+    for sc in scopes:
+        s._conn.execute(
+            "INSERT OR IGNORE INTO records (record_id, record_type, scope, epistemic_status, payload, "
+            "created_at, effective_at, supersedes, source_ids, provenance, attribution) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            (f"src-1-{sc}", "Source", sc, "stated", '{"text": "seed source"}', 0.0, None, None, "[]", "{}", "document"),
+        )
+    s._conn.commit()
+
+
 @pytest.fixture
 def engine():
     return ScopeEngine(known_scopes=KNOWN, markers=MARKERS)
@@ -38,6 +54,8 @@ def engine():
 @pytest.fixture
 def substrate(tmp_path, engine):
     s = Substrate(tmp_path / "weft.db", scope_engine=engine)
+    _seed_source(s, sorted(KNOWN))
+    _seed_source(s, sorted(KNOWN))
     yield s
     s.close()
 
@@ -57,7 +75,7 @@ def make_correction(rid, scope="memory-providers", text="corrected"):
 
 
 def make_record(rid="r1", scope="memory-providers", text="Honcho uses hybrid recall."):
-    return Record(record_id=rid, record_type="Observation", attribution="document", source_ids=["src-1"], scope=scope, payload={"text": text})
+    return Record(record_id=rid, record_type="Observation", attribution="document", source_ids=[f"src-1-{scope}"], scope=scope, payload={"text": text})
 
 
 class TestBasicOperations:
@@ -145,6 +163,7 @@ class TestBasicOperations:
 class TestDurabilityPragmas:
     def test_synchronous_is_full(self, tmp_path, engine):
         s = Substrate(tmp_path / "d.db", scope_engine=engine)
+        _seed_source(s, sorted(KNOWN))
         try:
             assert s._conn.execute("PRAGMA synchronous").fetchone()[0] == 2
         finally:
@@ -152,6 +171,7 @@ class TestDurabilityPragmas:
 
     def test_wal_mode_enabled(self, tmp_path, engine):
         s = Substrate(tmp_path / "d.db", scope_engine=engine)
+        _seed_source(s, sorted(KNOWN))
         try:
             assert s._conn.execute("PRAGMA journal_mode").fetchone()[0].lower() == "wal"
         finally:
@@ -159,6 +179,7 @@ class TestDurabilityPragmas:
 
     def test_foreign_keys_enabled(self, tmp_path, engine):
         s = Substrate(tmp_path / "d.db", scope_engine=engine)
+        _seed_source(s, sorted(KNOWN))
         try:
             assert s._conn.execute("PRAGMA foreign_keys").fetchone()[0] == 1
         finally:
@@ -205,6 +226,7 @@ class TestFaultInjection:
         """Kill the real write path between the record insert and its journal entry."""
         db = tmp_path / "weft.db"
         setup = Substrate(db, scope_engine=ScopeEngine(known_scopes=KNOWN))
+        _seed_source(setup, sorted(KNOWN))
         setup.put(make_record("committed"), CTX)
         setup.close()
 
@@ -227,6 +249,7 @@ class TestFaultInjection:
         assert proc.returncode == -signal.SIGKILL, proc.stderr.decode()
 
         s2 = Substrate(db, scope_engine=ScopeEngine(known_scopes=KNOWN))
+        _seed_source(s2, sorted(KNOWN))
         try:
             assert s2.get("committed", CTX) is not None
             assert s2.get("doomed", CTX) is None, "uncommitted record leaked"
@@ -247,12 +270,15 @@ class TestFaultInjection:
         for i in range(20):
             substrate.put(make_record(f"r{i}", text=f"fact {i}"), CTX)
         put_ids = {j["record_id"] for j in substrate.journal_entries(CTX) if j["op"] == "put"}
-        assert put_ids == {r.record_id for r in substrate.all_records(CTX)}
+        # the seeded Source is written by the fixture, not by the test; exclude it explicitly
+        put_ids.discard("src-1-memory-providers")
+        assert put_ids == {r.record_id for r in substrate.all_records(CTX) if r.record_type != "Source"}
 
     def test_concurrent_writers_no_lost_or_duplicate_record(self, tmp_path):
         """Two processes race for the same ids. Each id is created exactly once."""
         db = tmp_path / "weft.db"
         setup = Substrate(db, scope_engine=ScopeEngine(known_scopes=KNOWN))
+        _seed_source(setup, sorted(KNOWN))
         setup.close()
 
         writer = textwrap.dedent(
@@ -266,7 +292,7 @@ class TestFaultInjection:
             won = 0
             for i in range(30):
                 try:
-                    s.put(Record(record_id=f"shared{{i}}", record_type="Observation", attribution="document", source_ids=["src-1"],
+                    s.put(Record(record_id=f"shared{{i}}", record_type="Observation", attribution="document", source_ids=[f"src-1-memory-providers"],
                                  scope="memory-providers", payload={{"text": "x"}}), ctx)
                     won += 1
                 except RecordConflict:
@@ -280,8 +306,10 @@ class TestFaultInjection:
         assert sum(wins) == 30, f"each id must be created exactly once, got wins={wins}"
 
         s2 = Substrate(db, scope_engine=ScopeEngine(known_scopes=KNOWN))
+        _seed_source(s2, sorted(KNOWN))
         try:
             ids = [r.record_id for r in s2.all_records(MEM)]
+            ids = [x for x in ids if x != "src-1-memory-providers"]
             assert len(ids) == len(set(ids)) == 30
         finally:
             s2.close()

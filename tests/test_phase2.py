@@ -21,6 +21,22 @@ AGENT = ScopeContext(granted_scopes=frozenset(KNOWN), actor="arien")
 MEM_AGENT = ScopeContext(granted_scopes=frozenset({"memory-providers"}), actor="arien")
 
 
+def _seed_source(s, scopes):
+    """Phase 3 (R-6): observations must cite an existing same-scope Source.
+
+    Seeds one Source per scope with a raw insert: no journal row and no index row,
+    so the seeds do not show up in journal or search assertions.
+    """
+    for sc in scopes:
+        s._conn.execute(
+            "INSERT OR IGNORE INTO records (record_id, record_type, scope, epistemic_status, payload, "
+            "created_at, effective_at, supersedes, source_ids, provenance, attribution) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            (f"src-1-{sc}", "Source", sc, "stated", '{"text": "seed source"}', 0.0, None, None, "[]", "{}", "document"),
+        )
+    s._conn.commit()
+
+
 @pytest.fixture
 def engine():
     return ScopeEngine(known_scopes=KNOWN, markers=MARKERS)
@@ -29,12 +45,16 @@ def engine():
 @pytest.fixture
 def sub(tmp_path, engine):
     s = Substrate(tmp_path / "weft.db", scope_engine=engine)
+    _seed_source(s, sorted(KNOWN))
+    _seed_source(s, sorted(KNOWN))
     yield s
     s.close()
 
 
 def rec(rid, scope, rtype="Observation", *, attribution="document", status="stated",
-        text="plain fact", source_ids=("src-1",), provenance=None, supersedes=None):
+        text="plain fact", source_ids=None, provenance=None, supersedes=None):
+    if source_ids is None:
+        source_ids = (f"src-1-{scope}",)
     return Record(
         record_id=rid, record_type=rtype, scope=scope, payload={"text": text},
         epistemic_status=status, attribution=attribution, source_ids=list(source_ids),
@@ -211,7 +231,7 @@ def test_memory_provider_query_returns_zero_acs_records(sub):
     sub.put(rec("a1", "acs-project", text="ACS release plan"), USER)
     sub.put(rec("m1", "memory-providers", text="Honcho uses hybrid recall"), USER)
     readable, _ = sub.query(MEM_AGENT)
-    assert [r.record_id for r in readable] == ["m1"]
+    assert [r.record_id for r in readable if r.record_type != "Source"] == ["m1"]
 
 
 def test_positive_same_project_recall_returns_relevant_records(sub):
@@ -249,7 +269,7 @@ def test_identity_sourced_acs_fact_excluded_from_unrelated_queries(sub):
     sub.put(rec("p1", "acs-project", "Person", attribution="user", source_ids=(),
                 text="Johann", provenance={"origin": "ACS Listening Commonwealth roster"}), USER)
     readable, _ = sub.query(MEM_AGENT)
-    assert readable == []
+    assert [r for r in readable if r.record_type != "Source"] == []
 
 
 # ---- Migrations (spec §4) ----------------------------------------------------
@@ -279,6 +299,7 @@ def test_phase1_database_migrates_and_backfills(tmp_path, engine):
     db = tmp_path / "old.db"
     _make_phase1_db(db)
     s = Substrate(db, scope_engine=engine)
+    _seed_source(s, sorted(KNOWN))
     try:
         assert s._conn.execute("PRAGMA user_version").fetchone()[0] == 3
         row = s._conn.execute("SELECT attribution FROM records WHERE record_id='old1'").fetchone()
@@ -292,6 +313,7 @@ def test_migration_is_idempotent(tmp_path, engine):
     _make_phase1_db(db)
     Substrate(db, scope_engine=engine).close()
     s = Substrate(db, scope_engine=engine)
+    _seed_source(s, sorted(KNOWN))
     try:
         assert s._conn.execute("PRAGMA user_version").fetchone()[0] == 3
     finally:
@@ -316,6 +338,7 @@ def test_failed_migration_rolls_back(tmp_path, engine):
     assert "attribution" not in cols
     assert version == 0
     s = Substrate(db, scope_engine=engine)  # recovers once the fault is removed
+    _seed_source(s, sorted(KNOWN))
     try:
         assert s._conn.execute("PRAGMA user_version").fetchone()[0] == 3
     finally:
@@ -380,7 +403,7 @@ def test_read_side_classifier_error_denies(sub, engine, monkeypatch):
     monkeypatch.setattr(engine, "content_conflict", boom)
     assert sub.get("m1", MEM_AGENT) is None
     readable, _ = sub.query(MEM_AGENT)
-    assert readable == []
+    assert [r for r in readable if r.record_type != "Source"] == []
 
 
 # Round 2 review (4c3f062), BLOCK: the R-2 guard must also cover overwrite.

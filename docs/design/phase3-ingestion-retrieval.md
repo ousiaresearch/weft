@@ -107,3 +107,11 @@ echo drafted
 - Built: conversation turns (user, agent, system attribution), fencing, document ingestion (txt, md, PDF text layer, DOCX) with named rejections, media ingestion through injected adapters, idempotent jobs, FTS5 index kept in step with every write, lexical scope-first recall, RecallReceipt (names and counts only), deletion removing index rows and derived Observations.
 - Not built yet: the real media adapters (OCR and image description via the Qwen3.5-2B VLM, transcription via whisper.cpp); the vector path (needs an embedding adapter); the gold set and measured-recall gate (needs the gold set, which the user has not yet approved); tiers L1 and L2 (only L0 abstracts are returned); crash-kill test for media jobs.
 - Migration 3 indexes existing rows.
+
+## 9. Build pass 2 (as built)
+
+- Real adapters, both local, no network: `weft/adapters.py`. `QwenVLM` (Qwen3.5-2B-8bit via mlx-vlm, image text and description; chat template applied). `WhisperTranscriber` (ffmpeg to 16 kHz mono WAV, then whisper.cpp large-v3-turbo q5_0). Integration tests run the real models: the VLM reads `WEFT MEMORY TEST 42`; whisper transcribes the smoke clip.
+- Retrieval tiers: L0 abstract, L1 overview (2000 chars), L2 full text. The smallest tier containing a query term is returned; the receipt records the highest tier used.
+- Source existence (closes R-6): an Observation may cite only a Source in its own scope. A missing or foreign source gets one generic refusal, so there is no existence oracle.
+- Media crash path: an interrupted derivation writes nothing; a rerun creates exactly one derived record.
+- Still not built: the vector path (needs an embedding adapter), the measured-recall gate (needs the gold set approved), and a proper receipt for L1/L2 selection beyond the highest-tier field.

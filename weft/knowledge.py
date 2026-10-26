@@ -77,6 +77,12 @@ def check_record(
         return "user attribution requires a user-authored turn"
     if rule.needs_source and not record.source_ids:
         return "observation must cite a source"
+    if rule.needs_source:
+        for sid in record.source_ids:
+            src = lookup(sid)
+            # Same-scope only: a foreign or missing source is one generic refusal.
+            if src is None or src.scope != record.scope:
+                return "cited source not available"
     if attribution == "verifier" and not is_verifier(ctx.actor):
         return "actor is not a registered verifier"
     if record.epistemic_status == "verified" and not _names_claim(record, lookup):

@@ -29,6 +29,22 @@ ACS_ONLY = ScopeContext(granted_scopes=frozenset({"acs-project"}))
 ALL_USER = ScopeContext(granted_scopes=frozenset(KNOWN), user_authored=True, actor="johann")
 
 
+def _seed_source(s, scopes):
+    """Phase 3 (R-6): observations must cite an existing same-scope Source.
+
+    Seeds one Source per scope with a raw insert: no journal row and no index row,
+    so the seeds do not show up in journal or search assertions.
+    """
+    for sc in scopes:
+        s._conn.execute(
+            "INSERT OR IGNORE INTO records (record_id, record_type, scope, epistemic_status, payload, "
+            "created_at, effective_at, supersedes, source_ids, provenance, attribution) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            (f"src-1-{sc}", "Source", sc, "stated", '{"text": "seed source"}', 0.0, None, None, "[]", "{}", "document"),
+        )
+    s._conn.commit()
+
+
 @pytest.fixture
 def engine():
     return ScopeEngine(known_scopes=KNOWN, markers=MARKERS)
@@ -37,12 +53,14 @@ def engine():
 @pytest.fixture
 def sub(tmp_path, engine):
     s = Substrate(tmp_path / "weft.db", scope_engine=engine)
+    _seed_source(s, sorted(KNOWN))
+    _seed_source(s, sorted(KNOWN))
     yield s
     s.close()
 
 
 def rec(rid, scope, text="plain fact"):
-    return Record(record_id=rid, record_type="Observation", attribution="document", source_ids=["src-1"], scope=scope, payload={"text": text})
+    return Record(record_id=rid, record_type="Observation", attribution="document", source_ids=[f"src-1-{scope}"], scope=scope, payload={"text": text})
 
 
 # F1: write path had no caller authority check.
@@ -89,6 +107,7 @@ def test_F3_acs_content_under_memory_scope_not_returned_to_memory_reader(sub, tm
     )
     assert sub.get("legacy", MEM_ONLY) is None
     readable, _ = sub.query(MEM_ONLY)
+    readable = [r for r in readable if r.record_type != "Source"]
     assert all(r.record_id != "legacy" for r in readable)
 
 
@@ -136,6 +155,7 @@ def test_F7_correct_requires_read_of_original(sub):
 def test_F8_delete_authorization_runs_under_write_lock(tmp_path, engine, monkeypatch):
     db = tmp_path / "weft.db"
     s = Substrate(db, scope_engine=engine, busy_timeout=0.2)
+    _seed_source(s, sorted(KNOWN))
     s.put(rec("r1", "memory-providers", "x"), ALL)
 
     original = engine.authorize_delete
@@ -208,6 +228,7 @@ def test_F12_journal_without_context_is_empty(sub):
 def test_F13_denial_is_refused_even_when_audit_write_is_locked(tmp_path, engine):
     db = tmp_path / "weft.db"
     s = Substrate(db, scope_engine=engine, busy_timeout=0.2)
+    _seed_source(s, sorted(KNOWN))
     holder = sqlite3.connect(str(db), isolation_level=None)
     holder.execute("BEGIN IMMEDIATE")  # hold the write lock
     try:
@@ -223,6 +244,7 @@ def test_F13_denial_is_refused_even_when_audit_write_is_locked(tmp_path, engine)
 def test_F14_real_lock_error_is_not_masked_by_rollback(tmp_path, engine):
     db = tmp_path / "weft.db"
     s = Substrate(db, scope_engine=engine, busy_timeout=0.2)
+    _seed_source(s, sorted(KNOWN))
     holder = sqlite3.connect(str(db), isolation_level=None)
     holder.execute("BEGIN IMMEDIATE")
     try:
@@ -295,20 +317,20 @@ def _legacy_dependent(sub, rid, scope, supersedes):
     ],
 )
 def test_F_A_marker_variants_refused_under_other_scope(engine, payload):
-    rec = Record(record_id="rn", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers", payload=payload)
+    rec = Record(record_id="rn", record_type="Observation", attribution="document", source_ids=[f"src-1-memory-providers"], scope="memory-providers", payload=payload)
     assert not engine.authorize_write(rec, MEM_ONLY).allowed, payload
 
 
 def test_F_A_marker_variants_withheld_on_read(engine):
-    rec = Record(record_id="rn", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers",
+    rec = Record(record_id="rn", record_type="Observation", attribution="document", source_ids=[f"src-1-memory-providers"], scope="memory-providers",
                  payload={"text": "note", "meta": {"secret": "The Listening Commonwealth"}})
     readable = engine.filter_readable([rec], MEM_ONLY)
-    assert readable == []
+    assert [r for r in readable if r.record_type != "Source"] == []
 
 
 def test_F_A_no_false_positive_on_substring_words(engine):
     """'impacts' contains 'acs' but is a different word; must not be treated as the ACS marker."""
-    rec = Record(record_id="ok", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers",
+    rec = Record(record_id="ok", record_type="Observation", attribution="document", source_ids=[f"src-1-memory-providers"], scope="memory-providers",
                  payload={"text": "The impacts were small."})
     assert engine.authorize_write(rec, MEM_ONLY).allowed
 
@@ -335,14 +357,14 @@ def test_F_C_projection_without_context_is_non_destructive(sub, tmp_path):
 
 # F-D: denial reasons must not name scopes the caller cannot see.
 def test_F_D_content_denial_reason_names_no_other_scope(engine):
-    rec = Record(record_id="rn", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers",
+    rec = Record(record_id="rn", record_type="Observation", attribution="document", source_ids=[f"src-1-memory-providers"], scope="memory-providers",
                  payload={"text": "The Listening Commonwealth"})
     reason = engine.authorize_write(rec, MEM_ONLY).reason
     assert "acs-project" not in reason
 
 
 def test_F_D_read_denial_reason_names_no_other_scope(engine):
-    rec = Record(record_id="rn", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers",
+    rec = Record(record_id="rn", record_type="Observation", attribution="document", source_ids=[f"src-1-memory-providers"], scope="memory-providers",
                  payload={"text": "The Listening Commonwealth"})
     reason = engine.authorize_read("memory-providers", MEM_ONLY, text="The Listening Commonwealth").reason
     assert "acs-project" not in reason
@@ -352,6 +374,7 @@ def test_F_D_read_denial_reason_names_no_other_scope(engine):
 def test_F_E_database_file_is_owner_only(tmp_path, engine):
     db = tmp_path / "weft.db"
     s = Substrate(db, scope_engine=engine)
+    _seed_source(s, sorted(KNOWN))
     s.put(rec("r1", "memory-providers", "x"), ALL)
     s.close()
     assert (os.stat(db).st_mode & 0o077) == 0
@@ -366,11 +389,13 @@ def test_F17_same_id_race_has_exactly_one_winner_across_processes(tmp_path, engi
         "from weft.scope import ScopeContext, ScopeEngine\n"
         "from weft.substrate import Record, RecordConflict, Substrate\n"
         "s = Substrate(%r, scope_engine=ScopeEngine(known_scopes=%r), busy_timeout=10)\n"
+        "s._conn.execute(\"INSERT OR IGNORE INTO records (record_id, record_type, scope, epistemic_status, payload, created_at, effective_at, supersedes, source_ids, provenance, attribution) VALUES ('src-1-memory-providers','Source','memory-providers','stated','{}',0.0,NULL,NULL,'[]','{}','document')\")\n"
+        "s._conn.commit()\n"
         "ctx = ScopeContext(granted_scopes=frozenset({'memory-providers'}))\n"
         "won = 0\n"
         "for i in range(20):\n"
         "    try:\n"
-        "        s.put(Record(record_id='race%%d' %% i, record_type='Observation', attribution='document', source_ids=['src-1'],\n"
+        "        s.put(Record(record_id='race%%d' %% i, record_type='Observation', attribution='document', source_ids=['src-1-memory-providers'],\n"
         "                     scope='memory-providers', payload={'text': 'x'}), ctx)\n"
         "        won += 1\n"
         "    except RecordConflict:\n"
@@ -392,7 +417,7 @@ def test_F19_global_allowlist_not_directly_mutable(engine):
 # F-A (homoglyphs): Cyrillic and Greek lookalikes must fold to the Latin marker.
 @pytest.mark.parametrize("text", ["\u0410\u0421S attestation", "Listening Commonwealth \u0430\u0441s"])
 def test_F_A_homoglyph_variants_refused(engine, text):
-    rec = Record(record_id="rh", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers", payload={"text": text})
+    rec = Record(record_id="rh", record_type="Observation", attribution="document", source_ids=[f"src-1-memory-providers"], scope="memory-providers", payload={"text": text})
     assert not engine.authorize_write(rec, MEM_ONLY).allowed, text
 
 
@@ -401,14 +426,14 @@ def test_F_A_homoglyph_variants_refused(engine, text):
 # N1: combining marks must not split or merge a marker token.
 @pytest.mark.parametrize("text", ["A\u0301CS charter", "AC\u0308S charter", "A\u200bC\u200bS charter", "A\u00adCS charter"])
 def test_N1_combining_and_invisible_marks_do_not_hide_marker(engine, text):
-    rec = Record(record_id="rc", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers", payload={"text": text})
+    rec = Record(record_id="rc", record_type="Observation", attribution="document", source_ids=[f"src-1-memory-providers"], scope="memory-providers", payload={"text": text})
     assert not engine.authorize_write(rec, MEM_ONLY).allowed, repr(text)
 
 
 # N2: lookalike letters with diacritics or in the Greek/Latin range.
 @pytest.mark.parametrize("text", ["\u00e5CS charter", "\u00e2CS charter", "\u0251CS charter", "AC\u03c2 charter"])
 def test_N2_diacritic_and_lookalike_letters_fold(engine, text):
-    rec = Record(record_id="rl", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers", payload={"text": text})
+    rec = Record(record_id="rl", record_type="Observation", attribution="document", source_ids=[f"src-1-memory-providers"], scope="memory-providers", payload={"text": text})
     assert not engine.authorize_write(rec, MEM_ONLY).allowed, repr(text)
 
 
@@ -427,7 +452,7 @@ def test_N3_unmanifested_files_are_left_alone(sub, tmp_path):
 
 # N4: exclusions must not disclose record ids the caller cannot see.
 def test_N4_exclusions_do_not_name_out_of_scope_records(sub):
-    sub.put(Record(record_id="acs1", record_type="Observation", attribution="document", source_ids=["src-1"], scope="acs-project", payload={"text": "x"}), ALL)
+    sub.put(Record(record_id="acs1", record_type="Observation", attribution="document", source_ids=[f"src-1-acs-project"], scope="acs-project", payload={"text": "x"}), ALL)
     readable, exclusions = sub.query(MEM_ONLY)
     assert "acs1" not in str((readable, exclusions))
 
@@ -461,6 +486,7 @@ def test_N7_unlink_journal_does_not_name_deleted_record(sub):
 def test_N8_sidecars_are_owner_only_from_creation(tmp_path, engine):
     db = tmp_path / "fresh.db"
     s = Substrate(db, scope_engine=engine)
+    _seed_source(s, sorted(KNOWN))
     s.put(rec("r1", "memory-providers", "x"), ALL)
     for suffix in ("", "-wal", "-shm"):
         p = str(db) + suffix
@@ -560,7 +586,7 @@ def test_G6_G7_query_exclusions_are_empty_and_reveal_nothing(sub):
     sub.put(rec("secret1", "acs-project", "ACS secret"), ALL)
     sub.put(rec("secret2", "acs-project", "ACS secret 2"), ALL)
     readable, exclusions = sub.query(MEM_ONLY)
-    assert readable == []
+    assert [r for r in readable if r.record_type != "Source"] == []
     assert exclusions == []
 
 
@@ -643,7 +669,7 @@ def test_G12_visible_journal_sequence_has_no_gaps(sub):
 # G13: a caller may not point a record's supersedes link at a scope it does not hold.
 def test_G13_unauthorized_supersedes_is_refused(sub):
     sub.put(rec("a1", "acs-project", "ACS"), ALL)
-    m1 = Record(record_id="m1", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers",
+    m1 = Record(record_id="m1", record_type="Observation", attribution="document", source_ids=[f"src-1-acs-project"], scope="memory-providers",
                 payload={"text": "x"}, supersedes="a1")
     with pytest.raises(ScopeViolation):
         sub.put(m1, MEM_ONLY)

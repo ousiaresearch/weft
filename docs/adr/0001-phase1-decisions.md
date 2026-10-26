@@ -165,3 +165,7 @@ The user accepted OCR for alpha. The OCR adapter (Qwen3.5-2B via mlx-vlm) joins 
 - pypdf 6.21.2: BSD-3-Clause (PDF text layer; chosen over PyMuPDF, AGPL).
 - python-docx: MIT (DOCX).
 - Earlier: sqlite-vec Apache-2.0; pywhispercpp and mlx-vlm per their own metadata (to be recorded when vector and media adapters are wired).
+
+### Phase 3 review round 1 (commit c1bf93e)
+
+Verdict APPROVE_WITH_RESIDUALS, no gate-class findings. Build pass 2 addresses the residuals: R-6 source existence (same-scope check, generic refusal); the media crash-path test; the real-adapter gap. Remaining residual: vector path and measured-recall gate pending the gold set.
