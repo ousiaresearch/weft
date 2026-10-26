@@ -5,6 +5,7 @@ pre-fix code and PASS after the fix. They define the new API: write operations
 take a ScopeContext, and reads and journal access are gated.
 """
 
+import json
 import os
 import sqlite3
 import subprocess
@@ -163,14 +164,15 @@ def test_F9_unsafe_id_rejected_even_without_schema_validation(sub):
 
 
 # F10: stale projection files kept out-of-scope content after scope narrowed.
-def test_F10_projection_prunes_files_no_longer_in_scope(sub, tmp_path):
+def test_F10_projection_prunes_records_that_leave_the_view(sub, tmp_path):
     sub.put(rec("r1", "memory-providers", "mp fact"), ALL)
     sub.put(rec("r2", "acs-project", "ACS secret"), ALL)
     out = tmp_path / "proj"
     sub.write_projection(out, ALL)
     assert (out / "r2.json").exists()
-    sub.write_projection(out, MEM_ONLY)
-    assert not (out / "r2.json").exists(), "out-of-scope file survived narrowing"
+    assert sub.delete("r2", ALL) is True
+    sub.write_projection(out, ALL)
+    assert not (out / "r2.json").exists(), "removed record survived re-projection"
     assert (out / "r1.json").exists()
 
 
@@ -296,7 +298,7 @@ def test_F_A_marker_variants_refused_under_other_scope(engine, payload):
 def test_F_A_marker_variants_withheld_on_read(engine):
     rec = Record(record_id="rn", record_type="Observation", scope="memory-providers",
                  payload={"text": "note", "meta": {"secret": "The Listening Commonwealth"}})
-    readable, _ = engine.filter_readable([rec], MEM_ONLY)
+    readable = engine.filter_readable([rec], MEM_ONLY)
     assert readable == []
 
 
@@ -407,21 +409,24 @@ def test_N2_diacritic_and_lookalike_letters_fold(engine, text):
 
 
 # N3: projection prunes any record-named file in its directory that is no longer in scope.
-def test_N3_projection_prunes_unmanifested_record_files(sub, tmp_path):
+def test_N3_unmanifested_files_are_left_alone(sub, tmp_path):
+    """Round 3 widened pruning; round 4 (G2) narrowed it. A file this view's
+    manifest never named is not ours to delete."""
     sub.put(rec("r1", "memory-providers", "mp fact"), ALL)
     out = tmp_path / "proj"
     out.mkdir()
-    (out / "r9.json").write_text('{"text": "leftover acs"}')  # not named in any manifest
+    (out / "r9.json").write_text('{"text": "not ours"}')
     sub.write_projection(out, MEM_ONLY)
-    assert not (out / "r9.json").exists()
+    assert (out / "r9.json").read_text() == '{"text": "not ours"}'
     assert (out / "r1.json").exists()
 
 
 # N4: exclusions must not disclose record ids the caller cannot see.
 def test_N4_exclusions_do_not_name_out_of_scope_records(engine):
     acs = Record(record_id="acs1", record_type="Observation", scope="acs-project", payload={"text": "x"})
-    _readable, exclusions = engine.filter_readable([acs], MEM_ONLY)
-    assert all("acs1" not in str(e) for e in exclusions)
+    readable = engine.filter_readable([acs], MEM_ONLY)
+    assert readable == []
+    assert "acs1" not in str(readable)
 
 
 # N5: projection with no context must not create anything, including the directory.
@@ -474,3 +479,93 @@ def test_N10_correction_cannot_move_scope(sub):
     with pytest.raises(ScopeViolation):
         sub.correct("r1", rec("r2", "acs-project", "moved"), ALL)
     assert sub.get("r2", ALL) is None
+
+
+# ---- Round 4 (6260aaf) GATE findings G1-G8. ----
+
+# G1: projection_status must not disclose ids outside the caller's view.
+def test_G1_status_discloses_no_out_of_view_ids(sub, tmp_path):
+    sub.put(rec("r1", "memory-providers", "mp fact"), ALL)
+    out = tmp_path / "proj"
+    sub.write_projection(out, MEM_ONLY)
+    sub.put(rec("secret9", "acs-project", "ACS secret"), ALL)
+    status = sub.projection_status(out, MEM_ONLY)
+    assert "secret9" not in json.dumps(status)
+    assert "unexpected" not in status
+
+
+# G2: a caller without authority over a projection must not delete its files.
+def test_G2_other_view_cannot_prune_a_projection(sub, tmp_path):
+    sub.put(rec("r1", "memory-providers", "mp"), ALL)
+    sub.put(rec("r2", "acs-project", "ACS"), ALL)
+    out = tmp_path / "proj"
+    sub.write_projection(out, ALL)
+    with pytest.raises(ScopeViolation):
+        sub.write_projection(out, MEM_ONLY)
+    assert (out / "r2.json").exists() and (out / "r1.json").exists()
+
+
+def test_G2_unmanaged_file_with_projected_name_is_not_overwritten(sub, tmp_path):
+    sub.put(rec("r1", "memory-providers", "mp"), ALL)
+    out = tmp_path / "proj"
+    out.mkdir()
+    (out / "r1.json").write_text('{"text": "foreign file"}')
+    with pytest.raises(ScopeViolation):
+        sub.write_projection(out, MEM_ONLY)
+    assert (out / "r1.json").read_text() == '{"text": "foreign file"}'
+
+
+# G3: an id that is unsafe for a file name must never reach the filesystem.
+def test_G3_unsafe_stored_id_never_written_outside_projection(sub, tmp_path):
+    sub._conn.execute(
+        "INSERT INTO records VALUES (?,?,?,?,?,?,?,?,?,?)",
+        ("../escape", "Observation", "memory-providers", "stated", '{"text": "x"}', 0.0, None, None, "[]", "{}"),
+    )
+    out = tmp_path / "proj"
+    sub.write_projection(out, MEM_ONLY)
+    assert not (tmp_path / "escape.json").exists()
+    assert not (out / "../escape.json").exists()
+
+
+# G4: an overwrite denial must not name the incumbent's scope.
+def test_G4_overwrite_denial_names_no_scope(sub):
+    sub.put(rec("r1", "acs-project", "ACS original"), ALL)
+    with pytest.raises(ScopeViolation) as info:
+        sub.put(rec("r1", "memory-providers", "clobber"), MEM_ONLY, overwrite=True)
+    assert "acs-project" not in str(info.value)
+
+
+# G5: a caller without the incumbent's scope must not learn that the id exists.
+def test_G5_existing_foreign_id_is_indistinguishable_from_denied_write(sub):
+    sub.put(rec("r1", "acs-project", "ACS original"), ALL)
+    with pytest.raises(ScopeViolation):
+        sub.put(rec("r1", "memory-providers", "second"), MEM_ONLY)  # no RecordConflict
+    with pytest.raises(ScopeViolation):
+        sub.put(rec("never-existed", "acs-project", "x"), MEM_ONLY)
+    try:
+        sub.put(rec("r1", "memory-providers", "second"), MEM_ONLY)
+    except ScopeViolation as exc:
+        a = str(exc)
+    try:
+        sub.put(rec("never-existed", "acs-project", "x"), MEM_ONLY)
+    except ScopeViolation as exc:
+        b = str(exc)
+    assert a == b
+
+
+# G6 and G7: query exclusions must carry no reasons and no counts.
+def test_G6_G7_query_exclusions_are_empty_and_reveal_nothing(sub):
+    sub.put(rec("secret1", "acs-project", "ACS secret"), ALL)
+    sub.put(rec("secret2", "acs-project", "ACS secret 2"), ALL)
+    readable, exclusions = sub.query(MEM_ONLY)
+    assert readable == []
+    assert exclusions == []
+
+
+# G8: a store change in the caller's own view is stale, not tampered.
+def test_G8_own_view_change_reports_stale_not_tampered(sub, tmp_path):
+    sub.put(rec("r1", "memory-providers", "first"), ALL)
+    out = tmp_path / "proj"
+    sub.write_projection(out, MEM_ONLY)
+    sub.put(rec("r1", "memory-providers", "second"), ALL, overwrite=True)
+    assert sub.projection_status(out, MEM_ONLY)["state"] == "stale"

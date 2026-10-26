@@ -32,10 +32,8 @@ class TestRegressionTarget:
             record_id="acs1", record_type="Observation", scope="acs-project",
             payload={"text": "RC-05 released; ACS attestation chain updated."},
         )
-        readable, exclusions = engine.filter_readable([acs_record], mem_ctx())
+        readable = engine.filter_readable([acs_record], mem_ctx())
         assert readable == []
-        assert exclusions and "reason" in exclusions[0]
-        assert "acs1" not in str(exclusions)
 
     def test_acs_returned_only_when_explicitly_granted(self, engine):
         ctx = ScopeContext(granted_scopes=frozenset({"acs-project"}))
@@ -67,11 +65,10 @@ class TestDenyByDefault:
     def test_no_context_denies(self, engine):
         assert not engine.authorize_read("memory-providers", None).allowed
 
-    def test_exclusions_carry_reasons(self, engine):
-        rec = Record(record_id="r1", record_type="Observation", scope="acs-project", payload={})
-        readable, exclusions = engine.filter_readable([rec], mem_ctx())
-        assert readable == []
-        assert exclusions[0]["reason"]
+    def test_engine_decisions_carry_reasons(self, engine):
+        """Decisions keep their reasons for the engine's own use. Query results do not."""
+        d = engine.authorize_read("acs-project", mem_ctx())
+        assert not d.allowed and d.reason
 
 
 class TestCrossScopeAuthorization:

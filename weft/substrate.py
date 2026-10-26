@@ -263,7 +263,9 @@ class Substrate:
         decision = self.scope_engine.authorize_write(record, ctx)
         if not decision.allowed:
             audited = self._journal_standalone("write_denied", record.record_id, record.scope, decision.reason)
-            raise ScopeViolation(decision.reason, audit_recorded=audited)
+            # Review G4/G5: the caller learns only that the write was refused.
+            # The reason goes to the journal, where only holders of the scope read it.
+            raise ScopeViolation("write not permitted", audit_recorded=audited)
 
         _check_id(record.record_id)
         if validate_schema:
@@ -286,27 +288,30 @@ class Substrate:
                     # Review fix F7: a correction must not supersede what the caller cannot read.
                     self._journal("correct_denied", original_id, orig.scope, read.reason)
                     self._conn.execute("COMMIT")
-                    raise ScopeViolation(read.reason)
+                    raise ScopeViolation("correction not permitted")
                 if record.scope != orig.scope:
                     # Review N10: a correction stays in its original's scope.
                     reason = "correction must stay within the original record's scope"
                     self._journal("correct_denied", original_id, orig.scope, reason)
                     self._conn.execute("COMMIT")
-                    raise ScopeViolation(reason)
+                    raise ScopeViolation("correction not permitted")
                 record.supersedes = original_id
 
             existing = self._conn.execute(
                 "SELECT scope FROM records WHERE record_id=?", (record.record_id,)
             ).fetchone()
             if existing is not None:
-                if not overwrite:
-                    raise RecordConflict(f"record {record.record_id!r} already exists")
+                # Review G5: check authority over the incumbent BEFORE reporting a
+                # conflict, so a caller without the scope cannot learn the id exists.
                 if ctx is None or existing[0] not in ctx.granted_scopes:
-                    # Review fix F2: overwrite needs write authority over the incumbent.
-                    reason = f"overwrite of record in scope {existing[0]!r} not granted"
+                    # Review fix F2 / G4: overwrite needs the incumbent's scope. The
+                    # caller gets the same generic refusal as any denied write.
+                    reason = f"write to existing record in scope {existing[0]!r} not granted"
                     self._journal("write_denied", record.record_id, existing[0], reason)
                     self._conn.execute("COMMIT")
-                    raise ScopeViolation(reason)
+                    raise ScopeViolation("write not permitted")
+                if not overwrite:
+                    raise RecordConflict(f"record {record.record_id!r} already exists")
 
             self._conn.execute(
                 """INSERT OR REPLACE INTO records
@@ -421,7 +426,7 @@ class Substrate:
         *,
         record_type: str | None = None,
         scope: str | None = None,
-    ) -> tuple[list[Record], list[dict]]:
+    ) -> tuple[list[Record], list]:
         """The scoped read path. Returns (readable, exclusions). No context -> nothing."""
         if ctx is None:
             return [], []
@@ -438,7 +443,7 @@ class Substrate:
                 sql += " WHERE " + " AND ".join(clauses)
             sql += " ORDER BY created_at"
             records = [Record.from_row(r) for r in self._conn.execute(sql, params).fetchall()]
-            return self.scope_engine.filter_readable(records, ctx)
+            return self.scope_engine.filter_readable(records, ctx), []  # no exclusions (G6, G7)
 
     def all_records(self, ctx: ScopeContext | None = None) -> list[Record]:
         """Every record the caller may read. No context -> nothing."""
@@ -469,10 +474,21 @@ class Substrate:
 
     # ---- projections --------------------------------------------------
 
+    @staticmethod
+    def _view_token(ctx: ScopeContext) -> str:
+        """Identify a caller's view by its granted scopes. One projection
+        directory belongs to exactly one view (review G2)."""
+        return _sha256("|".join(sorted(ctx.granted_scopes)))
+
     def _expected_files(self, ctx: ScopeContext | None) -> dict[str, tuple[str, str]]:
-        """name -> (body, sha256) for every record the caller may read."""
+        """name -> (body, sha256) for every record the caller may read.
+
+        Records whose id is unsafe as a file name are skipped (review G3).
+        """
         expected = {}
         for rec in self.all_records(ctx):
+            if not _ID_RE.match(rec.record_id):
+                continue
             body = _file_body(rec.payload)
             expected[f"{rec.record_id}.json"] = (body, _sha256(body))
         return expected
@@ -489,77 +505,83 @@ class Substrate:
         return data if isinstance(data, dict) else None
 
     def write_projection(self, out_dir: str | os.PathLike, ctx: ScopeContext | None = None) -> Path:
-        """Write projection files for exactly the records the caller may read.
+        """Write the projection for exactly the caller's view.
 
-        Derived, never authoritative. Files and a manifest are written atomically.
-        Files this projection wrote earlier but that are no longer in scope are
-        removed (review fix F10). Files not named in the previous manifest are
-        never touched.
+        Derived, never authoritative. Rules:
+          - No context: nothing is touched, not even the directory.
+          - A directory belongs to one view. Writing with a different view, or
+            over unmanaged files with projected names, is refused.
+          - Only files named in this view's own previous manifest are removed.
         """
         with self._lock:
             out = Path(out_dir)
             if ctx is None:
-                # Review fix F-C / N5: no context means no authority. Touch nothing,
-                # not even the directory.
                 return out
-            out.mkdir(parents=True, exist_ok=True)
-            previous = self._read_manifest(out) or {}
-            prev_names = set((previous.get("files") or {}).keys())
+            view = self._view_token(ctx)
+            manifest = self._read_manifest(out)
+            if manifest is not None and manifest.get("view") != view:
+                raise ScopeViolation("projection directory belongs to another view")
 
             expected = self._expected_files(ctx)
+            if manifest is None:
+                for name in expected:
+                    if (out / name).exists():
+                        raise ScopeViolation("projection directory holds unmanaged files")
+
+            out.mkdir(parents=True, exist_ok=True)
+            prev_names = {
+                n for n in ((manifest or {}).get("files") or {}) if _safe_projection_name(n)
+            }
             for name, (body, _digest) in expected.items():
                 _atomic_write(out / name, body)
-            # Review N3: prune every record-named file in this directory that is no
-            # longer in scope, not only those a previous manifest named. The
-            # directory belongs to the projection.
-            on_disk = {p.name for p in out.glob("*.json") if _safe_projection_name(p.name)}
-            for name in (prev_names | on_disk) - set(expected):
-                if _safe_projection_name(name):
-                    (out / name).unlink(missing_ok=True)
+            for name in prev_names - set(expected):
+                (out / name).unlink(missing_ok=True)
 
-            manifest = {
-                "store_version": self._store_version(),
+            new_manifest = {
+                "view": view,
                 "files": {name: digest for name, (_body, digest) in expected.items()},
             }
-            _atomic_write(out / _MANIFEST, json.dumps(manifest, indent=2, sort_keys=True))
+            _atomic_write(out / _MANIFEST, json.dumps(new_manifest, indent=2, sort_keys=True))
             return out
 
     def projection_status(self, out_dir: str | os.PathLike, ctx: ScopeContext | None = None) -> dict:
-        """Compare a projection directory with the store.
+        """Compare a projection with the store, for the caller's view only.
 
+        Reports nothing about records outside the caller's view (review G1).
         state is one of:
-          missing   no manifest
-          tampered  a file's content differs from what the store would project
-          stale     the store changed after the projection, or a file is out of scope
-          current   matches the store for this caller
+          missing   no projection for this view
+          tampered  a file's bytes differ from what this projection wrote
+          stale     the store changed in this view since the projection was written
+          current   matches the store for this view
         """
         with self._lock:
             out = Path(out_dir)
             manifest = self._read_manifest(out)
-            if manifest is None:
-                return {"state": "missing", "missing": [], "modified": [], "unexpected": []}
+            if ctx is None or manifest is None or manifest.get("view") != self._view_token(ctx):
+                return {"state": "missing", "missing": [], "modified": []}
 
+            files = manifest.get("files") or {}
             expected = self._expected_files(ctx)
-            missing, modified, unexpected = [], [], []
-            for name, (_body, digest) in expected.items():
+            missing, modified, changed = [], [], []
+            for name, (_body, expected_digest) in expected.items():
                 path = out / name
                 if not path.exists():
                     missing.append(name)
-                elif _sha256(path.read_text()) != digest:
+                    continue
+                on_disk = _sha256(path.read_text())
+                written = files.get(name)
+                if written is not None and on_disk != written:
                     modified.append(name)
-            for name in (manifest.get("files") or {}):
-                if name not in expected and _safe_projection_name(name):
-                    unexpected.append(name)
+                elif written != expected_digest:
+                    changed.append(name)
 
-            # Review N6: staleness is judged on this caller's view only. A write in a
-            # scope the caller cannot see does not make the projection stale.
             if modified:
                 state = "tampered"
-            elif missing or unexpected:
+            elif missing or changed or len(files) != len(expected):
                 state = "stale"
             else:
                 state = "current"
-            return {"state": state, "missing": missing, "modified": modified, "unexpected": unexpected}
+            return {"state": state, "missing": missing, "modified": modified}
 
     # ---- internals ----------------------------------------------------
 

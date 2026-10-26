@@ -320,19 +320,13 @@ class ScopeEngine:
         _flatten_payload(getattr(record, "payload", None), parts)
         return " ".join(parts)
 
-    def filter_readable(self, records, ctx: ScopeContext | None) -> tuple[list, list[dict]]:
-        """Split records into readable and excluded.
+    def filter_readable(self, records, ctx: ScopeContext | None) -> list:
+        """The records the caller may read, in order. Nothing else is returned.
 
-        Exclusions carry a reason only. They never name a record id, so a caller
-        learns nothing about records it cannot read (review N4).
+        No exclusion reasons and no counts (review G6, G7). A withheld record is
+        invisible to the caller, not described to it.
         """
-        readable, exclusions = [], []
-        for rec in records:
-            decision = self.authorize_read(
-                getattr(rec, "scope", ""), ctx, self._payload_text(rec)
-            )
-            if decision.allowed:
-                readable.append(rec)
-            else:
-                exclusions.append({"reason": decision.reason})
-        return readable, exclusions
+        return [
+            rec for rec in records
+            if self.authorize_read(getattr(rec, "scope", ""), ctx, self._payload_text(rec)).allowed
+        ]

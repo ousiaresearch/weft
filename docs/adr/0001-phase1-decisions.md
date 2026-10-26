@@ -108,3 +108,13 @@ Codex review of a37d175 returned BLOCK (21 findings). The fixes below change dec
 ### Stopping rule for the review loop
 
 Round 4 is the last open review round for Phase 1. If its BLOCK findings are limited to residuals 1 and 2 above, or to new heuristic-coverage gaps that do not defeat the granted-scope gate, they are accepted and recorded here, and Phase 2 begins. Any finding that defeats the granted-scope gate, or that discloses content or ids to a caller without the scope, blocks Phase 1 and is fixed first.
+
+### Round-4 changes (GATE findings G1-G8)
+
+- **One projection directory per view.** A projection is owned by the view (the set of granted scopes) that wrote it. Another view cannot write into it. Writing over unmanaged files with projected names is refused. Use separate directories for separate views.
+- **Pruning is narrow.** A projection removes only files named in its own view's manifest. Files it never named are left alone (G2). A record that leaves the view, for example by deletion, is pruned on the next write.
+- **Status reports only the caller's view.** It names no record outside that view (G1). It distinguishes `tampered` (a file's bytes differ from what the projection wrote) from `stale` (the view changed in the store since the projection was written) (G8). It no longer uses a global store version.
+- **Unsafe ids are skipped on projection.** Ids that are not safe file names are never written to disk (G3).
+- **Generic denials.** A refused write, overwrite, or correction gets one generic message, so a caller cannot tell an id in another scope from a non-existent one (G4, G5). Reasons go to the journal, which only holders of the record's scope can read.
+- **Query returns readable records and no exclusions.** Exclusion reasons and counts are no longer returned, so a caller learns nothing about records it cannot read (G6, G7).
+- **Known residuals, unchanged:** the content-marker table is best-effort; the raw connection is reachable in-process; the database is plaintext at rest; same-scope overwrites are last-writer-wins.
