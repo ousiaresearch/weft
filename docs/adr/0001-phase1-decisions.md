@@ -226,3 +226,16 @@ Verdict APPROVE_WITH_RESIDUALS, no gate-class findings. Build pass 2 addresses t
 - First v0.3 run (before stopword fix): overall recall@5 lexical 0.78, vector 0.82, hybrid 0.80. Keyword entries lexical 0.975 / vector 0.95 / hybrid 0.975. Paraphrase entries lexical 0.0, vector 0.3, hybrid 0.1. Floor not met overall; vector not enabled.
 - Diagnosis of hybrid < vector on paraphrases: the lexical query included function words ("the", "is"), which matched unrelated notes and outranked vector hits in reciprocal-rank fusion. Fixed: function words are excluded from the lexical match (STOPWORDS in weft/retrieval.py), with a red-then-green test (tests/test_phase3_build7.py). The gate must be rerun to measure this.
 - Test flakiness root cause (closed): an inherited PYTHONPATH from the agent runtime made numpy load from another install when pytest was launched from the agent process, so the real-model tests failed intermittently. Fixed by scripts/test.sh, which runs pytest with PYTHONPATH, PYTHONHOME and VIRTUAL_ENV removed. Run the suite through that script.
+
+
+### Vector path improvement (user direction: "improve the vector path first")
+
+- Gate v0.3 (50 entries), recall@5 by mode:
+  - baseline (paragraph vectors only): vector 0.82 overall / 0.30 paraphrase; hybrid 0.82 / 0.20.
+  - + one result per document (recall fix): no change on this set; a real defect (five paragraphs of one note filled the top five).
+  - + document head vectors (opening 2000 chars): changes one entry; no gain. Kept as an option, off by default.
+  - + document centroid (normalised mean of paragraph vectors, default on): vector 0.84 overall / 0.40 paraphrase; hybrid 0.84 / 0.30; keyword unchanged (vector 0.95, hybrid 0.975).
+- Still below the 0.90 floor. The gate stays "not passed"; vector stays off by default.
+- Paraphrase ranks (vector, one per document): [36, 14, 1, 1, none, 8, 14, 1, 24, 9]. Four right at rank 1; several at 8–14; some far off.
+- Two paraphrases are vague by construction (the "groundwork file ..." and "bundle that brings ..." queries fit several notes). The paraphrase set needs review before the gate counts it.
+- Options not yet taken: a larger embedding model (Colab, needs per-run authorization); reranking (an extra model); tuning fusion weights (not done: tuning on a 10-item set would overfit).

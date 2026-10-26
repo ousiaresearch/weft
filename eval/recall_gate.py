@@ -35,6 +35,39 @@ K = 5
 USER = ScopeContext(granted_scopes=frozenset({SCOPE}), user_authored=True, actor="recall-gate")
 
 
+class CachedEmbedder:
+    """Caches vectors on disk by sha256(text). Only the harness uses it; results are unchanged."""
+
+    def __init__(self, inner, cache_path):
+        import hashlib, pickle
+        self._inner = inner
+        self._path = Path(cache_path)
+        self._hash = lambda t: hashlib.sha256(t.encode("utf-8")).hexdigest()
+        self._cache = pickle.load(open(self._path, "rb")) if self._path.exists() else {}
+        self.dim = inner.dim
+        self.model_id = inner.model_id
+        self._dirty = False
+
+    def _get(self, kind, text):
+        key = (kind, self._hash(text))
+        if key not in self._cache:
+            fn = self._inner.embed_query if kind == "q" else self._inner.embed_document
+            self._cache[key] = fn(text)
+            self._dirty = True
+        return self._cache[key]
+
+    def embed_document(self, text):
+        return self._get("d", text)
+
+    def embed_query(self, text):
+        return self._get("q", text)
+
+    def save(self):
+        import pickle
+        if self._dirty:
+            pickle.dump(self._cache, open(self._path, "wb"))
+
+
 def _doc_name(sub, rid):
     rec = sub.get(rid, USER)
     if rec is None or not isinstance(rec.provenance, dict):
@@ -42,7 +75,7 @@ def _doc_name(sub, rid):
     return rec.provenance.get("document")
 
 
-def main(gold_path: str, out_path: str):
+def main(gold_path: str, out_path: str, doc_vectors: bool = False, centroid: bool = False):
     gold = json.load(open(gold_path, encoding="utf-8"))
     entries = gold["entries"]
     db = SCRATCH / "recall_gate.db"
@@ -50,8 +83,8 @@ def main(gold_path: str, out_path: str):
         if os.path.exists(str(db) + suffix):
             os.remove(str(db) + suffix)
     sub = Substrate(db, scope_engine=ScopeEngine(known_scopes={SCOPE}, markers={}))
-    emb = HarrierEmbedder(MODEL)
-    ing = Ingestor(sub, embedder=emb)
+    emb = CachedEmbedder(HarrierEmbedder(MODEL), SCRATCH / "embed_cache.pkl")
+    ing = Ingestor(sub, embedder=emb, doc_vectors=doc_vectors, doc_centroid=centroid)
 
     t0 = time.time()
     files = sorted(VAULT.rglob("*.md"))
@@ -79,12 +112,15 @@ def main(gold_path: str, out_path: str):
             names = [_doc_name(sub, i.record_id) for i in items]
             rank = next((idx + 1 for idx, n in enumerate(names) if n == e["expected_note"]), None)
             row[m] = rank
+            if m == "vector":
+                row["vector_top"] = names
             if rank is not None and rank <= 1:
                 hits[m][1] += 1
             if rank is not None and rank <= K:
                 hits[m][K] += 1
         per_entry.append(row)
     query_seconds = round(time.time() - t1, 1)
+    emb.save()
 
     n = len(entries)
     recall_at = {m: {"recall@1": round(hits[m][1] / n, 3), "recall@5": round(hits[m][K] / n, 3)}
@@ -100,6 +136,7 @@ def main(gold_path: str, out_path: str):
         by_kind[kind] = {m: {"recall@5": round(sum(1 for r in rows if r[m] is not None and r[m] <= K) / len(rows), 3),
                              "n": len(rows)} for m in modes}
     result = {
+        "variant": "centroid" if centroid else ("doc_vectors" if doc_vectors else "baseline"),
         "recall_by_kind": by_kind,
         "gold_status": gold.get("status", ""),
         "gold_entries": n,
@@ -120,5 +157,10 @@ def main(gold_path: str, out_path: str):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else str(REPO / "eval" / "gold-set-draft.json"),
-         str(REPO / "eval" / "recall_gate_results.json"))
+    args = sys.argv[1:]
+    doc_vec = "doc-vectors" in args
+    centroid = "centroid" in args
+    out = {"centroid": "recall_gate_results-centroid.json", "doc-vectors": "recall_gate_results-docvectors.json"}.get(
+        "centroid" if centroid else ("doc-vectors" if doc_vec else ""), "recall_gate_results.json")
+    gold = next((a for a in args if a.endswith(".json")), str(REPO / "eval" / "gold-set-draft.json"))
+    main(gold, str(REPO / "eval" / out), doc_vectors=doc_vec, centroid=centroid)

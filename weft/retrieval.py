@@ -109,14 +109,22 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
         ranked.append(sub.fts_candidates(match, ctx, pool, scopes=readable))
     if use_vector:
         ranked.append(sub.vector_candidates(embedder.embed_query(query), ctx, pool, scopes=readable))
-    candidate_ids = ranked[0][:limit] if len(ranked) == 1 else _fuse(ranked, limit)
+    candidate_ids = ranked[0] if len(ranked) == 1 else _fuse(ranked, pool)
 
     items: list[Item] = []
+    seen_documents: set = set()  # one result per document: a note is not five paragraphs
     for rid in candidate_ids:
+        if len(items) >= limit:
+            break
         rec = sub.get(rid, ctx)  # gated again: defence in depth
         if rec is None:
             receipt.exclusions.append("withheld by content rule")
             continue
+        document = rec.provenance.get("document") if isinstance(rec.provenance, dict) else None
+        key = document if document else f"record:{rid}"
+        if key in seen_documents:
+            continue
+        seen_documents.add(key)
         text = rec.payload.get("text", "") if isinstance(rec.payload, dict) else ""
         tier, shown = _pick_tier(text, terms)
         derived = bool(isinstance(rec.provenance, dict) and rec.provenance.get("machine_derived"))

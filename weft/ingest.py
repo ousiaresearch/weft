@@ -16,6 +16,15 @@ from dataclasses import dataclass
 
 from weft.substrate import Record, RecordConflict
 
+def _centroid(vectors: list) -> list:
+    """Normalised mean of the given vectors (note-level representation, no extra model calls)."""
+    dim = len(vectors[0])
+    mean = [sum(v[i] for v in vectors) / len(vectors) for i in range(dim)]
+    norm = sum(x * x for x in mean) ** 0.5 or 1.0
+    return [x / norm for x in mean]
+
+
+DOC_HEAD_CHARS = 2000  # opening text embedded per document when doc_vectors is on
 _TURN_ATTRIBUTION = {"user": "user", "assistant": "agent", "system": "system"}
 _FENCE = re.compile(r"<weft-recall\b[^>]*>.*?</weft-recall>", re.DOTALL | re.IGNORECASE)
 _STRAY = re.compile(r"</?weft-recall\b[^>]*>", re.IGNORECASE)
@@ -93,9 +102,11 @@ def _parse(name: str, data: bytes):
 class Ingestor:
     """Writes Sources and Observations through the substrate. Holds no state of its own."""
 
-    def __init__(self, substrate, embedder=None):
+    def __init__(self, substrate, embedder=None, doc_vectors=False, doc_centroid=True):
         self.sub = substrate
         self.embedder = embedder  # optional: anything with embed_document(text) -> vector
+        self.doc_vectors = doc_vectors  # also embed each document's opening text (note-level)
+        self.doc_centroid = doc_centroid  # note-level vector: normalised mean of paragraph vectors (default on)
 
     def ingest_turn(self, text: str, speaker: str, ctx, scope: str, conversation_id: str) -> str:
         """A conversation turn becomes a Source with the speaker's attribution (spec §7.1)."""
@@ -135,6 +146,9 @@ class Ingestor:
             ), ctx)
         except RecordConflict:
             pass  # the Source from an interrupted earlier run
+        if self.embedder is not None and self.doc_vectors:
+            self.sub.vector_put(sid, scope, self.embedder.embed_document(parsed[:DOC_HEAD_CHARS]), ctx=ctx)
+        paragraph_vectors = []
         for i, paragraph in enumerate(_extract_paragraphs(parsed)):
             oid = f"{sid}-p{i:04d}"
             try:
@@ -146,7 +160,11 @@ class Ingestor:
             except RecordConflict:
                 pass  # written by an interrupted earlier run
             if self.embedder is not None:
-                self.sub.vector_put(oid, scope, self.embedder.embed_document(paragraph), ctx=ctx)
+                vec = self.embedder.embed_document(paragraph)
+                paragraph_vectors.append(vec)
+                self.sub.vector_put(oid, scope, vec, ctx=ctx)
+        if self.embedder is not None and self.doc_centroid and paragraph_vectors:
+            self.sub.vector_put(sid, scope, _centroid(paragraph_vectors), ctx=ctx)
         self.sub.set_job(sid, "ingest", content_hash, "done", scope=scope, ctx=ctx)
         return sid
 

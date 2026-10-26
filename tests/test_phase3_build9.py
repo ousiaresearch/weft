@@ -1,0 +1,37 @@
+"""One result per document in recall (found by the note-level variant). Tests first."""
+
+import pytest
+
+from weft.ingest import Ingestor
+from weft.retrieval import recall
+from weft.scope import ScopeContext, ScopeEngine
+from weft.substrate import Substrate
+
+KNOWN = {"acs-project", "memory-providers"}
+USER = ScopeContext(granted_scopes=frozenset(KNOWN), user_authored=True, actor="johann")
+MEM = ScopeContext(granted_scopes=frozenset({"memory-providers"}), actor="arien")
+
+
+@pytest.fixture
+def sub(tmp_path):
+    s = Substrate(tmp_path / "weft.db", scope_engine=ScopeEngine(known_scopes=KNOWN, markers={}))
+    yield s
+    s.close()
+
+
+def test_one_result_per_document(sub):
+    ing = Ingestor(sub)
+    ing.ingest_document("alpha.md", b"harbour one\n\nharbour two\n\nharbour three", USER,
+                        "memory-providers", "a")
+    ing.ingest_document("beta.md", b"harbour elsewhere", USER, "memory-providers", "a")
+    items, _ = recall(sub, "harbour", MEM, limit=2)
+    names = [sub.get(i.record_id, MEM).provenance["document"] for i in items]
+    assert sorted(names) == ["alpha.md", "beta.md"]
+
+
+def test_turns_are_not_collapsed(sub):
+    ing = Ingestor(sub)
+    ing.ingest_turn("harbour bells one", "user", USER, "memory-providers", "c1")
+    ing.ingest_turn("harbour bells two", "user", USER, "memory-providers", "c2")
+    items, _ = recall(sub, "harbour", MEM, limit=5)
+    assert len(items) == 2
