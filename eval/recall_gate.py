@@ -68,16 +68,23 @@ class CachedEmbedder:
             pickle.dump(self._cache, open(self._path, "wb"))
 
 
-EMBEDDER = "harrier"
+EMBEDDER = "bge"  # adopted default: BAAI/bge-m3 (MIT)
 
 
 def make_embedder():
+    if EMBEDDER == "bge":
+        from weft.adapters import BgeM3Embedder
+        model = glob.glob(os.path.expanduser(
+            "~/.cache/huggingface/hub/models--mlx-community--bge-m3-mlx-4bit/snapshots/*"))[0]
+        return BgeM3Embedder(model)
     if EMBEDDER == "qwen3":
         from weft.adapters import Qwen3Embedder
         model = glob.glob(os.path.expanduser(
             "~/.cache/huggingface/hub/models--Qwen--Qwen3-Embedding-0.6B/snapshots/*"))[0]
         return Qwen3Embedder(model)
-    return HarrierEmbedder(MODEL)
+    if EMBEDDER == "harrier":
+        return HarrierEmbedder(MODEL)
+    raise ValueError(EMBEDDER)
 
 
 def cache_path_for(name):
@@ -177,11 +184,13 @@ if __name__ == "__main__":
     args = sys.argv[1:]
     if "qwen3" in args:
         EMBEDDER = "qwen3"  # noqa: F811 (module-level switch for this run)
+    if "bge" in args:
+        EMBEDDER = "bge"  # noqa: F811
     doc_vec = "doc-vectors" in args
     centroid = "centroid" in args
     out = {"centroid": "recall_gate_results-centroid.json", "doc-vectors": "recall_gate_results-docvectors.json"}.get(
         "centroid" if centroid else ("doc-vectors" if doc_vec else ""), "recall_gate_results.json")
     gold = next((a for a in args if a.endswith(".json")), str(REPO / "eval" / "gold-set-draft.json"))
-    if EMBEDDER == "qwen3":
-        out = out.replace(".json", "-qwen3.json")
+    if EMBEDDER in ("qwen3", "bge"):
+        out = out.replace(".json", f"-{EMBEDDER}.json")
     main(gold, str(REPO / "eval" / out), doc_vectors=doc_vec, centroid=centroid)

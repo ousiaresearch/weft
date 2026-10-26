@@ -172,3 +172,29 @@ class Qwen3Embedder(HarrierEmbedder):
         super().__init__(model_dir)
         self.model_id = "Qwen/Qwen3-Embedding-0.6B (mlx-embeddings)"
 
+
+class BgeM3Embedder(HarrierEmbedder):
+    """BAAI/bge-m3 dense embeddings (MIT), 1024-dim, CLS pooling, no query instruction.
+
+    Loaded from the mlx-community 4-bit build through mlx-embeddings (weights ~340 MB).
+    """
+
+    QUERY_PREFIX = ""
+
+    def __init__(self, model_dir):
+        super().__init__(model_dir)
+        self.model_id = "BAAI/bge-m3 (mlx-community 4-bit, mlx-embeddings)"
+
+    def _embed(self, text: str) -> list:
+        if self._model is None:
+            self._load()
+        import mlx.core as mx
+        ids = self._tok.encode(text) if hasattr(self._tok, "encode") else self._tok.tokenizer.encode(text)
+        out = self._model(mx.array([ids]))
+        vec = out.last_hidden_state[0, 0, :]  # CLS token
+        norm = mx.sqrt(mx.sum(vec * vec)) + 1e-12
+        return [float(x) for x in (vec / norm).tolist()]
+
+    def embed_query(self, text: str) -> list:
+        return self._embed(text)
+

@@ -248,3 +248,13 @@ Verdict APPROVE_WITH_RESIDUALS, no gate-class findings. Build pass 2 addresses t
 - Read: Qwen3 is better on paraphrases (the reason vector exists) and slightly worse on keyword and top-1. Neither clears the 0.90 floor, so vector stays off by default.
 - Candidates not yet measured: BAAI/bge-m3 (MIT, 0.57B). Excluded: Qwen3-Embedding-4B (over 4B); EmbeddingGemma-300M (Gemma terms).
 - Index time for the Qwen3 run was about 21 minutes on this machine under load; vectors are model-specific, so switching models requires re-indexing.
+
+
+### Embedding model decision: BAAI/bge-m3 adopted (user, "Adopt BGE-M3 for sure")
+
+- Adopted: BAAI/bge-m3 (MIT, 0.57B, 1024-dim, CLS pooling, no query prefix), run via mlx-embeddings from the mlx-community 4-bit build (337 MB).
+- Gold v0.4 (74 entries, recall@5): vector 0.743 overall, paraphrase 0.50, keyword 0.95; hybrid 0.757 overall, keyword 1.0, paraphrase 0.47. Harrier and Qwen3 were 0.716 on vector overall.
+- Caveats: 4-bit quantisation may cost accuracy (full-precision comparison not run); the paraphrase set is unapproved; the gap is small.
+- Vector default stays OFF. The 0.90 floor is not met by any model or mode.
+- Switching models requires re-indexing: vectors from different models must not mix. The embed cache is keyed per model.
+- Harrier and Qwen3 adapters remain as alternatives; the gate harness defaults to bge.
