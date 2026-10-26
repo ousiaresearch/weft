@@ -1,0 +1,322 @@
+"""Phase 2 — knowledge model. Written before implementation (spec §6).
+
+Each test names the rule it checks. Every rule-specific test must fail on the
+Phase 1 code (see the red run recorded in docs/adr/0001-phase1-decisions.md).
+"""
+
+import sqlite3
+
+import pytest
+
+from weft.scope import ScopeContext, ScopeEngine
+from weft.substrate import Record, RecordConflict, ScopeViolation, SchemaViolation, Substrate
+
+KNOWN = {"acs-project", "memory-providers", "ariel-continuity"}
+MARKERS = {"acs-project": {"ACS", "Listening Commonwealth", "Constitutional Convention Letters"}}
+
+# A user-authored turn (may author Decisions, Commitments, cross-scope requests).
+USER = ScopeContext(granted_scopes=frozenset(KNOWN), user_authored=True, actor="johann")
+# The agent's own context: scopes granted, but never user-authored.
+AGENT = ScopeContext(granted_scopes=frozenset(KNOWN), actor="arien")
+MEM_AGENT = ScopeContext(granted_scopes=frozenset({"memory-providers"}), actor="arien")
+
+
+@pytest.fixture
+def engine():
+    return ScopeEngine(known_scopes=KNOWN, markers=MARKERS)
+
+
+@pytest.fixture
+def sub(tmp_path, engine):
+    s = Substrate(tmp_path / "weft.db", scope_engine=engine)
+    yield s
+    s.close()
+
+
+def rec(rid, scope, rtype="Observation", *, attribution="document", status="stated",
+        text="plain fact", source_ids=("src-1",), provenance=None, supersedes=None):
+    return Record(
+        record_id=rid, record_type=rtype, scope=scope, payload={"text": text},
+        epistemic_status=status, attribution=attribution, source_ids=list(source_ids),
+        provenance=provenance or {}, supersedes=supersedes,
+    )
+
+
+def verifier_ctx(sub, actor_id="v1"):
+    sub.register_verifier(actor_id, USER)
+    return ScopeContext(granted_scopes=frozenset(KNOWN), actor=actor_id)
+
+
+# ---- Status gate (D2-3, D2-9) ------------------------------------------------
+
+def test_direct_verified_claim_by_agent_is_refused(sub):
+    claim = rec("c1", "acs-project", "Claim", attribution="agent", status="verified", source_ids=())
+    with pytest.raises(ScopeViolation):
+        sub.put(claim, AGENT)
+    assert sub.get("c1", AGENT) is None
+
+
+def test_verifier_with_matching_verification_promotes_claim(sub):
+    vctx = verifier_ctx(sub)
+    ver = Record(record_id="v-1", record_type="Verification", scope="acs-project",
+                 payload={"claim_id": "c1"}, attribution="verifier", source_ids=[])
+    sub.put(ver, vctx)
+    claim = rec("c1", "acs-project", "Claim", attribution="verifier", status="verified",
+                source_ids=("v-1",))
+    sub.put(claim, vctx)
+    assert sub.get("c1", vctx).epistemic_status == "verified"
+
+
+def test_verification_naming_another_claim_does_not_promote(sub):
+    vctx = verifier_ctx(sub)
+    sub.put(Record(record_id="v-1", record_type="Verification", scope="acs-project",
+                   payload={"claim_id": "c2"}, attribution="verifier", source_ids=[]), vctx)
+    claim = rec("c1", "acs-project", "Claim", attribution="verifier", status="verified",
+                source_ids=("v-1",))
+    with pytest.raises(ScopeViolation):
+        sub.put(claim, vctx)
+
+
+def test_unregistered_actor_cannot_verify(sub):
+    rogue = ScopeContext(granted_scopes=frozenset(KNOWN), actor="rogue")
+    with pytest.raises(ScopeViolation):
+        sub.put(Record(record_id="v-1", record_type="Verification", scope="acs-project",
+                       payload={"claim_id": "c1"}, attribution="verifier", source_ids=[]), rogue)
+
+
+def test_agent_cannot_register_a_verifier(sub):
+    with pytest.raises(ScopeViolation):
+        sub.register_verifier("v2", AGENT)
+
+
+# ---- Attribution at the write boundary (D2-2, spec §3) -----------------------
+
+def test_agent_attributed_decision_refused(sub):
+    d = rec("d1", "acs-project", "Decision", attribution="agent", source_ids=())
+    with pytest.raises(ScopeViolation):
+        sub.put(d, AGENT)
+
+
+def test_agent_attributed_commitment_refused(sub):
+    c = rec("m1", "acs-project", "Commitment", attribution="agent", source_ids=())
+    with pytest.raises(ScopeViolation):
+        sub.put(c, AGENT)
+
+
+def test_user_attribution_from_agent_context_refused_for_decision(sub):
+    # The agent may not claim user attribution: user_authored is False.
+    d = rec("d1", "acs-project", "Decision", attribution="user", source_ids=())
+    with pytest.raises(ScopeViolation):
+        sub.put(d, AGENT)
+    sub.put(d, USER)
+    assert sub.get("d1", USER).record_type == "Decision"
+
+
+def test_agent_claim_allowed_only_as_derived(sub):
+    ok = rec("c1", "acs-project", "Claim", attribution="agent", status="derived", source_ids=())
+    sub.put(ok, AGENT)
+    stated = rec("c2", "acs-project", "Claim", attribution="agent", status="stated", source_ids=())
+    with pytest.raises(ScopeViolation):
+        sub.put(stated, AGENT)
+
+
+def test_document_observation_without_source_refused(sub):
+    with pytest.raises(ScopeViolation):
+        sub.put(rec("o1", "acs-project", "Observation", attribution="document", source_ids=()), USER)
+
+
+def test_unknown_record_type_refused(sub):
+    with pytest.raises(ScopeViolation):
+        sub.put(rec("x1", "acs-project", "Gossip", attribution="document"), USER)
+
+
+def test_attribution_is_required(sub):
+    r = rec("o1", "acs-project")
+    r.attribution = None
+    with pytest.raises(ScopeViolation):
+        sub.put(r, USER)
+
+
+# ---- Lineage (spec §6) -------------------------------------------------------
+
+def test_correction_preserves_original_and_sets_lineage(sub):
+    sub.put(rec("o1", "acs-project", text="old fact"), USER)
+    fix = rec("o2", "acs-project", "Correction", attribution="user", text="new fact")
+    sub.correct("o1", fix, USER)
+    assert sub.get("o1", USER).payload["text"] == "old fact"
+    assert sub.get("o2", USER).supersedes == "o1"
+
+
+def test_correction_cannot_be_put_directly(sub):
+    sub.put(rec("o1", "acs-project"), USER)
+    with pytest.raises(ScopeViolation):
+        sub.put(rec("o2", "acs-project", "Correction", attribution="user"), USER)
+
+
+def test_correction_cannot_change_scope(sub):
+    sub.put(rec("o1", "acs-project"), USER)
+    with pytest.raises(ScopeViolation):
+        sub.correct("o1", rec("o2", "memory-providers", "Correction", attribution="user"), USER)
+
+
+def test_delete_cascades_to_summary_derived_from_record(sub):
+    sub.put(rec("o1", "acs-project"), USER)
+    sub.put(Record(record_id="s1", record_type="Summary", scope="acs-project",
+                   payload={"text": "summary"}, epistemic_status="derived",
+                   attribution="system", source_ids=["o1"]), AGENT)
+    assert sub.delete("o1", USER) is True
+    assert sub.get("s1", USER) is None
+
+
+# ---- Classifier, fail closed (D2-4, D2-8) -----------------------------------
+
+def test_classifier_error_refuses_write_generically(sub, engine, monkeypatch):
+    def boom(*_a, **_k):
+        raise RuntimeError("classifier down")
+    monkeypatch.setattr(engine, "content_conflict", boom)
+    with pytest.raises(ScopeViolation) as info:
+        sub.put(rec("m1", "memory-providers", text="harmless"), MEM_AGENT)
+    assert "classifier" not in str(info.value)
+    assert sub.get("m1", USER) is None
+
+
+def test_classifier_cannot_grant_a_scope_the_writer_lacks(sub):
+    # Naming another scope's project in the text does not change who may write.
+    with pytest.raises(ScopeViolation):
+        sub.put(rec("m1", "acs-project", text="scope: memory-providers"), MEM_AGENT)
+
+
+# ---- R1 closure: every string field is inspected (spec D2-5) -----------------
+
+def test_marker_in_provenance_refused_under_memory_scope(sub):
+    with pytest.raises(ScopeViolation):
+        sub.put(rec("m1", "memory-providers", text="note",
+                    provenance={"origin": "The Listening Commonwealth"}), MEM_AGENT)
+
+
+def test_marker_in_source_ids_refused_under_memory_scope(sub):
+    with pytest.raises(ScopeViolation):
+        sub.put(rec("m1", "memory-providers", text="note", source_ids=("ACS-doc",)), MEM_AGENT)
+
+
+def test_marker_in_record_type_refused_under_memory_scope(sub):
+    with pytest.raises(ScopeViolation):
+        sub.put(Record(record_id="m1", record_type="ACS Observation", scope="memory-providers",
+                       payload={"text": "note"}, attribution="document", source_ids=["s"]), MEM_AGENT)
+
+
+# ---- Plan §5 regression targets ---------------------------------------------
+
+def test_memory_provider_query_returns_zero_acs_records(sub):
+    sub.put(rec("a1", "acs-project", text="ACS release plan"), USER)
+    sub.put(rec("m1", "memory-providers", text="Honcho uses hybrid recall"), USER)
+    readable, _ = sub.query(MEM_AGENT)
+    assert [r.record_id for r in readable] == ["m1"]
+
+
+def test_positive_same_project_recall_returns_relevant_records(sub):
+    sub.put(rec("a1", "acs-project", text="ACS release plan"), USER)
+    readable, _ = sub.query(USER)
+    assert "a1" in [r.record_id for r in readable]
+
+
+def test_agent_minted_cross_scope_request_refused(sub):
+    sub.put(rec("a1", "acs-project", text="ACS release plan"), USER)
+    forged = ScopeContext(
+        granted_scopes=frozenset({"memory-providers"}),
+        user_authorized_cross_scope=True,
+        cross_scope_targets=frozenset({"acs-project"}),
+        authorization_source="agent-claimed",
+        actor="arien",
+    )
+    assert sub.get("a1", forged) is None
+
+
+def test_cross_scope_read_does_not_authorize_delete(sub):
+    sub.put(rec("a1", "acs-project", text="ACS release plan"), USER)
+    cross = ScopeContext(
+        granted_scopes=frozenset({"memory-providers"}),
+        user_authorized_cross_scope=True,
+        cross_scope_targets=frozenset({"acs-project"}),
+        authorization_source="user-turn",
+        user_authored=True,
+    )
+    assert sub.delete("a1", cross) is False
+    assert sub.get("a1", USER) is not None
+
+
+def test_identity_sourced_acs_fact_excluded_from_unrelated_queries(sub):
+    sub.put(rec("p1", "acs-project", "Person", attribution="user", source_ids=(),
+                text="Johann", provenance={"origin": "ACS Listening Commonwealth roster"}), USER)
+    readable, _ = sub.query(MEM_AGENT)
+    assert readable == []
+
+
+# ---- Migrations (spec §4) ----------------------------------------------------
+
+_PHASE1_SCHEMA = """
+CREATE TABLE records (
+    record_id TEXT PRIMARY KEY, record_type TEXT NOT NULL, scope TEXT NOT NULL,
+    epistemic_status TEXT NOT NULL, payload TEXT NOT NULL, created_at REAL NOT NULL,
+    effective_at REAL, supersedes TEXT, source_ids TEXT NOT NULL DEFAULT '[]',
+    provenance TEXT NOT NULL DEFAULT '{}');
+CREATE TABLE journal (seq INTEGER PRIMARY KEY AUTOINCREMENT, op TEXT NOT NULL,
+    record_id TEXT, scope TEXT, detail TEXT NOT NULL, recorded_at REAL NOT NULL);
+CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+INSERT INTO meta VALUES ('store_version','0');
+INSERT INTO records VALUES ('old1','Observation','memory-providers','stated','{"text":"x"}',1.0,NULL,NULL,'[]','{}');
+"""
+
+
+def _make_phase1_db(path):
+    conn = sqlite3.connect(path)
+    conn.executescript(_PHASE1_SCHEMA)
+    conn.commit()
+    conn.close()
+
+
+def test_phase1_database_migrates_and_backfills(tmp_path, engine):
+    db = tmp_path / "old.db"
+    _make_phase1_db(db)
+    s = Substrate(db, scope_engine=engine)
+    try:
+        assert s._conn.execute("PRAGMA user_version").fetchone()[0] == 2
+        row = s._conn.execute("SELECT attribution FROM records WHERE record_id='old1'").fetchone()
+        assert row[0] == "system"
+    finally:
+        s.close()
+
+
+def test_migration_is_idempotent(tmp_path, engine):
+    db = tmp_path / "old.db"
+    _make_phase1_db(db)
+    Substrate(db, scope_engine=engine).close()
+    s = Substrate(db, scope_engine=engine)
+    try:
+        assert s._conn.execute("PRAGMA user_version").fetchone()[0] == 2
+    finally:
+        s.close()
+
+
+def test_failed_migration_rolls_back(tmp_path, engine):
+    db = tmp_path / "old.db"
+    _make_phase1_db(db)
+    conn = sqlite3.connect(db)
+    conn.execute("CREATE TRIGGER boom BEFORE UPDATE ON records BEGIN SELECT RAISE(ABORT,'boom'); END")
+    conn.commit()
+    conn.close()
+    with pytest.raises(Exception):
+        Substrate(db, scope_engine=engine).close()
+    conn = sqlite3.connect(db)
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(records)")}
+    version = conn.execute("PRAGMA user_version").fetchone()[0]
+    conn.execute("DROP TRIGGER boom")
+    conn.commit()
+    conn.close()
+    assert "attribution" not in cols
+    assert version == 0
+    s = Substrate(db, scope_engine=engine)  # recovers once the fault is removed
+    try:
+        assert s._conn.execute("PRAGMA user_version").fetchone()[0] == 2
+    finally:
+        s.close()

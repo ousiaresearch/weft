@@ -21,6 +21,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from weft.knowledge import KnowledgeRefusal, check_record
 from weft.scope import ScopeContext, ScopeEngine
 
 SCHEMA_VERSION = 1
@@ -64,6 +65,8 @@ class Record:
     supersedes: str | None = None
     source_ids: list[str] = field(default_factory=list)
     provenance: dict[str, Any] = field(default_factory=dict)
+    # Phase 2 (D2-2): required on every new write; enforced by the knowledge rules.
+    attribution: str | None = None
 
     def to_row(self) -> tuple:
         return (
@@ -77,6 +80,7 @@ class Record:
             self.supersedes,
             json.dumps(self.source_ids, sort_keys=True),
             json.dumps(self.provenance, sort_keys=True),
+            self.attribution,
         )
 
     @classmethod
@@ -92,8 +96,11 @@ class Record:
             supersedes=row[7],
             source_ids=json.loads(row[8]),
             provenance=json.loads(row[9]),
+            attribution=row[10] if len(row) > 10 else None,
         )
 
+
+SCHEMA_VERSION = 2
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS records (
@@ -106,7 +113,12 @@ CREATE TABLE IF NOT EXISTS records (
     effective_at     REAL,
     supersedes       TEXT,
     source_ids       TEXT NOT NULL DEFAULT '[]',
-    provenance       TEXT NOT NULL DEFAULT '{}'
+    provenance       TEXT NOT NULL DEFAULT '{}',
+    attribution      TEXT
+);
+CREATE TABLE IF NOT EXISTS verifiers (
+    actor_id      TEXT PRIMARY KEY,
+    registered_at REAL NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_records_scope ON records(scope);
 CREATE INDEX IF NOT EXISTS idx_records_type  ON records(record_type);
@@ -182,6 +194,7 @@ class Substrate:
             self._conn.execute("PRAGMA synchronous=FULL")
             self._conn.execute("PRAGMA foreign_keys=ON")
             self._conn.executescript(_SCHEMA)
+            self._migrate()
             self._conn.execute(
                 "INSERT OR IGNORE INTO meta(key, value) VALUES('schema_version', ?)",
                 (str(SCHEMA_VERSION),),
@@ -226,6 +239,67 @@ class Substrate:
     def _store_version(self) -> int:
         row = self._conn.execute("SELECT value FROM meta WHERE key='store_version'").fetchone()
         return int(row[0]) if row else 0
+
+    # ---- migrations (spec §4) -----------------------------------------
+
+    def _migrate(self) -> None:
+        """Forward-only, transactional migrations, tracked in PRAGMA user_version.
+
+        Version 2 (Phase 2): records.attribution, backfilled to 'system' for rows
+        written before attribution existed. A failure rolls the whole step back.
+        """
+        version = self._conn.execute("PRAGMA user_version").fetchone()[0]
+        if version >= SCHEMA_VERSION:
+            return
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            if version < 2:
+                cols = {r[1] for r in self._conn.execute("PRAGMA table_info(records)")}
+                if "attribution" not in cols:
+                    self._conn.execute("ALTER TABLE records ADD COLUMN attribution TEXT")
+                self._conn.execute(
+                    "UPDATE records SET attribution = 'system' WHERE attribution IS NULL"
+                )
+            self._conn.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
+            self._conn.execute("COMMIT")
+        except Exception:
+            self._rollback_if_open()
+            raise
+
+    # ---- verifiers (D2-9) ---------------------------------------------
+
+    def register_verifier(self, actor_id: str, ctx: ScopeContext | None) -> None:
+        """Register a verifier. Only a user-authored turn may do this (D2-9).
+
+        The agent cannot create, modify, or grant a verifier.
+        """
+        with self._lock:
+            if ctx is None or not ctx.user_authored:
+                raise ScopeViolation("verifier registration not permitted")
+            _check_id(actor_id)
+            self._conn.execute("BEGIN IMMEDIATE")
+            try:
+                self._conn.execute(
+                    "INSERT OR IGNORE INTO verifiers(actor_id, registered_at) VALUES (?,?)",
+                    (actor_id, time.time()),
+                )
+                self._journal("verifier_registered", None, None, "verifier registered")
+                self._conn.execute("COMMIT")
+            except Exception:
+                self._rollback_if_open()
+                raise
+
+    def _lookup_record(self, record_id: str):
+        """Internal lookup for rule checks. Never returned to a caller."""
+        row = self._conn.execute("SELECT * FROM records WHERE record_id=?", (record_id,)).fetchone()
+        return Record.from_row(row) if row is not None else None
+
+    def _is_verifier(self, actor: str | None) -> bool:
+        if not actor:
+            return False
+        return self._conn.execute(
+            "SELECT 1 FROM verifiers WHERE actor_id=?", (actor,)
+        ).fetchone() is not None
 
     def _bump_version(self) -> None:
         self._conn.execute(
@@ -304,6 +378,17 @@ class Substrate:
                     raise ScopeViolation("correction not permitted")
                 record.supersedes = original_id
 
+            # Phase 2: knowledge rules (spec §3) decide inside the transaction.
+            if original_id is None and record.record_type == "Correction":
+                raise KnowledgeRefusal("correction must use correct()")
+            if original_id is not None and record.record_type != "Correction":
+                raise KnowledgeRefusal("correct() replacement must be a Correction")
+            reason = check_record(
+                record, ctx, is_verifier=self._is_verifier, lookup=self._lookup_record
+            )
+            if reason is not None:
+                raise KnowledgeRefusal(reason)
+
             existing = self._conn.execute(
                 "SELECT scope FROM records WHERE record_id=?", (record.record_id,)
             ).fetchone()
@@ -322,8 +407,8 @@ class Substrate:
             self._conn.execute(
                 """INSERT OR REPLACE INTO records
                    (record_id, record_type, scope, epistemic_status, payload,
-                    created_at, effective_at, supersedes, source_ids, provenance)
-                   VALUES (?,?,?,?,?,?,?,?,?,?)""",
+                    created_at, effective_at, supersedes, source_ids, provenance, attribution)
+                   VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
                 record.to_row(),
             )
             detail = f"type={record.record_type} status={record.epistemic_status}"
@@ -332,6 +417,10 @@ class Substrate:
             self._journal("put", record.record_id, record.scope, detail)
             self._bump_version()
             self._conn.execute("COMMIT")
+        except KnowledgeRefusal as exc:
+            self._rollback_if_open()
+            audited = self._journal_standalone("write_denied", None, None, "write not permitted")
+            raise ScopeViolation("write not permitted", audit_recorded=audited) from None
         except Exception:
             self._rollback_if_open()
             raise
@@ -375,6 +464,22 @@ class Substrate:
                         )
                         self._conn.execute("COMMIT")
                         return False
+
+                summaries = [
+                    (sid, sscope)
+                    for sid, sscope, src in self._conn.execute(
+                        "SELECT record_id, scope, source_ids FROM records WHERE record_type = 'Summary'"
+                    ).fetchall()
+                    if record_id in json.loads(src)
+                ]
+                for sid, sscope in summaries:
+                    if not self.scope_engine.authorize_delete(sscope, ctx).allowed:
+                        self._journal("delete_denied", None, None, "delete not permitted")
+                        self._conn.execute("COMMIT")
+                        return False
+                for sid, sscope in summaries:
+                    self._conn.execute("DELETE FROM records WHERE record_id = ?", (sid,))
+                    self._journal("unlink_summary", None, sscope, "removed derived summary (cascade)")
 
                 for dep_id, dep_scope in dependents:
                     self._conn.execute("UPDATE records SET supersedes = NULL WHERE record_id = ?", (dep_id,))

@@ -29,7 +29,7 @@ class TestRegressionTarget:
     def test_memory_provider_query_returns_no_acs_history(self, engine):
         """REGRESSION TARGET (Phase 0): ACS material is not returned to an unrelated query."""
         acs_record = Record(
-            record_id="acs1", record_type="Observation", scope="acs-project",
+            record_id="acs1", record_type="Observation", attribution="document", source_ids=["src-1"], scope="acs-project",
             payload={"text": "RC-05 released; ACS attestation chain updated."},
         )
         readable = engine.filter_readable([acs_record], mem_ctx())
@@ -80,7 +80,7 @@ class TestCrossScopeAuthorization:
     def test_user_authorized_cross_scope_permitted(self, engine):
         ctx = ScopeContext(
             granted_scopes=frozenset({"memory-providers"}),
-            user_authorized_cross_scope=True,
+            user_authorized_cross_scope=True, user_authored=True,
             cross_scope_targets=frozenset({"acs-project"}),
             authorization_source="user-typed-directive",
         )
@@ -91,7 +91,7 @@ class TestCrossScopeAuthorization:
     def test_cross_scope_target_mismatch_denied(self, engine):
         ctx = ScopeContext(
             granted_scopes=frozenset({"memory-providers"}),
-            user_authorized_cross_scope=True,
+            user_authorized_cross_scope=True, user_authored=True,
             cross_scope_targets=frozenset({"identity"}),
             authorization_source="user-typed-directive",
         )
@@ -101,7 +101,7 @@ class TestCrossScopeAuthorization:
         """Review fix F4: no targets, or no attribution, means denial, not a blanket grant."""
         no_targets = ScopeContext(
             granted_scopes=frozenset({"memory-providers"}),
-            user_authorized_cross_scope=True,
+            user_authorized_cross_scope=True, user_authored=True,
             cross_scope_targets=frozenset(),
             authorization_source="user-typed-directive",
         )
@@ -109,7 +109,7 @@ class TestCrossScopeAuthorization:
 
         no_source = ScopeContext(
             granted_scopes=frozenset({"memory-providers"}),
-            user_authorized_cross_scope=True,
+            user_authorized_cross_scope=True, user_authored=True,
             cross_scope_targets=frozenset({"acs-project"}),
             authorization_source=None,
         )
@@ -118,44 +118,44 @@ class TestCrossScopeAuthorization:
 
 class TestWriteAuthorization:
     def test_write_needs_context(self, engine):
-        rec = Record(record_id="x", record_type="Observation", scope="memory-providers", payload={})
+        rec = Record(record_id="x", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers", payload={})
         assert not engine.authorize_write(rec, None).allowed
 
     def test_write_needs_granted_scope(self, engine):
         """Review fix F1: knowing a scope exists is not authority to write to it."""
-        rec = Record(record_id="x", record_type="Observation", scope="acs-project",
+        rec = Record(record_id="x", record_type="Observation", attribution="document", source_ids=["src-1"], scope="acs-project",
                      payload={"text": "RC-05 notes"})
         assert not engine.authorize_write(rec, mem_ctx()).allowed
 
     def test_unknown_scope_denied(self, engine):
-        rec = Record(record_id="x", record_type="Observation", scope="totally-unknown", payload={})
+        rec = Record(record_id="x", record_type="Observation", attribution="document", source_ids=["src-1"], scope="totally-unknown", payload={})
         assert not engine.authorize_write(rec, ScopeContext(granted_scopes=frozenset({"totally-unknown"}))).allowed
 
     def test_acs_content_refused_under_other_scope(self, engine):
         """Review fix F3: the content guard decides; it is not a no-op."""
-        rec = Record(record_id="x", record_type="Observation", scope="memory-providers",
+        rec = Record(record_id="x", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers",
                      payload={"text": "The Listening Commonwealth released RC-05."})
         assert not engine.authorize_write(rec, mem_ctx()).allowed
 
     def test_acs_content_accepted_under_its_own_scope(self, engine):
-        rec = Record(record_id="x", record_type="Observation", scope="acs-project",
+        rec = Record(record_id="x", record_type="Observation", attribution="document", source_ids=["src-1"], scope="acs-project",
                      payload={"text": "The Listening Commonwealth released RC-05."})
         ctx = ScopeContext(granted_scopes=frozenset({"acs-project"}))
         assert engine.authorize_write(rec, ctx).allowed
 
     def test_ordinary_content_writable(self, engine):
-        rec = Record(record_id="x", record_type="Observation", scope="memory-providers",
+        rec = Record(record_id="x", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers",
                      payload={"text": "Honcho uses hybrid recall."})
         assert engine.authorize_write(rec, mem_ctx()).allowed
 
     def test_record_without_scope_denied(self, engine):
-        rec = Record(record_id="x", record_type="Observation", scope="", payload={})
+        rec = Record(record_id="x", record_type="Observation", attribution="document", source_ids=["src-1"], scope="", payload={})
         assert not engine.authorize_write(rec, mem_ctx()).allowed
 
     def test_delete_needs_granted_scope_only(self, engine):
         cross = ScopeContext(
             granted_scopes=frozenset(),
-            user_authorized_cross_scope=True,
+            user_authorized_cross_scope=True, user_authored=True,
             cross_scope_targets=frozenset({"acs-project"}),
             authorization_source="user-typed-directive",
         )

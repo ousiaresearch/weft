@@ -26,6 +26,7 @@ KNOWN = {"ariel-continuity", "acs-project", "memory-providers"}
 MARKERS = {"acs-project": {"ACS", "Listening Commonwealth"}}
 
 CTX = ScopeContext(granted_scopes=frozenset(KNOWN))
+USER_CTX = ScopeContext(granted_scopes=frozenset(KNOWN), user_authored=True, actor="johann")
 MEM = ScopeContext(granted_scopes=frozenset({"memory-providers"}))
 
 
@@ -50,8 +51,13 @@ def _raw_ops(s):
     return [r[0] for r in _raw_journal(s)]
 
 
+def make_correction(rid, scope="memory-providers", text="corrected"):
+    return Record(record_id=rid, record_type="Correction", scope=scope,
+                  payload={"text": text}, attribution="user")
+
+
 def make_record(rid="r1", scope="memory-providers", text="Honcho uses hybrid recall."):
-    return Record(record_id=rid, record_type="Observation", scope=scope, payload={"text": text})
+    return Record(record_id=rid, record_type="Observation", attribution="document", source_ids=["src-1"], scope=scope, payload={"text": text})
 
 
 class TestBasicOperations:
@@ -93,7 +99,7 @@ class TestBasicOperations:
 
     def test_correct_preserves_lineage(self, substrate):
         substrate.put(make_record(text="The decision was X."), CTX)
-        substrate.correct("r1", make_record("r2", text="The decision was changed to Y."), CTX)
+        substrate.correct("r1", make_correction("r2", text="The decision was changed to Y."), USER_CTX)
         assert substrate.get("r1", CTX) is not None, "original must not be erased"
         assert substrate.get("r2", CTX).supersedes == "r1"
 
@@ -108,7 +114,7 @@ class TestBasicOperations:
 
     def test_delete_clears_dangling_supersedes(self, substrate):
         substrate.put(make_record("r1", text="original"), CTX)
-        substrate.correct("r1", make_record("r2", text="corrected"), CTX)
+        substrate.correct("r1", make_correction("r2", text="corrected"), USER_CTX)
         assert substrate.get("r2", CTX).supersedes == "r1"
 
         assert substrate.delete("r1", CTX, reason="privacy request") is True
@@ -119,8 +125,8 @@ class TestBasicOperations:
 
     def test_delete_cannot_be_used_to_reconstruct_lineage(self, substrate):
         substrate.put(make_record("r1", text="sensitive original"), CTX)
-        substrate.correct("r1", make_record("r2", text="correction"), CTX)
-        substrate.correct("r2", make_record("r3", text="second correction"), CTX)
+        substrate.correct("r1", make_correction("r2", text="correction"), USER_CTX)
+        substrate.correct("r2", make_correction("r3", text="second correction"), USER_CTX)
         substrate.delete("r1", CTX, reason="privacy")
         assert not any("r1" in (r.supersedes or "") for r in substrate.all_records(CTX))
 
@@ -260,7 +266,7 @@ class TestFaultInjection:
             won = 0
             for i in range(30):
                 try:
-                    s.put(Record(record_id=f"shared{{i}}", record_type="Observation",
+                    s.put(Record(record_id=f"shared{{i}}", record_type="Observation", attribution="document", source_ids=["src-1"],
                                  scope="memory-providers", payload={{"text": "x"}}), ctx)
                     won += 1
                 except RecordConflict:

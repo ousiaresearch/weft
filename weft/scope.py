@@ -100,8 +100,16 @@ class ScopeContext:
     user_authorized_cross_scope: bool = False
     cross_scope_targets: frozenset[str] = frozenset()
     authorization_source: str | None = None
+    # Phase 2 (D2-7): a cross-scope request must come from a user-authored turn.
+    user_authored: bool = False
+    # Phase 2 (D2-9): the acting identity, used for verifier checks.
+    actor: str | None = None
 
     def __post_init__(self) -> None:
+        if not isinstance(self.user_authored, bool):
+            raise TypeError("user_authored must be a bool")
+        if self.actor is not None and not isinstance(self.actor, str):
+            raise TypeError("actor must be a string or None")
         object.__setattr__(self, "granted_scopes", _as_scope_set(self.granted_scopes, "granted_scopes"))
         object.__setattr__(
             self, "cross_scope_targets", _as_scope_set(self.cross_scope_targets, "cross_scope_targets")
@@ -257,7 +265,10 @@ class ScopeEngine:
         if record_scope not in self.known_scopes:
             return Decision(False, f"unknown scope {record_scope!r}")
 
-        conflict = self.content_conflict(record_scope, text)
+        try:
+            conflict = self.content_conflict(record_scope, text)
+        except Exception:  # classifier fails closed (D2-4)
+            return Decision(False, "read not permitted")
         if conflict is not None:
             return Decision(False, conflict)
 
@@ -267,6 +278,8 @@ class ScopeEngine:
             return ALLOW
 
         if ctx.user_authorized_cross_scope:
+            if not ctx.user_authored:
+                return Decision(False, "cross-scope requires a user-authored turn")
             if not ctx.cross_scope_targets:
                 return Decision(False, "cross-scope request names no targets")
             if not ctx.authorization_source:
@@ -294,7 +307,10 @@ class ScopeEngine:
             return Decision(False, f"unknown scope {scope!r} -- denied, not created")
         if scope not in ctx.granted_scopes:
             return Decision(False, f"write not granted for scope {scope!r}")
-        conflict = self.content_conflict(scope, self._payload_text(record))
+        try:
+            conflict = self.content_conflict(scope, self._payload_text(record))
+        except Exception:  # classifier fails closed (D2-4)
+            return Decision(False, "write not permitted")
         if conflict is not None:
             return Decision(False, conflict)
         return Decision(True, "write permitted")
@@ -315,9 +331,13 @@ class ScopeEngine:
 
     @staticmethod
     def _payload_text(record) -> str:
-        """Every string in a record's payload, for content inspection."""
+        """Every string a reader sees, for content inspection (R1 closure, D2-5).
+
+        Covers payload, provenance, source ids, and record type, not only payload.
+        """
         parts: list[str] = []
-        _flatten_payload(getattr(record, "payload", None), parts)
+        for name in ("payload", "provenance", "source_ids", "record_type"):
+            _flatten_payload(getattr(record, name, None), parts)
         return " ".join(parts)
 
     def filter_readable(self, records, ctx: ScopeContext | None) -> list:

@@ -1,6 +1,6 @@
 # Phase 2 — Knowledge model (spec)
 
-Status: **specification, not implementation.** Per the phase gate, implementation starts only after explicit go-ahead, and the Phase 2 review runs in a separate turn.
+Status: **implemented, pending review.** Work is uncommitted. Commit and the Phase 2 adversarial review run in separate turns, per the phase gate.
 
 Source: `~/.hermes/plans/2026-10-24_weft-memory-system-full-plan.md` §4 (knowledge model) and §5 (scope engine). Inherits the Phase 1 closure in `docs/adr/0001-phase1-decisions.md`, including residuals R1–R11.
 
@@ -124,3 +124,17 @@ None blocking Phase 2 implementation.
 - OCR in alpha: resolved (accepted by the user, Oct 25). OCR output enters through the Phase 3 ingestion path as machine-derived Observations.
 - Classifier: resolved as D2-8.
 - Verifier registration: resolved as D2-9.
+
+## 9. Implementation notes (as built, for the reviewer)
+
+- **Rules table:** `weft/knowledge.py` (`RULES`, `check_record`). Runs inside the write transaction, after lineage is set. Refusals are generic (G4/G10).
+- **Attribution:** `Record.attribution`, required. Column added by migration 2 (`PRAGMA user_version`), with legacy rows backfilled to `system`. Migration is transactional; a failure rolls back (tested with a SQL trigger).
+- **User-authored:** `ScopeContext.user_authored` (default False). Required for attribution `user` and for any cross-scope request. The library enforces this. Cross-scope requests without it are refused, which closes the agent-minted cross-scope path at the library level.
+- **Verifiers:** table `verifiers`, populated only through `register_verifier(actor, ctx)`, which requires `user_authored`. A verifier must be registered before it can write `verifier`-attributed records.
+- **Verified status:** a Claim may be `verified` only with attribution `verifier`, a registered actor, and a Verification record in the same scope that names it (`payload.claim_id`) and is cited in `source_ids`.
+- **Correction:** `Correction` records are written only through `correct()`. A `correct()` replacement must be a Correction.
+- **R1 closure:** the content rule and classifier inspect payload, provenance, source_ids, and record_type.
+- **Classifier fail-closed:** an exception in the content check refuses the write or read generically.
+- **Summary cascade:** deleting a record also removes derived Summary records that cite it in `source_ids`. Refused if the caller cannot delete any of them.
+- **Known gap, deliberately deferred:** a document Observation's `source_ids` must be non-empty, but the referenced Source is not checked for existence. Phase 3 ingestion creates Sources, and the existence check belongs there.
+- **Phase 1 test changes (documented, not weakened):** test helpers now supply attribution and source; cross-scope test contexts are user-authored; `correct()` replacements are Corrections written from a user-authored context.

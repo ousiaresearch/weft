@@ -25,6 +25,8 @@ MARKERS = {"acs-project": {"ACS", "Listening Commonwealth", "Constitutional Conv
 ALL = ScopeContext(granted_scopes=frozenset(KNOWN))
 MEM_ONLY = ScopeContext(granted_scopes=frozenset({"memory-providers"}))
 ACS_ONLY = ScopeContext(granted_scopes=frozenset({"acs-project"}))
+# A user-authored turn: may write Corrections (Phase 2 rules).
+ALL_USER = ScopeContext(granted_scopes=frozenset(KNOWN), user_authored=True, actor="johann")
 
 
 @pytest.fixture
@@ -40,7 +42,7 @@ def sub(tmp_path, engine):
 
 
 def rec(rid, scope, text="plain fact"):
-    return Record(record_id=rid, record_type="Observation", scope=scope, payload={"text": text})
+    return Record(record_id=rid, record_type="Observation", attribution="document", source_ids=["src-1"], scope=scope, payload={"text": text})
 
 
 # F1: write path had no caller authority check.
@@ -81,7 +83,7 @@ def test_F3_acs_content_refused_under_memory_scope_on_write(sub):
 def test_F3_acs_content_under_memory_scope_not_returned_to_memory_reader(sub, tmp_path):
     # Bypass the write gate to simulate a record that already exists in the store.
     sub._conn.execute(
-        "INSERT INTO records VALUES (?,?,?,?,?,?,?,?,?,?)",
+        "INSERT INTO records (record_id, record_type, scope, epistemic_status, payload, created_at, effective_at, supersedes, source_ids, provenance) VALUES (?,?,?,?,?,?,?,?,?,?)",
         ("legacy", "Observation", "memory-providers", "stated",
          '{"text": "The Listening Commonwealth released RC-05."}', 0.0, None, None, "[]", "{}"),
     )
@@ -94,7 +96,7 @@ def test_F3_acs_content_under_memory_scope_not_returned_to_memory_reader(sub, tm
 def test_F4_empty_cross_scope_targets_deny(engine):
     ctx = ScopeContext(
         granted_scopes=frozenset({"memory-providers"}),
-        user_authorized_cross_scope=True,
+        user_authorized_cross_scope=True, user_authored=True,
         cross_scope_targets=frozenset(),
         authorization_source="user-typed-directive",
     )
@@ -104,7 +106,7 @@ def test_F4_empty_cross_scope_targets_deny(engine):
 def test_F4_cross_scope_without_attribution_denied(engine):
     ctx = ScopeContext(
         granted_scopes=frozenset({"memory-providers"}),
-        user_authorized_cross_scope=True,
+        user_authorized_cross_scope=True, user_authored=True,
         cross_scope_targets=frozenset({"acs-project"}),
         authorization_source=None,
     )
@@ -273,7 +275,7 @@ def test_F20_empty_id_rejected_without_validation(sub):
 def _legacy_dependent(sub, rid, scope, supersedes):
     """Insert a row directly, as a pre-existing legacy record would appear."""
     sub._conn.execute(
-        "INSERT INTO records VALUES (?,?,?,?,?,?,?,?,?,?)",
+        "INSERT INTO records (record_id, record_type, scope, epistemic_status, payload, created_at, effective_at, supersedes, source_ids, provenance) VALUES (?,?,?,?,?,?,?,?,?,?)",
         (rid, "Observation", scope, "stated", '{"text": "correction"}', 0.0, None, supersedes, "[]", "{}"),
     )
 
@@ -293,12 +295,12 @@ def _legacy_dependent(sub, rid, scope, supersedes):
     ],
 )
 def test_F_A_marker_variants_refused_under_other_scope(engine, payload):
-    rec = Record(record_id="rn", record_type="Observation", scope="memory-providers", payload=payload)
+    rec = Record(record_id="rn", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers", payload=payload)
     assert not engine.authorize_write(rec, MEM_ONLY).allowed, payload
 
 
 def test_F_A_marker_variants_withheld_on_read(engine):
-    rec = Record(record_id="rn", record_type="Observation", scope="memory-providers",
+    rec = Record(record_id="rn", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers",
                  payload={"text": "note", "meta": {"secret": "The Listening Commonwealth"}})
     readable = engine.filter_readable([rec], MEM_ONLY)
     assert readable == []
@@ -306,7 +308,7 @@ def test_F_A_marker_variants_withheld_on_read(engine):
 
 def test_F_A_no_false_positive_on_substring_words(engine):
     """'impacts' contains 'acs' but is a different word; must not be treated as the ACS marker."""
-    rec = Record(record_id="ok", record_type="Observation", scope="memory-providers",
+    rec = Record(record_id="ok", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers",
                  payload={"text": "The impacts were small."})
     assert engine.authorize_write(rec, MEM_ONLY).allowed
 
@@ -333,14 +335,14 @@ def test_F_C_projection_without_context_is_non_destructive(sub, tmp_path):
 
 # F-D: denial reasons must not name scopes the caller cannot see.
 def test_F_D_content_denial_reason_names_no_other_scope(engine):
-    rec = Record(record_id="rn", record_type="Observation", scope="memory-providers",
+    rec = Record(record_id="rn", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers",
                  payload={"text": "The Listening Commonwealth"})
     reason = engine.authorize_write(rec, MEM_ONLY).reason
     assert "acs-project" not in reason
 
 
 def test_F_D_read_denial_reason_names_no_other_scope(engine):
-    rec = Record(record_id="rn", record_type="Observation", scope="memory-providers",
+    rec = Record(record_id="rn", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers",
                  payload={"text": "The Listening Commonwealth"})
     reason = engine.authorize_read("memory-providers", MEM_ONLY, text="The Listening Commonwealth").reason
     assert "acs-project" not in reason
@@ -368,7 +370,7 @@ def test_F17_same_id_race_has_exactly_one_winner_across_processes(tmp_path, engi
         "won = 0\n"
         "for i in range(20):\n"
         "    try:\n"
-        "        s.put(Record(record_id='race%%d' %% i, record_type='Observation',\n"
+        "        s.put(Record(record_id='race%%d' %% i, record_type='Observation', attribution='document', source_ids=['src-1'],\n"
         "                     scope='memory-providers', payload={'text': 'x'}), ctx)\n"
         "        won += 1\n"
         "    except RecordConflict:\n"
@@ -390,7 +392,7 @@ def test_F19_global_allowlist_not_directly_mutable(engine):
 # F-A (homoglyphs): Cyrillic and Greek lookalikes must fold to the Latin marker.
 @pytest.mark.parametrize("text", ["\u0410\u0421S attestation", "Listening Commonwealth \u0430\u0441s"])
 def test_F_A_homoglyph_variants_refused(engine, text):
-    rec = Record(record_id="rh", record_type="Observation", scope="memory-providers", payload={"text": text})
+    rec = Record(record_id="rh", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers", payload={"text": text})
     assert not engine.authorize_write(rec, MEM_ONLY).allowed, text
 
 
@@ -399,14 +401,14 @@ def test_F_A_homoglyph_variants_refused(engine, text):
 # N1: combining marks must not split or merge a marker token.
 @pytest.mark.parametrize("text", ["A\u0301CS charter", "AC\u0308S charter", "A\u200bC\u200bS charter", "A\u00adCS charter"])
 def test_N1_combining_and_invisible_marks_do_not_hide_marker(engine, text):
-    rec = Record(record_id="rc", record_type="Observation", scope="memory-providers", payload={"text": text})
+    rec = Record(record_id="rc", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers", payload={"text": text})
     assert not engine.authorize_write(rec, MEM_ONLY).allowed, repr(text)
 
 
 # N2: lookalike letters with diacritics or in the Greek/Latin range.
 @pytest.mark.parametrize("text", ["\u00e5CS charter", "\u00e2CS charter", "\u0251CS charter", "AC\u03c2 charter"])
 def test_N2_diacritic_and_lookalike_letters_fold(engine, text):
-    rec = Record(record_id="rl", record_type="Observation", scope="memory-providers", payload={"text": text})
+    rec = Record(record_id="rl", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers", payload={"text": text})
     assert not engine.authorize_write(rec, MEM_ONLY).allowed, repr(text)
 
 
@@ -425,7 +427,7 @@ def test_N3_unmanifested_files_are_left_alone(sub, tmp_path):
 
 # N4: exclusions must not disclose record ids the caller cannot see.
 def test_N4_exclusions_do_not_name_out_of_scope_records(sub):
-    sub.put(Record(record_id="acs1", record_type="Observation", scope="acs-project", payload={"text": "x"}), ALL)
+    sub.put(Record(record_id="acs1", record_type="Observation", attribution="document", source_ids=["src-1"], scope="acs-project", payload={"text": "x"}), ALL)
     readable, exclusions = sub.query(MEM_ONLY)
     assert "acs1" not in str((readable, exclusions))
 
@@ -449,7 +451,7 @@ def test_N6_invisible_write_does_not_mark_projection_stale(sub, tmp_path):
 # N7: the unlink journal entry must not name the deleted record to readers of the dependent's scope.
 def test_N7_unlink_journal_does_not_name_deleted_record(sub):
     sub.put(rec("r1", "memory-providers", "original"), ALL)
-    sub.correct("r1", rec("r2", "memory-providers", "correction"), ALL)
+    sub.correct("r1", Record(record_id="r2", record_type="Correction", scope="memory-providers", payload={"text": "correction"}, attribution="user"), ALL_USER)
     assert sub.delete("r1", ALL) is True
     details = [e["detail"] for e in sub.journal_entries(MEM_ONLY) if e["op"] == "unlink_supersedes"]
     assert details and all("r1" not in d for d in details)
@@ -519,7 +521,7 @@ def test_G2_unmanaged_file_with_projected_name_is_not_overwritten(sub, tmp_path)
 # G3: an id that is unsafe for a file name must never reach the filesystem.
 def test_G3_unsafe_stored_id_never_written_outside_projection(sub, tmp_path):
     sub._conn.execute(
-        "INSERT INTO records VALUES (?,?,?,?,?,?,?,?,?,?)",
+        "INSERT INTO records (record_id, record_type, scope, epistemic_status, payload, created_at, effective_at, supersedes, source_ids, provenance) VALUES (?,?,?,?,?,?,?,?,?,?)",
         ("../escape", "Observation", "memory-providers", "stated", '{"text": "x"}', 0.0, None, None, "[]", "{}"),
     )
     out = tmp_path / "proj"
@@ -615,7 +617,7 @@ def test_G11_same_granted_set_different_cross_scope_authority_is_a_different_vie
     sub.put(rec("a1", "acs-project", "ACS"), ALL)
     cross = ScopeContext(
         granted_scopes=frozenset({"memory-providers"}),
-        user_authorized_cross_scope=True,
+        user_authorized_cross_scope=True, user_authored=True,
         cross_scope_targets=frozenset({"acs-project"}),
         authorization_source="test",
     )
@@ -641,7 +643,7 @@ def test_G12_visible_journal_sequence_has_no_gaps(sub):
 # G13: a caller may not point a record's supersedes link at a scope it does not hold.
 def test_G13_unauthorized_supersedes_is_refused(sub):
     sub.put(rec("a1", "acs-project", "ACS"), ALL)
-    m1 = Record(record_id="m1", record_type="Observation", scope="memory-providers",
+    m1 = Record(record_id="m1", record_type="Observation", attribution="document", source_ids=["src-1"], scope="memory-providers",
                 payload={"text": "x"}, supersedes="a1")
     with pytest.raises(ScopeViolation):
         sub.put(m1, MEM_ONLY)
