@@ -93,8 +93,9 @@ def _parse(name: str, data: bytes):
 class Ingestor:
     """Writes Sources and Observations through the substrate. Holds no state of its own."""
 
-    def __init__(self, substrate):
+    def __init__(self, substrate, embedder=None):
         self.sub = substrate
+        self.embedder = embedder  # optional: anything with embed_document(text) -> vector
 
     def ingest_turn(self, text: str, speaker: str, ctx, scope: str, conversation_id: str) -> str:
         """A conversation turn becomes a Source with the speaker's attribution (spec §7.1)."""
@@ -110,6 +111,8 @@ class Ingestor:
             record_id=rid, record_type="Source", scope=scope, payload={"text": clean},
             attribution=attribution, source_ids=[], provenance=provenance,
         ), ctx)
+        if self.embedder is not None:
+            self.sub.vector_put(rid, scope, self.embedder.embed_document(clean), ctx=ctx)
         return rid
 
     def ingest_document(self, name: str, data: bytes, ctx, scope: str, author: str):
@@ -142,6 +145,8 @@ class Ingestor:
                 ), ctx)
             except RecordConflict:
                 pass  # written by an interrupted earlier run
+            if self.embedder is not None:
+                self.sub.vector_put(oid, scope, self.embedder.embed_document(paragraph), ctx=ctx)
         self.sub.set_job(sid, "ingest", content_hash, "done", scope=scope, ctx=ctx)
         return sid
 
@@ -181,5 +186,7 @@ class Ingestor:
             ), ctx)
         except RecordConflict:
             pass
+        if self.embedder is not None:
+            self.sub.vector_put(sid, scope, self.embedder.embed_document(text.strip()), ctx=ctx)
         self.sub.set_job(sid, "derive", content_hash, "done", scope=scope, ctx=ctx)
         return sid

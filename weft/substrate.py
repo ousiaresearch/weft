@@ -101,6 +101,7 @@ class Record:
 
 
 SCHEMA_VERSION = 4
+VEC_DIM = 1024  # embedding dimension of the alpha embedding adapter
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS records (
@@ -265,6 +266,7 @@ class Substrate:
     # ---- migrations (spec §4) -----------------------------------------
 
     def _migrate(self) -> None:
+        self._load_vec()
         """Forward-only, transactional migrations, tracked in PRAGMA user_version.
 
         Version 2 (Phase 2): records.attribution, backfilled to 'system' for rows
@@ -405,7 +407,97 @@ class Substrate:
                 self._rollback_if_open()
                 raise
 
-    def fts_candidates(self, match: str, ctx, limit: int) -> list:
+    def _load_vec(self) -> None:
+        import sqlite_vec
+        self._conn.enable_load_extension(True)
+        try:
+            sqlite_vec.load(self._conn)
+        finally:
+            self._conn.enable_load_extension(False)
+
+    @staticmethod
+    def _vec_table(scope: str) -> str:
+        import hashlib
+        return "vec_" + hashlib.sha256(scope.encode()).hexdigest()[:16]
+
+    def _vec_exists(self, scope: str) -> bool:
+        row = self._conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (self._vec_table(scope),)
+        ).fetchone()
+        return row is not None
+
+    def vector_put(self, record_id: str, scope: str, vector, ctx=None) -> None:
+        """Store an embedding for a record in its scope's vector table.
+
+        Needs write authority over the scope (review-style gate: same rule as writes).
+        """
+        import sqlite_vec
+        stub = Record(record_id=record_id, record_type="Observation", scope=scope,
+                      payload={}, attribution="document", source_ids=[])
+        if ctx is None or not self.scope_engine.authorize_write(stub, ctx).allowed:
+            raise ScopeViolation("write not permitted")
+        if len(vector) != VEC_DIM:
+            raise ValueError(f"embedding must have {VEC_DIM} dimensions")
+        table = self._vec_table(scope)
+        with self._lock:
+            self._conn.execute("BEGIN IMMEDIATE")
+            try:
+                self._conn.execute(
+                    f"CREATE VIRTUAL TABLE IF NOT EXISTS {table} USING "
+                    f"vec0(record_id TEXT PRIMARY KEY, embedding float[{VEC_DIM}])"
+                )
+                self._conn.execute(f"DELETE FROM {table} WHERE record_id = ?", (record_id,))
+                self._conn.execute(
+                    f"INSERT INTO {table}(record_id, embedding) VALUES (?, ?)",
+                    (record_id, sqlite_vec.serialize_float32(list(vector))),
+                )
+                self._conn.execute("COMMIT")
+            except Exception:
+                self._rollback_if_open()
+                raise
+
+    def _vec_remove(self, record_id: str, scope: str) -> None:
+        if self._vec_exists(scope):
+            self._conn.execute(f"DELETE FROM {self._vec_table(scope)} WHERE record_id = ?", (record_id,))
+
+    def vector_candidates(self, vector, ctx, limit: int, scopes=None) -> list:
+        """Nearest record ids for a query vector, limited to what ctx may read.
+
+        Scope is decided first (only readable tables are queried), then each candidate is
+        checked with the read gate (review-style defence in depth, as for FTS).
+        """
+        import sqlite_vec
+        if ctx is None or len(vector) != VEC_DIM:
+            return []
+        engine = self.scope_engine
+        readable = [s for s in sorted(engine.known_scopes) if engine.authorize_read(s, ctx, "").allowed]
+        if scopes is not None:
+            readable = [s for s in readable if s in scopes]
+        blob = sqlite_vec.serialize_float32(list(vector))
+        hits = []
+        with self._lock:
+            for scope in readable:
+                if not self._vec_exists(scope):
+                    continue
+                rows = self._conn.execute(
+                    f"SELECT record_id, distance FROM {self._vec_table(scope)} "
+                    "WHERE embedding MATCH ? AND k = ?",
+                    (blob, limit * 4),
+                ).fetchall()
+                hits.extend((dist, rid) for rid, dist in rows)
+            hits.sort()
+            out = []
+            for _, rid in hits:
+                rec = self._source_or_record(rid)
+                if rec is None:
+                    continue
+                if engine.authorize_read(rec.scope, ctx, engine._payload_text(rec)).allowed:
+                    out.append(rid)
+                    if len(out) >= limit:
+                        break
+        return out
+
+    def fts_candidates(self, match: str, ctx, limit: int, scopes=None) -> list:
         """Candidate record ids for a full-text match, limited to what ctx may read.
 
         Each candidate is checked against the Phase 1 read gate with its own text
@@ -423,6 +515,8 @@ class Substrate:
                 rec = self._source_or_record(rid)
                 if rec is None:
                     continue
+                if scopes is not None and rec.scope not in scopes:
+                    continue  # N-P3-1: the caller's narrowing applies to candidates
                 if self.scope_engine.authorize_read(rec.scope, ctx, self.scope_engine._payload_text(rec)).allowed:
                     out.append(rid)
                     if len(out) >= limit:
@@ -672,6 +766,7 @@ class Substrate:
                 for sid, sscope in summaries:
                     self._conn.execute("DELETE FROM records WHERE record_id = ?", (sid,))
                     self._fts_remove(sid)
+                    self._vec_remove(sid, sscope)
                     self._journal("unlink_summary", None, sscope, "removed derived artifact (cascade)")
 
                 for dep_id, dep_scope in dependents:
@@ -684,6 +779,9 @@ class Substrate:
 
                 self._conn.execute("DELETE FROM records WHERE record_id=?", (record_id,))
                 self._fts_remove(record_id)
+                self._vec_remove(record_id, row[1])
+                # R-P3-10: an import's job row must not outlive its Source.
+                self._conn.execute("DELETE FROM jobs WHERE scope = ? AND source_id = ?", (row[1], record_id))
                 self._journal("delete", record_id, row[1], f"reason={reason}")
                 self._bump_version()
                 self._conn.execute("COMMIT")

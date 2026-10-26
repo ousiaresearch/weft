@@ -112,3 +112,47 @@ class WhisperTranscriber:
             return " ".join(seg.text.strip() for seg in segments).strip()
         finally:
             os.unlink(wav)
+
+
+class HarrierEmbedder:
+    """Local text embeddings: microsoft/harrier-oss-v1-0.6b (MIT), 1024-dim, last-token pooling.
+
+    Runs through mlx-embeddings (GPL-3.0; dependency licence recorded in the ADR). Queries
+    take the model's retrieval instruction prefix; documents do not. Vectors are L2-normalised.
+    """
+
+    dim = 1024
+    QUERY_PREFIX = (
+        "Instruct: Given a web search query, retrieve relevant passages that answer the query\n"
+        "Query: "
+    )
+
+    def __init__(self, model_dir):
+        self.model_dir = Path(model_dir)
+        self.model_id = "microsoft/harrier-oss-v1-0.6b (mlx-embeddings)"
+        self._model = None
+        self._tok = None
+
+    def _load(self):
+        from mlx_embeddings.utils import load
+        self._model, self._tok = load(str(self.model_dir))
+
+    def _embed(self, text: str) -> list:
+        if self._model is None:
+            self._load()
+        import mlx.core as mx
+        ids = self._tok.encode(text) if hasattr(self._tok, "encode") else self._tok.tokenizer.encode(text)
+        out = self._model(mx.array([ids]))
+        hidden = getattr(out, "last_hidden_state", None)
+        if hidden is None:
+            hidden = out.text_embeds if hasattr(out, "text_embeds") else out[0]
+        vec = hidden[0, -1, :]
+        norm = mx.sqrt(mx.sum(vec * vec)) + 1e-12
+        return [float(x) for x in (vec / norm).tolist()]
+
+    def embed_document(self, text: str) -> list:
+        return self._embed(text)
+
+    def embed_query(self, text: str) -> list:
+        return self._embed(self.QUERY_PREFIX + text)
+

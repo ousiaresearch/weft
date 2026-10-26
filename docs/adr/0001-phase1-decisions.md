@@ -197,3 +197,18 @@ Verdict APPROVE_WITH_RESIDUALS, no gate-class findings. Build pass 2 addresses t
   - R-P3-15 ingest_document parses before any authorization check (resource use by unauthorized callers).
   - R-P3-16 adapter scratch path is operator-specific and hard-coded.
   - R-P3-17 delete refusal confirms that some derived record exists in a scope the caller cannot delete (generic, no id).
+
+### Phase 3 build pass 3: residuals, vector path, hybrid recall, recall gate
+
+- R-P3-10 closed: deleting a Source removes its job row (and its vector rows). A re-import after delete ingests again.
+- R-P3-12 closed: recalled items carry `derived`; machine-derived text renders with `derived="machine"`.
+- N-P3-1 closed: scope_hint narrows lexical and vector candidates, not only the receipt.
+- Vector path: one sqlite-vec table per scope (vec0, 1024-dim, name derived from a hash of the scope). vector_put needs write authority; vector_candidates queries only readable scopes, then gates each candidate. Hybrid recall fuses lexical and vector ranks with reciprocal-rank fusion (k=60).
+- Embeddings: microsoft/harrier-oss-v1-0.6b (MIT), last-token pooling, query instruction prefix, through mlx-embeddings.
+- Recall gate: eval/recall_gate.py ingests the vault (249 notes) and scores 40 gold entries.
+  - Result on the DRAFT gold set: recall@5 lexical 0.825, vector 0.85, hybrid 0.90; recall@1 0.65 / 0.60 / 0.70.
+  - Floor (proposed, not yet confirmed by the user): hybrid recall@5 >= 0.90 and >= lexical. Passes at the floor exactly.
+  - Not acceptance evidence: the gold set is an unapproved draft. Four of the five hybrid misses are one query ("moltbook heartbeat receipt") that matches four near-identical receipts, so the gold set is ambiguous there.
+  - Default mode in code stays "lexical". Vector is not enabled by default until the gold set is approved and the gate re-run.
+  - Index time for 249 notes: about 1,300 s on this Mac (single-item embedding; batching is a later optimisation).
+- Dependency licences added: sqlite-vec 0.1.9 (MIT per package metadata; Apache-2.0 also listed), mlx-embeddings 0.1.0 (GPL-3.0, compatible with an AGPL-3.0 Weft distribution; record and review), harrier-oss-v1-0.6b model weights (MIT).

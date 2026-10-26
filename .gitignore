@@ -6,4 +6,5 @@ __pycache__/
 *.db-wal
 *.db-shm
 models/
-eval/
+eval/gold-set*.json
+eval/recall_gate_results.json
