@@ -118,3 +118,14 @@ Round 4 is the last open review round for Phase 1. If its BLOCK findings are lim
 - **Generic denials.** A refused write, overwrite, or correction gets one generic message, so a caller cannot tell an id in another scope from a non-existent one (G4, G5). Reasons go to the journal, which only holders of the record's scope can read.
 - **Query returns readable records and no exclusions.** Exclusion reasons and counts are no longer returned, so a caller learns nothing about records it cannot read (G6, G7).
 - **Known residuals, unchanged:** the content-marker table is best-effort; the raw connection is reachable in-process; the database is plaintext at rest; same-scope overwrites are last-writer-wins.
+
+### Round-5 changes (GATE findings G9-G13)
+
+- **Denials are never written into a scope's journal (G10).** A caller that lacks a scope is by definition not a holder of it, so it must not add rows there. Denial rows (write, overwrite, correction, delete, read) are written with no scope, no record id, and a generic detail. Consequence: holders of a scope no longer see denial entries for that scope in `journal_entries`. Denials remain in the raw audit table for operators.
+- **Correction is not an existence oracle (G9).** A missing original and an unreadable original raise the same exception with the same message.
+- **Supersession is set only by `correct()` (G13).** `put()` refuses a record that carries `supersedes`, so no caller can link a record into another scope's lineage.
+- **Journal sequence is renumbered per view (G12).** `journal_entries` numbers the entries a caller may read 1..n, so global gaps are not observable.
+- **Projection view includes all cross-scope authority (G11).** The view token covers granted scopes, cross-scope authorization, targets, and authorization source. Two callers with the same granted set but different cross-scope authority do not share a projection.
+- **Projection directory is owner-only (F-E residual R3).** `write_projection` sets the directory to 0700.
+
+Residuals carried forward unchanged from round 5: R1 (content rule does not inspect provenance and source fields), R2 (multi-marker co-occurrence), R4 (confusables outside the table), R6 (`register_scope` is a runtime mutator), R7 (unauthenticated manifest), R8 and R9 (crash and mutation windows).

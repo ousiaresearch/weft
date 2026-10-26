@@ -262,9 +262,16 @@ class Substrate:
     ) -> None:
         decision = self.scope_engine.authorize_write(record, ctx)
         if not decision.allowed:
-            audited = self._journal_standalone("write_denied", record.record_id, record.scope, decision.reason)
+            # G10: a caller without the scope must not write into its journal.
+            audited = self._journal_standalone("write_denied", None, None, "write not permitted")
             # Review G4/G5: the caller learns only that the write was refused.
             # The reason goes to the journal, where only holders of the scope read it.
+            raise ScopeViolation("write not permitted", audit_recorded=audited)
+
+        if original_id is None and record.supersedes is not None:
+            # G13: a supersedes link into a scope the caller did not authorize
+            # would make another scope's record undeletable. Only correct() links.
+            audited = self._journal_standalone("write_denied", None, None, "write not permitted")
             raise ScopeViolation("write not permitted", audit_recorded=audited)
 
         _check_id(record.record_id)
@@ -279,20 +286,21 @@ class Substrate:
                     "SELECT * FROM records WHERE record_id=?", (original_id,)
                 ).fetchone()
                 if orig_row is None:
-                    raise SubstrateError(f"cannot correct unknown record {original_id!r}")
+                    # G9: same exception as an unreadable original.
+                    raise ScopeViolation("correction not permitted")
                 orig = Record.from_row(orig_row)
                 read = self.scope_engine.authorize_read(
                     orig.scope, ctx, self.scope_engine._payload_text(orig)
                 )
                 if not read.allowed:
                     # Review fix F7: a correction must not supersede what the caller cannot read.
-                    self._journal("correct_denied", original_id, orig.scope, read.reason)
+                    self._journal("correct_denied", None, None, "correction not permitted")
                     self._conn.execute("COMMIT")
                     raise ScopeViolation("correction not permitted")
                 if record.scope != orig.scope:
                     # Review N10: a correction stays in its original's scope.
-                    reason = "correction must stay within the original record's scope"
-                    self._journal("correct_denied", original_id, orig.scope, reason)
+                    reason = "correction must stay within the original record's scope"  # noqa: F841
+                    self._journal("correct_denied", None, None, "correction not permitted")
                     self._conn.execute("COMMIT")
                     raise ScopeViolation("correction not permitted")
                 record.supersedes = original_id
@@ -307,7 +315,7 @@ class Substrate:
                     # Review fix F2 / G4: overwrite needs the incumbent's scope. The
                     # caller gets the same generic refusal as any denied write.
                     reason = f"write to existing record in scope {existing[0]!r} not granted"
-                    self._journal("write_denied", record.record_id, existing[0], reason)
+                    self._journal("write_denied", None, None, "write not permitted")
                     self._conn.execute("COMMIT")
                     raise ScopeViolation("write not permitted")
                 if not overwrite:
@@ -352,7 +360,7 @@ class Substrate:
 
                 decision = self.scope_engine.authorize_delete(row[1], ctx)
                 if not decision.allowed:
-                    self._journal("delete_denied", record_id, row[1], decision.reason)
+                    self._journal("delete_denied", None, None, "delete not permitted")
                     self._conn.execute("COMMIT")
                     return False
 
@@ -416,7 +424,7 @@ class Substrate:
             rec = Record.from_row(row)
             decision = self.scope_engine.authorize_read(rec.scope, ctx, self.scope_engine._payload_text(rec))
             if not decision.allowed:
-                self._journal_standalone("read_denied", record_id, rec.scope, decision.reason)
+                self._journal_standalone("read_denied", None, None, "read not permitted")
                 return None
             return rec
 
@@ -468,7 +476,8 @@ class Substrate:
                 continue
             if not self.scope_engine.authorize_read(scope, ctx, "").allowed:
                 continue
-            out.append({"seq": seq, "op": op, "record_id": rid, "scope": scope,
+            # G12: renumber within the caller's view so global gaps are invisible.
+            out.append({"seq": len(out) + 1, "op": op, "record_id": rid, "scope": scope,
                         "detail": detail, "recorded_at": ts})
         return out
 
@@ -478,7 +487,11 @@ class Substrate:
     def _view_token(ctx: ScopeContext) -> str:
         """Identify a caller's view by its granted scopes. One projection
         directory belongs to exactly one view (review G2)."""
-        return _sha256("|".join(sorted(ctx.granted_scopes)))
+        return _sha256(json.dumps(
+            [sorted(ctx.granted_scopes), ctx.user_authorized_cross_scope,
+             sorted(ctx.cross_scope_targets), ctx.authorization_source],
+            sort_keys=True,
+        ))
 
     def _expected_files(self, ctx: ScopeContext | None) -> dict[str, tuple[str, str]]:
         """name -> (body, sha256) for every record the caller may read.
@@ -529,6 +542,7 @@ class Substrate:
                         raise ScopeViolation("projection directory holds unmanaged files")
 
             out.mkdir(parents=True, exist_ok=True)
+            os.chmod(out, 0o700)
             prev_names = {
                 n for n in ((manifest or {}).get("files") or {}) if _safe_projection_name(n)
             }

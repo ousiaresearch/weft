@@ -82,7 +82,7 @@ class TestBasicOperations:
             substrate.put(make_record(scope="brand-new-scope"), CTX)
         assert substrate.get("r1", CTX) is None
         denials = [r for r in _raw_journal(substrate) if r[0] == "write_denied"]
-        assert denials and "unknown scope" in denials[0][1]
+        assert denials and denials[0][1] == "write not permitted"  # G10: generic, no scope named
 
     def test_invalid_epistemic_status_rejected(self, substrate):
         rec = make_record()
@@ -307,8 +307,9 @@ class TestGatedWritesAndReads:
     def test_read_denial_is_journalled_with_reason(self, substrate):
         substrate.put(make_record("secret1", scope="acs-project", text="ACS secret"), CTX)
         assert substrate.get("secret1", MEM) is None
-        reasons = [j["detail"] for j in substrate.journal_entries(CTX) if j["op"] == "read_denied"]
-        assert reasons and "no scope context" not in reasons[-1]
+        # Round 6 (G10): denials are recorded without scope; the detail is generic.
+        denials = [r for r in _raw_journal(substrate) if r[0] == "read_denied"]
+        assert denials and denials[-1][1] == "read not permitted"
 
     def test_query_without_context_returns_nothing(self, substrate):
         substrate.put(make_record("m1"), CTX)
