@@ -53,11 +53,12 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5):
     receipt = Receipt(scope_consulted=readable)
     terms = re.findall(r"\w+", (query or "").lower())
     if not terms or not readable:
-        sub.record_receipt("recall", readable, {"selected": 0, "excluded": 0})
+        if ctx is not None:
+            sub.record_receipt("recall", readable, {"selected": 0, "excluded": 0}, ctx)
         return [], receipt
 
     match = " OR ".join(f'"{t}"' for t in terms)
-    candidate_ids = sub.fts_candidates(match, readable, limit)
+    candidate_ids = sub.fts_candidates(match, ctx, limit)
 
     items: list[Item] = []
     for rid in candidate_ids:
@@ -72,6 +73,7 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5):
         if _TIER_ORDER[tier] > _TIER_ORDER[receipt.tier]:
             receipt.tier = tier
 
-    sub.record_receipt("recall", readable,
-                       {"selected": len(items), "excluded": len(receipt.exclusions)})
+    if ctx is not None:
+        sub.record_receipt("recall", readable,
+                           {"selected": len(items), "excluded": len(receipt.exclusions)}, ctx)
     return items, receipt

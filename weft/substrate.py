@@ -357,16 +357,32 @@ class Substrate:
 
     # ---- jobs and receipts (Phase 3) ---------------------------------
 
-    def job_state(self, source_id: str, stage: str, content_hash: str) -> str | None:
+    def job_state(self, source_id: str, stage: str, content_hash: str, scope: str, ctx=None) -> str | None:
+        """Job state for a Source, visible only to a caller who can read the Source's scope.
+
+        Unknown, unreadable and missing-context all return None (review G-P3-2).
+        """
         with self._lock:
+            if ctx is None or not self.scope_engine.authorize_read(scope, ctx, "").allowed:
+                return None
             row = self._conn.execute(
                 "SELECT state FROM jobs WHERE source_id=? AND stage=? AND content_hash=?",
                 (source_id, stage, content_hash),
             ).fetchone()
             return row[0] if row else None
 
-    def set_job(self, source_id: str, stage: str, content_hash: str, state: str, reason: str | None = None) -> None:
+    def set_job(self, source_id: str, stage: str, content_hash: str, state: str,
+                reason: str | None = None, *, scope: str, ctx=None) -> None:
+        """Job writes need write authority over the named scope (review G-P3-2).
+
+        The scope is caller-named but gated against ctx: naming a scope grants nothing.
+        The Source may not exist yet (jobs start before the Source is written).
+        """
+        stub = Record(record_id=source_id, record_type="Source", scope=scope,
+                      payload={}, attribution="document", source_ids=[])
         with self._lock:
+            if ctx is None or not self.scope_engine.authorize_write(stub, ctx).allowed:
+                raise ScopeViolation("write not permitted")
             self._conn.execute("BEGIN IMMEDIATE")
             try:
                 self._conn.execute(
@@ -379,24 +395,44 @@ class Substrate:
                 self._rollback_if_open()
                 raise
 
-    def fts_candidates(self, match: str, scopes: list, limit: int) -> list:
-        """Candidate record ids for a full-text match, restricted to the given scopes.
+    def fts_candidates(self, match: str, ctx, limit: int) -> list:
+        """Candidate record ids for a full-text match, limited to what ctx may read.
 
-        The caller must pass only scopes it can read. Results are ordered by relevance.
+        Each candidate is checked against the Phase 1 read gate with its own text
+        (review G-P3-1). No context, or nothing readable, returns [].
         """
-        if not scopes:
+        if ctx is None:
             return []
-        placeholders = ",".join("?" * len(scopes))
+        out = []
         with self._lock:
             rows = self._conn.execute(
-                f"SELECT record_id FROM fts WHERE fts MATCH ? AND scope IN ({placeholders}) "
-                "ORDER BY bm25(fts) LIMIT ?",
-                [match, *scopes, limit],
+                "SELECT record_id FROM fts WHERE fts MATCH ? ORDER BY bm25(fts)",
+                (match,),
             ).fetchall()
-        return [r[0] for r in rows]
+            for (rid,) in rows:
+                rec = self._source_or_record(rid)
+                if rec is None:
+                    continue
+                if self.scope_engine.authorize_read(rec.scope, ctx, self.scope_engine._payload_text(rec)).allowed:
+                    out.append(rid)
+                    if len(out) >= limit:
+                        break
+        return out
 
-    def record_receipt(self, kind: str, scope_consulted: list, payload_counts: dict) -> None:
-        """Receipts hold scope names and counts only, never record text (spec D3-12)."""
+    def _source_or_record(self, record_id: str):
+        row = self._conn.execute("SELECT * FROM records WHERE record_id=?", (record_id,)).fetchone()
+        return Record.from_row(row) if row else None
+
+    def record_receipt(self, kind: str, scope_consulted: list, payload_counts: dict, ctx=None) -> None:
+        """Receipts hold scope names and counts only, never record text (spec D3-12).
+
+        Requires a context, and every named scope must be readable by it (review G-P3-2):
+        a caller cannot plant scope names it has no authority over.
+        """
+        if ctx is None or not all(
+            self.scope_engine.authorize_read(sc, ctx, "").allowed for sc in scope_consulted
+        ):
+            raise ScopeViolation("write not permitted")
         with self._lock:
             self._conn.execute("BEGIN IMMEDIATE")
             try:

@@ -169,3 +169,10 @@ The user accepted OCR for alpha. The OCR adapter (Qwen3.5-2B via mlx-vlm) joins 
 ### Phase 3 review round 1 (commit c1bf93e)
 
 Verdict APPROVE_WITH_RESIDUALS, no gate-class findings. Build pass 2 addresses the residuals: R-6 source existence (same-scope check, generic refusal); the media crash-path test; the real-adapter gap. Remaining residual: vector path and measured-recall gate pending the gold set.
+
+### Phase 3 review round 2 (commit f1cedd4, BLOCK, G-P3-1 and G-P3-2)
+
+- G-P3-1: fts_candidates was ungated. Now takes ctx and checks every candidate with the Phase 1 read gate.
+- G-P3-2: job_state, set_job and record_receipt were ungated. Now they take the named scope and ctx: job_state needs read on that scope, set_job needs write, record_receipt requires ctx and read on every named scope.
+- Residual R-P3-1 (open): WhisperTranscriber leaks the ffmpeg output temp file on failure.
+- Residual R-P3-2 (open): a crash mid-document leaves complete Observations and a 'running' job row. Rerun is idempotent but the partial output is not rolled back; to be decided with the crash-consistency ADR item.

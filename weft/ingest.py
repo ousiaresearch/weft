@@ -104,9 +104,9 @@ class Ingestor:
             return parsed
         content_hash = _digest(data)
         sid = "doc-" + hashlib.sha256(f"{scope}\0{content_hash}".encode()).hexdigest()[:24]
-        if self.sub.job_state(sid, "ingest", content_hash) == "done":
+        if self.sub.job_state(sid, "ingest", content_hash, scope=scope, ctx=ctx) == "done":
             return sid  # idempotent re-import (D3-7)
-        self.sub.set_job(sid, "ingest", content_hash, "running")
+        self.sub.set_job(sid, "ingest", content_hash, "running", scope=scope, ctx=ctx)
         try:
             self.sub.put(Record(
                 record_id=sid, record_type="Source", scope=scope,
@@ -126,7 +126,7 @@ class Ingestor:
                 ), ctx)
             except RecordConflict:
                 pass  # written by an interrupted earlier run
-        self.sub.set_job(sid, "ingest", content_hash, "done")
+        self.sub.set_job(sid, "ingest", content_hash, "done", scope=scope, ctx=ctx)
         return sid
 
     def ingest_media(self, name: str, data: bytes, kind: str, ctx, scope: str,
@@ -142,16 +142,16 @@ class Ingestor:
             return Rejection(name, "no_adapter_configured")
         content_hash = _digest(data)
         sid = "media-" + hashlib.sha256(f"{scope}\0{content_hash}".encode()).hexdigest()[:24]
-        if self.sub.job_state(sid, "derive", content_hash) == "done":
+        if self.sub.job_state(sid, "derive", content_hash, scope=scope, ctx=ctx) == "done":
             return sid
-        self.sub.set_job(sid, "derive", content_hash, "running")
+        self.sub.set_job(sid, "derive", content_hash, "running", scope=scope, ctx=ctx)
         try:
             text = adapter(data)
         except Exception:
-            self.sub.set_job(sid, "derive", content_hash, "failed", "adapter_failed")
+            self.sub.set_job(sid, "derive", content_hash, "failed", "adapter_failed", scope=scope, ctx=ctx)
             return Rejection(name, "adapter_failed")
         if not isinstance(text, str) or not text.strip():
-            self.sub.set_job(sid, "derive", content_hash, "failed", "empty_output")
+            self.sub.set_job(sid, "derive", content_hash, "failed", "empty_output", scope=scope, ctx=ctx)
             return Rejection(name, "empty_output")
         model = getattr(adapter, "model_id", "unknown")
         try:
@@ -163,5 +163,5 @@ class Ingestor:
             ), ctx)
         except RecordConflict:
             pass
-        self.sub.set_job(sid, "derive", content_hash, "done")
+        self.sub.set_job(sid, "derive", content_hash, "done", scope=scope, ctx=ctx)
         return sid
