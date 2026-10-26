@@ -364,10 +364,11 @@ def test_knowledge_refusal_leaves_no_row_in_target_scope(sub):
         sub.put(rec("d1", "acs-project", "Decision", attribution="agent", source_ids=()), AGENT)
     rows = sub._conn.execute("SELECT op, scope FROM journal").fetchall()
     assert not any(r[1] == "acs-project" for r in rows)
+    assert sub._conn.execute("SELECT COUNT(*) FROM records WHERE record_id='d1'").fetchone()[0] == 0
 
 
 def test_unsafe_verifier_id_refused(sub):
-    with pytest.raises(Exception):
+    with pytest.raises(SchemaViolation):
         sub.register_verifier("../evil", USER)
 
 
@@ -380,3 +381,31 @@ def test_read_side_classifier_error_denies(sub, engine, monkeypatch):
     assert sub.get("m1", MEM_AGENT) is None
     readable, _ = sub.query(MEM_AGENT)
     assert readable == []
+
+
+# Round 2 review (4c3f062), BLOCK: the R-2 guard must also cover overwrite.
+def test_R2_overwrite_of_relied_on_verification_refused(sub):
+    vctx = verifier_ctx(sub)
+    sub.put(Record(record_id="v-1", record_type="Verification", scope="acs-project",
+                   payload={"claim_id": "c1"}, attribution="verifier", source_ids=[]), vctx)
+    sub.put(rec("c1", "acs-project", "Claim", attribution="verifier", status="verified",
+                source_ids=("v-1",)), vctx)
+    repointed = Record(record_id="v-1", record_type="Verification", scope="acs-project",
+                       payload={"claim_id": "c2"}, attribution="verifier", source_ids=[])
+    with pytest.raises(ScopeViolation):
+        sub.put(repointed, vctx, overwrite=True)
+    assert sub.get("v-1", vctx).payload["claim_id"] == "c1"
+    assert sub.get("c1", vctx).epistemic_status == "verified"
+
+
+# Round 2 review: corrupt stored lineage fails closed instead of escaping as a raw decode error.
+def test_corrupt_source_ids_fail_closed_on_delete(sub):
+    sub.put(rec("o1", "acs-project"), USER)
+    sub.put(Record(record_id="s1", record_type="Summary", scope="acs-project",
+                   payload={"text": "s"}, epistemic_status="derived", attribution="system",
+                   source_ids=["o1"]), AGENT)
+    sub._conn.execute("UPDATE records SET source_ids = '{broken' WHERE record_id = 's1'")
+    sub._conn.commit()
+    with pytest.raises(SubstrateError):
+        sub.delete("o1", USER)
+    assert sub.get("o1", USER) is not None

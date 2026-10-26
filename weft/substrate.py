@@ -194,7 +194,11 @@ class Substrate:
             self._conn.execute("PRAGMA synchronous=FULL")
             self._conn.execute("PRAGMA foreign_keys=ON")
             self._conn.executescript(_SCHEMA)
-            self._migrate()
+            try:
+                self._migrate()
+            except Exception:
+                self._conn.close()
+                raise
             self._conn.execute(
                 "INSERT OR IGNORE INTO meta(key, value) VALUES('schema_version', ?)",
                 (str(SCHEMA_VERSION),),
@@ -292,6 +296,25 @@ class Substrate:
             except Exception:
                 self._rollback_if_open()
                 raise
+
+    @staticmethod
+    def _cites(source_ids_text: str, record_id: str) -> bool:
+        """Does a stored source_ids list cite record_id? Corrupt data fails closed."""
+        try:
+            ids = json.loads(source_ids_text)
+        except (TypeError, ValueError):
+            raise SubstrateError("corrupt source_ids in store; refusing to continue")
+        return isinstance(ids, list) and record_id in ids
+
+    def _relied_on(self, record_id: str) -> bool:
+        """R-2: is record_id the Verification that a verified Claim relies on?"""
+        for _cid, csrc in self._conn.execute(
+            "SELECT record_id, source_ids FROM records "
+            "WHERE record_type = 'Claim' AND epistemic_status = 'verified'"
+        ).fetchall():
+            if self._cites(csrc, record_id):
+                return True
+        return False
 
     def _lookup_record(self, record_id: str):
         """Internal lookup for rule checks. Never returned to a caller."""
@@ -394,7 +417,7 @@ class Substrate:
                 raise KnowledgeRefusal(reason)
 
             existing = self._conn.execute(
-                "SELECT scope FROM records WHERE record_id=?", (record.record_id,)
+                "SELECT scope, record_type FROM records WHERE record_id=?", (record.record_id,)
             ).fetchone()
             if existing is not None:
                 # Review G5: check authority over the incumbent BEFORE reporting a
@@ -407,6 +430,9 @@ class Substrate:
                     raise ScopeViolation("write not permitted")
                 if not overwrite:
                     raise RecordConflict(f"record {record.record_id!r} already exists")
+                if existing[1] == "Verification" and self._relied_on(record.record_id):
+                    # Round 2 BLOCK: overwrite must not re-point a relied-on Verification.
+                    raise KnowledgeRefusal("verification is relied on by a verified claim")
 
             self._conn.execute(
                 """INSERT OR REPLACE INTO records
@@ -471,14 +497,7 @@ class Substrate:
 
                 # R-2 (review): a verified Claim depends on the Verification that names it.
                 # Removing the Verification would leave the Claim verified with no support.
-                relied_on = [
-                    cid for cid, csrc in self._conn.execute(
-                        "SELECT record_id, source_ids FROM records "
-                        "WHERE record_type = 'Claim' AND epistemic_status = 'verified'"
-                    ).fetchall()
-                    if record_id in json.loads(csrc)
-                ]
-                if relied_on:
+                if self._relied_on(record_id):
                     self._journal("delete_denied", None, None, "delete not permitted")
                     self._conn.execute("COMMIT")
                     return False
@@ -488,7 +507,7 @@ class Substrate:
                     for sid, sscope, src in self._conn.execute(
                         "SELECT record_id, scope, source_ids FROM records WHERE record_type = 'Summary'"
                     ).fetchall()
-                    if record_id in json.loads(src)
+                    if self._cites(src, record_id)
                 ]
                 for sid, sscope in summaries:
                     if not self.scope_engine.authorize_delete(sscope, ctx).allowed:
