@@ -101,3 +101,9 @@ echo drafted
 - Formats: Markdown, plain text, PDF with text layer, DOCX, images, and audio.
 - Batch consent thresholds (user: "you're clear", recommendation adopted): ask before processing any batch over 10 files, over 30 minutes of audio, or over 100 MB; always ask before any external provider call. Config values, changeable.
 - Gold set: explained to the user; not yet authorized. Draft from the Arien vault awaits approval.
+
+## 8. Implementation status (first pass, for review)
+
+- Built: conversation turns (user, agent, system attribution), fencing, document ingestion (txt, md, PDF text layer, DOCX) with named rejections, media ingestion through injected adapters, idempotent jobs, FTS5 index kept in step with every write, lexical scope-first recall, RecallReceipt (names and counts only), deletion removing index rows and derived Observations.
+- Not built yet: the real media adapters (OCR and image description via the Qwen3.5-2B VLM, transcription via whisper.cpp); the vector path (needs an embedding adapter); the gold set and measured-recall gate (needs the gold set, which the user has not yet approved); tiers L1 and L2 (only L0 abstracts are returned); crash-kill test for media jobs.
+- Migration 3 indexes existing rows.

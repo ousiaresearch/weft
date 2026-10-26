@@ -159,3 +159,9 @@ The user accepted OCR for alpha. The OCR adapter (Qwen3.5-2B via mlx-vlm) joins 
 - **Residuals accepted for Phase 2:** R-1 (`user_authored` is trusted from the context; enforced at the Phase 6 service boundary), R-3 (a registered verifier given a user-authored context), R-4 (delete scans all Summaries; no leak), R-6 (Source existence not checked; closed in Phase 3), RESIDUAL-1 (overwrite authority is by scope, not readability), RESIDUAL-2 (full scan in the reliance check), RESIDUAL-3 (version-2 check covers only the attribution column), RESIDUAL-4 (`meta.schema_version` written, never read).
 - **Test gaps to fill:** a verified record remains deletable after the overwrite guard; `correct()` leaves a verified row unchanged; RESIDUAL-1 behaviour.
 - **Phase 2 status:** closed with the residuals above. Phase 3 spec drafted at `docs/design/phase3-ingestion-retrieval.md`; implementation awaits go-ahead.
+
+### Phase 3 dependency licences (verified from installed metadata)
+
+- pypdf 6.21.2: BSD-3-Clause (PDF text layer; chosen over PyMuPDF, AGPL).
+- python-docx: MIT (DOCX).
+- Earlier: sqlite-vec Apache-2.0; pywhispercpp and mlx-vlm per their own metadata (to be recorded when vector and media adapters are wired).

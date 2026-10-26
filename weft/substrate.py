@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any
 
 from weft.knowledge import KnowledgeRefusal, check_record
-from weft.scope import ScopeContext, ScopeEngine
+from weft.scope import ScopeContext, ScopeEngine, _flatten_payload
 
 SCHEMA_VERSION = 1
 
@@ -100,7 +100,7 @@ class Record:
         )
 
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS records (
@@ -119,6 +119,23 @@ CREATE TABLE IF NOT EXISTS records (
 CREATE TABLE IF NOT EXISTS verifiers (
     actor_id      TEXT PRIMARY KEY,
     registered_at REAL NOT NULL
+);
+CREATE VIRTUAL TABLE IF NOT EXISTS fts USING fts5(record_id UNINDEXED, scope UNINDEXED, text);
+CREATE TABLE IF NOT EXISTS jobs (
+    job_id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_id    TEXT NOT NULL,
+    stage        TEXT NOT NULL,
+    content_hash TEXT NOT NULL,
+    state        TEXT NOT NULL,
+    reason       TEXT,
+    UNIQUE (source_id, stage, content_hash)
+);
+CREATE TABLE IF NOT EXISTS receipts (
+    receipt_id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    kind             TEXT NOT NULL,
+    scope_consulted  TEXT NOT NULL,
+    payload_counts   TEXT NOT NULL,
+    created_at       REAL NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_records_scope ON records(scope);
 CREATE INDEX IF NOT EXISTS idx_records_type  ON records(record_type);
@@ -254,10 +271,10 @@ class Substrate:
         """
         version = self._conn.execute("PRAGMA user_version").fetchone()[0]
         cols = {r[1] for r in self._conn.execute("PRAGMA table_info(records)")}
-        if version >= SCHEMA_VERSION:
+        if version >= 2 and "attribution" not in cols:
             # R-5: the recorded version is not trusted on its own. Fail closed.
-            if "attribution" not in cols:
-                raise SubstrateError("schema version 2 without records.attribution; refusing to open")
+            raise SubstrateError("schema version >= 2 without records.attribution; refusing to open")
+        if version >= SCHEMA_VERSION:
             return
         self._conn.execute("BEGIN IMMEDIATE")
         try:
@@ -268,6 +285,10 @@ class Substrate:
                 self._conn.execute(
                     "UPDATE records SET attribution = 'system' WHERE attribution IS NULL"
                 )
+            if version < 3:
+                self._conn.execute("DELETE FROM fts")
+                for row in self._conn.execute("SELECT * FROM records").fetchall():
+                    self._fts_index(Record.from_row(row))
             self._conn.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
             self._conn.execute("COMMIT")
         except Exception:
@@ -315,6 +336,78 @@ class Substrate:
             if self._cites(csrc, record_id):
                 return True
         return False
+
+    # ---- full-text index (Phase 3) -----------------------------------
+
+    @staticmethod
+    def _payload_only_text(record) -> str:
+        parts: list[str] = []
+        _flatten_payload(getattr(record, "payload", None), parts)
+        return " ".join(parts)
+
+    def _fts_index(self, record) -> None:
+        self._conn.execute("DELETE FROM fts WHERE record_id = ?", (record.record_id,))
+        self._conn.execute(
+            "INSERT INTO fts(record_id, scope, text) VALUES (?,?,?)",
+            (record.record_id, record.scope, self._payload_only_text(record)),
+        )
+
+    def _fts_remove(self, record_id: str) -> None:
+        self._conn.execute("DELETE FROM fts WHERE record_id = ?", (record_id,))
+
+    # ---- jobs and receipts (Phase 3) ---------------------------------
+
+    def job_state(self, source_id: str, stage: str, content_hash: str) -> str | None:
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT state FROM jobs WHERE source_id=? AND stage=? AND content_hash=?",
+                (source_id, stage, content_hash),
+            ).fetchone()
+            return row[0] if row else None
+
+    def set_job(self, source_id: str, stage: str, content_hash: str, state: str, reason: str | None = None) -> None:
+        with self._lock:
+            self._conn.execute("BEGIN IMMEDIATE")
+            try:
+                self._conn.execute(
+                    "INSERT INTO jobs(source_id, stage, content_hash, state, reason) VALUES (?,?,?,?,?) "
+                    "ON CONFLICT(source_id, stage, content_hash) DO UPDATE SET state=excluded.state, reason=excluded.reason",
+                    (source_id, stage, content_hash, state, reason),
+                )
+                self._conn.execute("COMMIT")
+            except Exception:
+                self._rollback_if_open()
+                raise
+
+    def fts_candidates(self, match: str, scopes: list, limit: int) -> list:
+        """Candidate record ids for a full-text match, restricted to the given scopes.
+
+        The caller must pass only scopes it can read. Results are ordered by relevance.
+        """
+        if not scopes:
+            return []
+        placeholders = ",".join("?" * len(scopes))
+        with self._lock:
+            rows = self._conn.execute(
+                f"SELECT record_id FROM fts WHERE fts MATCH ? AND scope IN ({placeholders}) "
+                "ORDER BY bm25(fts) LIMIT ?",
+                [match, *scopes, limit],
+            ).fetchall()
+        return [r[0] for r in rows]
+
+    def record_receipt(self, kind: str, scope_consulted: list, payload_counts: dict) -> None:
+        """Receipts hold scope names and counts only, never record text (spec D3-12)."""
+        with self._lock:
+            self._conn.execute("BEGIN IMMEDIATE")
+            try:
+                self._conn.execute(
+                    "INSERT INTO receipts(kind, scope_consulted, payload_counts, created_at) VALUES (?,?,?,?)",
+                    (kind, json.dumps(sorted(scope_consulted)), json.dumps(payload_counts, sort_keys=True), time.time()),
+                )
+                self._conn.execute("COMMIT")
+            except Exception:
+                self._rollback_if_open()
+                raise
 
     def _lookup_record(self, record_id: str):
         """Internal lookup for rule checks. Never returned to a caller."""
@@ -446,6 +539,7 @@ class Substrate:
                    VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
                 record.to_row(),
             )
+            self._fts_index(record)
             detail = f"type={record.record_type} status={record.epistemic_status}"
             if existing is not None:
                 detail += " overwrite"
@@ -519,7 +613,8 @@ class Substrate:
                 summaries = [
                     (sid, sscope)
                     for sid, sscope, src in self._conn.execute(
-                        "SELECT record_id, scope, source_ids FROM records WHERE record_type = 'Summary'"
+                        "SELECT record_id, scope, source_ids FROM records "
+                        "WHERE record_type IN ('Summary', 'Observation')"
                     ).fetchall()
                     if self._cites(src, record_id)
                 ]
@@ -530,7 +625,8 @@ class Substrate:
                         return False
                 for sid, sscope in summaries:
                     self._conn.execute("DELETE FROM records WHERE record_id = ?", (sid,))
-                    self._journal("unlink_summary", None, sscope, "removed derived summary (cascade)")
+                    self._fts_remove(sid)
+                    self._journal("unlink_summary", None, sscope, "removed derived artifact (cascade)")
 
                 for dep_id, dep_scope in dependents:
                     self._conn.execute("UPDATE records SET supersedes = NULL WHERE record_id = ?", (dep_id,))
@@ -541,6 +637,7 @@ class Substrate:
                     )
 
                 self._conn.execute("DELETE FROM records WHERE record_id=?", (record_id,))
+                self._fts_remove(record_id)
                 self._journal("delete", record_id, row[1], f"reason={reason}")
                 self._bump_version()
                 self._conn.execute("COMMIT")

@@ -31,7 +31,12 @@ RULES: dict[str, Rule] = {
     "Person": Rule({"user": _s("stated"), "document": _s("stated")}),
     "Agent": Rule({"system": _s("stated")}),
     "Project": Rule({"user": _s("stated")}),
-    "Source": Rule({"document": _s("stated"), "media-derived": _s("stated"), "user": _s("stated")}),
+    # Phase 3 (spec §1): assistant turns are agent-attributed Sources; fenced
+    # or system-injected text is system-attributed. Neither can yield Decisions.
+    "Source": Rule({
+        "document": _s("stated"), "media-derived": _s("stated"), "user": _s("stated"),
+        "agent": _s("stated"), "system": _s("stated"),
+    }),
     "Conversation": Rule({"system": _s("stated")}),
     "Observation": Rule(
         {"document": _s("stated"), "media-derived": _s("stated")}, needs_source=True

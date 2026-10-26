@@ -280,7 +280,7 @@ def test_phase1_database_migrates_and_backfills(tmp_path, engine):
     _make_phase1_db(db)
     s = Substrate(db, scope_engine=engine)
     try:
-        assert s._conn.execute("PRAGMA user_version").fetchone()[0] == 2
+        assert s._conn.execute("PRAGMA user_version").fetchone()[0] == 3
         row = s._conn.execute("SELECT attribution FROM records WHERE record_id='old1'").fetchone()
         assert row[0] == "system"
     finally:
@@ -293,7 +293,7 @@ def test_migration_is_idempotent(tmp_path, engine):
     Substrate(db, scope_engine=engine).close()
     s = Substrate(db, scope_engine=engine)
     try:
-        assert s._conn.execute("PRAGMA user_version").fetchone()[0] == 2
+        assert s._conn.execute("PRAGMA user_version").fetchone()[0] == 3
     finally:
         s.close()
 
@@ -317,7 +317,7 @@ def test_failed_migration_rolls_back(tmp_path, engine):
     assert version == 0
     s = Substrate(db, scope_engine=engine)  # recovers once the fault is removed
     try:
-        assert s._conn.execute("PRAGMA user_version").fetchone()[0] == 2
+        assert s._conn.execute("PRAGMA user_version").fetchone()[0] == 3
     finally:
         s.close()
 
