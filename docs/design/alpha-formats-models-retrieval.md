@@ -47,7 +47,9 @@
 | **Audio** (`.m4a`, `.mp3`, `.wav`, `.ogg`/`.opus`, `.flac`) | Decode to 16 kHz mono, transcribe in segments | Decode: ffmpeg (**license depends on the build** — LGPL vs GPL; must be recorded in the inventory before alpha). Transcription: **whisper large-v3-turbo, MIT**, run via whisper.cpp (MIT) | time range per segment | Segment transcripts, machine-derived, with model and version | Length over limit → `duration_limit` (default 2 h per file in alpha); silence-only → `no_speech_detected`; decode failure → `decode_failed` |
 | **Images** (`.png`, `.jpg`, `.webp`) | Resize, then describe | Local: **Qwen2.5-VL-3B (Apache-2.0)** [weights Q4 ~3.2 GB per Ollama listing]; lightweight option: **Florence-2-base (MIT, 0.23B)** for captions | image region not used in alpha; whole-image locator | Description, machine-derived, with model and version | HEIC → `format_unsupported_alpha`; corrupt → `decode_failed`; **text inside the image is not extracted in alpha** and the observation says so |
 
-**Explicitly out of alpha:** spreadsheets, slides, scanned-document OCR, web crawling, video, archives, email containers.
+**OCR in alpha (accepted by the user, Oct 25):** text inside images, and PDF pages with no text layer, go through the OCR adapter (Qwen3.5-2B via mlx-vlm). Output is marked machine-derived and carries page/region locators.
+
+**Explicitly out of alpha:** spreadsheets, slides, web crawling, video, archives, email containers.
 
 ### 2.3 Why these defaults
 

@@ -148,3 +148,7 @@ Residuals carried forward unchanged from round 5: R1 (content rule does not insp
   - R11: crash windows between record write and manifest rewrite can report `tampered` rather than `stale`.
 - **Traceability:** the round-1 finding labelled F11 has no recoverable text in the repository; reviewer treats it as a numbering gap and judged the gated paths it would cover to be covered by F1, F7, F12, and F16.
 - **Phase 1 status:** closed with the residuals above. Phase 2 may start.
+
+### Decision: OCR is in alpha (Oct 25)
+
+The user accepted OCR for alpha. The OCR adapter (Qwen3.5-2B via mlx-vlm) joins the four alpha adapters, for five in total. Known gap to resolve in the conformance suite: the smoke test lowercased its output, so the adapter must report case fidelity as a measured property, not a claim.

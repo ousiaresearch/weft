@@ -70,7 +70,7 @@ Chosen to cover each interface with the fewest adapters, using the evidence in `
 | Transcriber | whisper.cpp local adapter, whisper large-v3-turbo (MIT) | Mature Metal runtime on the M3. |
 | Describer | OpenAI-compatible adapter, exercised against a local server running Qwen3-VL-4B-Instruct (Apache-2.0) | Local, multimodal request format. |
 | Reasoner | OpenAI-compatible adapter; external provider chosen by user; tested against one external and one local endpoint | Protocol coverage matters more than a single model. |
-| OCR | **Not in alpha** (pending your decision on OCR, from the last reply) | Adding it later is an adapter, not a rewrite. |
+| OCR | OpenAI-compatible adapter, exercised against a local Qwen3.5-2B (Apache-2.0) run through mlx-vlm on Apple silicon | Accepted for alpha by the user (Oct 25). Qwen3.5 is required for local runtimes; case fidelity is a known gap (see conformance). |
 
 Everything else in the earlier catalogues (Qwen3-ASR, Granite Speech, Cohere Transcribe, gpt-oss, Qwen3.8, DeepSeek, GLM) is an **option the user can configure**. It becomes "supported" only after an adapter exists and passes the conformance suite and our evaluation. Until then it is "configurable, untested," and the UI says so.
 
@@ -151,7 +151,7 @@ The startup check fails if a `declared_local` endpoint resolves outside loopback
 
 ## 9. Decisions (resolved by user, Oct 24)
 
-1. **Alpha adapters: confirmed.** Ship the four in §4 (embed, transcribe, describe, reason). OCR remains deferred.
+1. **Alpha adapters: confirmed, then amended.** Ship the four in §4 (embed, transcribe, describe, reason), plus OCR. OCR was deferred on Oct 24 and accepted for alpha on Oct 25 by the user.
 2. **Community adapters: first-party only through the first release.** A documented plug-in contract comes after release, under the same conformance suite.
 3. **Hosted providers: two chat wire formats, not one.** The reasoning adapter must speak both:
    - **OpenAI chat format** (`/v1/chat/completions`), spoken by most local servers and many hosted providers.

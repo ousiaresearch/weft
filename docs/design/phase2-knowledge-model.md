@@ -115,6 +115,6 @@ Migration
 
 ## 8. Open items (need decisions before implementation)
 
-- OCR in alpha: the plan says deferred; the user's Oct 25 message said "Go for phase 1 & the OCR here." Written confirmation still needed. Phase 2 does not depend on it.
+- OCR in alpha: **resolved.** Accepted by the user (Oct 25). Phase 2 does not depend on it; OCR output enters through the Phase 3 ingestion path as machine-derived Observations.
 - Classifier implementation: rule-based markers only in Phase 2, or a local model? Recommendation: rules only in Phase 2; a model classifier is a Phase 4 option, evaluated against the same tests.
 - Verifier actor identity: how a verifier is registered. Recommendation: a verifier is a scope-holding actor created by the user; it cannot be created by the agent.
