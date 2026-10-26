@@ -20,6 +20,13 @@ OVERVIEW_CHARS = 2000  # L1 overview
 _TIER_ORDER = {"L0": 0, "L1": 1, "L2": 2}
 MODES = ("lexical", "vector", "hybrid")
 RRF_K = 60  # standard reciprocal-rank-fusion constant
+# Function words must not generate lexical matches (found by the gate's paraphrase split:
+# "the" alone pulled unrelated notes above the vector results during fusion).
+STOPWORDS = frozenset({
+    "a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "has", "have", "how", "i",
+    "in", "is", "it", "of", "on", "or", "that", "the", "this", "to", "was", "what", "when",
+    "where", "which", "who", "why", "with", "you", "your",
+})
 
 
 @dataclass(frozen=True)
@@ -87,7 +94,8 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
         readable = [s for s in readable if s == scope_hint]
     receipt = Receipt(scope_consulted=readable, mode=mode)
     terms = re.findall(r"\w+", (query or "").lower())
-    use_lexical = mode in ("lexical", "hybrid") and bool(terms)
+    content_terms = [t for t in terms if t not in STOPWORDS]
+    use_lexical = mode in ("lexical", "hybrid") and bool(content_terms)
     use_vector = mode in ("vector", "hybrid")
     if not readable or (not use_lexical and not use_vector):
         if ctx is not None:
@@ -97,7 +105,7 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
     pool = limit * 4
     ranked = []
     if use_lexical:
-        match = " OR ".join(f'"{t}"' for t in terms)
+        match = " OR ".join(f'"{t}"' for t in content_terms)
         ranked.append(sub.fts_candidates(match, ctx, pool, scopes=readable))
     if use_vector:
         ranked.append(sub.vector_candidates(embedder.embed_query(query), ctx, pool, scopes=readable))

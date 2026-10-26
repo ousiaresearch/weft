@@ -73,7 +73,7 @@ def main(gold_path: str, out_path: str):
     hits = {m: {1: 0, K: 0} for m in modes}
     t1 = time.time()
     for e in entries:
-        row = {"query": e["query"], "expected": e["expected_note"]}
+        row = {"query": e["query"], "expected": e["expected_note"], "kind": e.get("kind", "keyword")}
         for m in modes:
             items, _ = recall(sub, e["query"], USER, limit=K, mode=m, embedder=emb)
             names = [_doc_name(sub, i.record_id) for i in items]
@@ -94,7 +94,13 @@ def main(gold_path: str, out_path: str):
               and recall_at["hybrid"]["recall@5"] >= recall_at["lexical"]["recall@5"])
     # R-B6-3: a draft gold set is never a decision. Only an approved set can enable vector.
     enable_vector = passes if approved else None  # None = not decided
+    by_kind = {}
+    for kind in sorted({r["kind"] for r in per_entry}):
+        rows = [r for r in per_entry if r["kind"] == kind]
+        by_kind[kind] = {m: {"recall@5": round(sum(1 for r in rows if r[m] is not None and r[m] <= K) / len(rows), 3),
+                             "n": len(rows)} for m in modes}
     result = {
+        "recall_by_kind": by_kind,
         "gold_status": gold.get("status", ""),
         "gold_entries": n,
         "notes_ingested": ingested,
