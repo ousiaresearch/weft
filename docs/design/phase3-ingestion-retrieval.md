@@ -8,7 +8,7 @@ Sources: `~/.hermes/plans/2026-10-24_weft-memory-system-full-plan.md` §7 (inges
 
 In:
 - Conversation ingestion: user turns become Sources of record; assistant turns become assistant-authored Sources that may yield Hypotheses only.
-- Document ingestion: Markdown, plain text, PDF with text layer, DOCX.
+- Document ingestion: Markdown, plain text, PDF with text layer, DOCX. Image and audio files are also ingested (user decision).
 - Media ingestion: audio → transcript, image → description and OCR. Derived text is machine-derived, never verbatim.
 - Durable, idempotent, resumable job queue in the same SQLite store.
 - Tiered retrieval (L0 → L1 → L2) with scope-first candidate selection and RecallReceipt.
@@ -19,7 +19,7 @@ Out (later phases): reasoning loop and model-layer evaluation (Phase 4), correct
 
 ## 2. Decisions
 
-**D3-1. Lexical retrieval first; vector retrieval is off by default.** The plan says the alpha ships lexical plus scope-first retrieval, with vector evaluated in Phase 3 against measured recall before adoption. Decided here: Phase 3 implements the lexical path (SQLite FTS5) and builds the vector path behind a switch. Vector is enabled only if the measured-recall gate passes, and that evaluation is recorded before any default changes. Reason: vector adds leakage surface (plan §15) and the lexical path can be fully gated first.
+**D3-1. Vector retrieval is on at ship, gated by a measured-recall pass before ship (user decision).** Phase 3 builds the lexical path (SQLite FTS5) and the vector path. The vector path is enabled as a default only if the measured-recall test passes before release, and the result is recorded in the ADR. The scope filter still applies before any index query, and the out-of-scope leakage test must pass for the vector path.
 
 **D3-2. Scope before ranking, always.** Candidate selection reads only records the caller can read (the Phase 1 gate). Ranking cannot widen scope. For vector retrieval, the scope filter applies before the index query, with one index per scope (Phase 1 design), so out-of-scope neighbours cannot leak into results.
 
@@ -90,8 +90,13 @@ Migration
 ## 6. Open decisions (need the user)
 
 1. **Vector retrieval in alpha.** D3-1 proposes off by default, enabled only after measured recall. Confirm, or enable at alpha ship.
-2. **Document formats for Phase 3.** Confirm Markdown, plain text, PDF with text layer, and DOCX, per the plan. Scanned PDF pages reach the OCR adapter (accepted Oct 25).
+2. **Formats for Phase 3 (user decision):** Markdown, plain text, PDF with text layer, DOCX, plus images and audio files. Scanned PDF pages reach the OCR adapter (accepted Oct 25).
 3. **Batch thresholds.** Confirm 10 files, 30 minutes of audio, 100 MB as the consent triggers (plan §10 proposal, not yet confirmed).
 4. **Gold set.** Recall needs a gold set. Who authors it, and from which sources? Proposal: the user authors 30 to 50 query-to-record pairs from their own corpus, scoped, and the set stays private.
 EOF
 echo drafted
+## 7. Decisions received (user)
+
+- D3-1 revised: vector retrieval on at ship, subject to a measured-recall pass before ship.
+- Formats: Markdown, plain text, PDF with text layer, DOCX, images, and audio.
+- Open: batch consent thresholds (recommendation pending) and the gold set (explanation pending).
