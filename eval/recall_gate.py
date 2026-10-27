@@ -27,8 +27,7 @@ from weft.substrate import Substrate  # noqa: E402
 
 VAULT = Path(os.path.expanduser("~/Documents/Obsidian Vault/Arien"))
 SCRATCH = Path(os.path.expanduser("~/.hermes/profiles/arien/cache/scratch"))
-MODEL = glob.glob(os.path.expanduser(
-    "~/.cache/huggingface/hub/models--microsoft--harrier-oss-v1-0.6b/snapshots/*"))[0]
+MODEL = None  # Harrier path resolved only when EMBEDDER == "harrier" (its cache was removed in cleanup)
 SCOPE = "acs-project"
 RECALL5_FLOOR = 0.90  # proposed floor for enabling vector retrieval by default
 K = 5
@@ -72,9 +71,9 @@ EMBEDDER = "bge"  # adopted default: BAAI/bge-m3 (MIT)
 
 
 def make_embedder():
-    if EMBEDDER in ("bge", "bge-fp16"):
+    if EMBEDDER in ("bge", "bge-fp16", "bge-8bit"):
         from weft.adapters import BgeM3Embedder
-        repo = "bge-m3-mlx-4bit" if EMBEDDER == "bge" else "bge-m3-mlx-fp16"
+        repo = {"bge": "bge-m3-mlx-4bit", "bge-fp16": "bge-m3-mlx-fp16", "bge-8bit": "bge-m3-mlx-8bit"}[EMBEDDER]
         model = glob.glob(os.path.expanduser(
             f"~/.cache/huggingface/hub/models--mlx-community--{repo}/snapshots/*"))[0]
         return BgeM3Embedder(model)
@@ -84,7 +83,9 @@ def make_embedder():
             "~/.cache/huggingface/hub/models--Qwen--Qwen3-Embedding-0.6B/snapshots/*"))[0]
         return Qwen3Embedder(model)
     if EMBEDDER == "harrier":
-        return HarrierEmbedder(MODEL)
+        model = glob.glob(os.path.expanduser(
+            "~/.cache/huggingface/hub/models--microsoft--harrier-oss-v1-0.6b/snapshots/*"))[0]
+        return HarrierEmbedder(model)
     raise ValueError(EMBEDDER)
 
 
@@ -187,6 +188,8 @@ if __name__ == "__main__":
         EMBEDDER = "qwen3"  # noqa: F811 (module-level switch for this run)
     if "bge-fp16" in args:
         EMBEDDER = "bge-fp16"  # noqa: F811
+    elif "bge-8bit" in args:
+        EMBEDDER = "bge-8bit"  # noqa: F811
     elif "bge" in args:
         EMBEDDER = "bge"  # noqa: F811
     doc_vec = "doc-vectors" in args
@@ -194,6 +197,6 @@ if __name__ == "__main__":
     out = {"centroid": "recall_gate_results-centroid.json", "doc-vectors": "recall_gate_results-docvectors.json"}.get(
         "centroid" if centroid else ("doc-vectors" if doc_vec else ""), "recall_gate_results.json")
     gold = next((a for a in args if a.endswith(".json")), str(REPO / "eval" / "gold-set-draft.json"))
-    if EMBEDDER in ("qwen3", "bge", "bge-fp16"):
+    if EMBEDDER in ("qwen3", "bge", "bge-fp16", "bge-8bit"):
         out = out.replace(".json", f"-{EMBEDDER}.json")
     main(gold, str(REPO / "eval" / out), doc_vectors=doc_vec, centroid=centroid)
