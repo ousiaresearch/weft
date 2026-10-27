@@ -258,3 +258,12 @@ Verdict APPROVE_WITH_RESIDUALS, no gate-class findings. Build pass 2 addresses t
 - Vector default stays OFF. The 0.90 floor is not met by any model or mode.
 - Switching models requires re-indexing: vectors from different models must not mix. The embed cache is keyed per model.
 - Harrier and Qwen3 adapters remain as alternatives; the gate harness defaults to bge.
+
+
+### Gold set v0.4 approved; cleanup (2026-10-26)
+
+- Gold set v0.4 (74 entries: 40 keyword, 34 paraphrase) approved by user. Status recorded in eval/gold-set-draft.json (gitignored).
+- Full-precision BGE-M3 (mlx-community/bge-m3-mlx-fp16) download stalled at 455 MB of ~1.1 GB; not measured. Partial cache removed. The harness supports `bge-fp16` for a retry.
+- Removed: Harrier-0.6B and Qwen3-Embedding-0.6B Hugging Face caches; their embedding caches; recall_gate WAL/SHM files; models/qwen_dl.log.
+- Kept: BGE-M3 4-bit (adopted, in use); Qwen3.5-2B 8-bit (OCR/description adapter and tests); whisper large-v3-turbo q5_0 (transcription and tests); smoke fixtures.
+- Other Hugging Face caches in ~/.cache/huggingface (Wan, MiniMax, neucodec, depth-anything, faster-whisper-base, etc.) are not created by Weft and were not touched.
