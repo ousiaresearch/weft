@@ -294,3 +294,12 @@ Verdict APPROVE_WITH_RESIDUALS, no gate-class findings. Build pass 2 addresses t
 - RESIDUAL F4: overwrite and delete do not keep vector rows in step with records (old vector kept after overwrite; delete only clears the record's own scope table). Deletion across scopes should be closed with the F1 fix, but overwrite needs its own fix.
 - RESIDUAL F5: embed cache keyed by text only, one file per model name.
 - Review verdict on 717b85a: BLOCK (F1). Re-review required on the fixed commit before vector can default on.
+
+
+### Review 717b85a residuals fixed (pass 7)
+
+- F3 (model isolation): vector tables are now keyed by scope AND model (`vec_<scope-hash>_<model-hash>`). vector_put and vector_candidates require `model_id`. A query under one model cannot score rows built under another. Tests: tests/test_phase3_review7.py.
+- F9 (stale vector on overwrite or correct): overwrite removes the record's vector rows; correct() removes the superseded original's rows. Tests: tests/test_phase3_review7.py.
+- F6 (approval match): approval is exact: status must equal "APPROVED" and approved_sha256 must match the current entries. Prefix or lookalike statuses and edited sets do not count. The approved gold set was re-recorded: its content is unchanged since the user approved it; the previous status text is kept as approval_note. Tests: tests/test_gate_approval.py.
+- Residual: the approver is still recorded in the gold file, which is not signed. The hash binds the content, not the identity of the approver.
+- Gate re-run after the changes: hybrid recall@5 0.757, vector 0.743, decision "decided" from an approved set. Shipped default remains OFF until re-review.

@@ -416,17 +416,34 @@ class Substrate:
             self._conn.enable_load_extension(False)
 
     @staticmethod
-    def _vec_table(scope: str) -> str:
+    def _vec_prefix(scope: str) -> str:
         import hashlib
-        return "vec_" + hashlib.sha256(scope.encode()).hexdigest()[:16]
+        return "vec_" + hashlib.sha256(scope.encode()).hexdigest()[:16] + "_"
 
-    def _vec_exists(self, scope: str) -> bool:
+    @classmethod
+    def _vec_table(cls, scope: str, model_id: str) -> str:
+        """One vector table per (scope, model). Vectors from different models never share a table (review F3)."""
+        import hashlib
+        return cls._vec_prefix(scope) + hashlib.sha256(model_id.encode()).hexdigest()[:12]
+
+    def _vec_tables_for(self, scope: str) -> list:
+        prefix = self._vec_prefix(scope)
+        # Only the vec0 virtual tables: sqlite-vec also creates shadow tables with the same prefix.
+        rows = self._conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND substr(name, 1, ?) = ? "
+            "AND sql LIKE 'CREATE VIRTUAL TABLE%'",
+            (len(prefix), prefix),
+        ).fetchall()
+        return [r[0] for r in rows]
+
+    def _vec_exists(self, scope: str, model_id: str) -> bool:
         row = self._conn.execute(
-            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (self._vec_table(scope),)
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+            (self._vec_table(scope, model_id),),
         ).fetchone()
         return row is not None
 
-    def vector_put(self, record_id: str, scope: str, vector, ctx=None) -> None:
+    def vector_put(self, record_id: str, scope: str, vector, ctx=None, *, model_id: str) -> None:
         """Store an embedding for a record in its scope's vector table.
 
         Needs write authority over the scope (review-style gate: same rule as writes).
@@ -440,7 +457,7 @@ class Substrate:
             raise ScopeViolation("write not permitted")
         if len(vector) != VEC_DIM:
             raise ValueError(f"embedding must have {VEC_DIM} dimensions")
-        table = self._vec_table(scope)
+        table = self._vec_table(scope, model_id)
         with self._lock:
             self._conn.execute("BEGIN IMMEDIATE")
             try:
@@ -459,10 +476,11 @@ class Substrate:
                 raise
 
     def _vec_remove(self, record_id: str, scope: str) -> None:
-        if self._vec_exists(scope):
-            self._conn.execute(f"DELETE FROM {self._vec_table(scope)} WHERE record_id = ?", (record_id,))
+        """Remove this record's vector rows in every model table of its scope (review F3/F9)."""
+        for table in self._vec_tables_for(scope):
+            self._conn.execute(f"DELETE FROM {table} WHERE record_id = ?", (record_id,))
 
-    def vector_candidates(self, vector, ctx, limit: int, scopes=None) -> list:
+    def vector_candidates(self, vector, ctx, limit: int, scopes=None, *, model_id: str) -> list:
         """Nearest record ids for a query vector, limited to what ctx may read.
 
         Scope is decided first (only readable tables are queried), then each candidate is
@@ -479,10 +497,10 @@ class Substrate:
         hits = []
         with self._lock:
             for scope in readable:
-                if not self._vec_exists(scope):
+                if not self._vec_exists(scope, model_id):
                     continue
                 rows = self._conn.execute(
-                    f"SELECT record_id, distance FROM {self._vec_table(scope)} "
+                    f"SELECT record_id, distance FROM {self._vec_table(scope, model_id)} "
                     "WHERE embedding MATCH ? AND k = ?",
                     (blob, limit * 4),
                 ).fetchall()
@@ -674,6 +692,12 @@ class Substrate:
                     # Round 2 BLOCK: overwrite must not re-point a relied-on Verification.
                     raise KnowledgeRefusal("verification is relied on by a verified claim")
 
+            # Review F9: a record's vector describes its text. An overwrite replaces the text,
+            # and a correction supersedes the original, so both drop the old vectors.
+            if existing is not None:
+                self._vec_remove(record.record_id, existing[0])
+            if original_id is not None:
+                self._vec_remove(original_id, record.scope)
             self._conn.execute(
                 """INSERT OR REPLACE INTO records
                    (record_id, record_type, scope, epistemic_status, payload,

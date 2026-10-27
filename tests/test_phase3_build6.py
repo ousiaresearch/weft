@@ -96,23 +96,23 @@ def test_scope_hint_narrows_candidates(sub):
 def test_vector_candidates_are_scope_gated(sub, emb):
     rid = Ingestor(sub, embedder=emb).ingest_turn(
         "the beacon signal is active", "user", USER, "acs-project", "c1")
-    assert sub.vector_candidates(emb.embed_query("lighthouse"), MEM, 5) == []
-    assert rid in sub.vector_candidates(emb.embed_query("lighthouse"), USER, 5)
+    assert sub.vector_candidates(emb.embed_query("lighthouse"), MEM, 5, model_id=emb.model_id) == []
+    assert rid in sub.vector_candidates(emb.embed_query("lighthouse"), USER, 5, model_id=emb.model_id)
 
 
 def test_delete_removes_vector_row(sub, emb):
     rid = Ingestor(sub, embedder=emb).ingest_turn(
         "the beacon signal is active", "user", USER, "memory-providers", "c1")
-    assert rid in sub.vector_candidates(emb.embed_query("lighthouse"), USER, 5)
+    assert rid in sub.vector_candidates(emb.embed_query("lighthouse"), USER, 5, model_id=emb.model_id)
     assert sub.delete(rid, USER, reason="test")
-    assert rid not in sub.vector_candidates(emb.embed_query("lighthouse"), USER, 5)
+    assert rid not in sub.vector_candidates(emb.embed_query("lighthouse"), USER, 5, model_id=emb.model_id)
 
 
 def test_vector_put_requires_write_authority(sub, emb):
     with pytest.raises(ScopeViolation):
-        sub.vector_put("x1", "acs-project", emb.embed_document("hi"), ctx=MEM)
+        sub.vector_put("x1", "acs-project", emb.embed_document("hi"), ctx=MEM, model_id=emb.model_id)
     with pytest.raises(ScopeViolation):
-        sub.vector_put("x1", "acs-project", emb.embed_document("hi"), ctx=None)
+        sub.vector_put("x1", "acs-project", emb.embed_document("hi"), ctx=None, model_id=emb.model_id)
 
 
 # ---- hybrid recall: a paraphrase that lexical search misses ----------------

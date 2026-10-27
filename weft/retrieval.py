@@ -108,7 +108,7 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
         match = " OR ".join(f'"{t}"' for t in content_terms)
         ranked.append(sub.fts_candidates(match, ctx, pool, scopes=readable))
     if use_vector:
-        ranked.append(sub.vector_candidates(embedder.embed_query(query), ctx, pool, scopes=readable))
+        ranked.append(sub.vector_candidates(embedder.embed_query(query), ctx, pool, scopes=readable, model_id=embedder.model_id))
     candidate_ids = ranked[0] if len(ranked) == 1 else _fuse(ranked, pool)
 
     items: list[Item] = []

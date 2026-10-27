@@ -44,7 +44,7 @@ def test_document_head_vector_is_written_when_enabled(sub):
     doc = b"Harbour Notes\n\nThe quay watch rota covers night shifts.\n\nUnrelated closing paragraph."
     sid = Ingestor(sub, embedder=emb, doc_vectors=True).ingest_document(
         "harbour.md", doc, USER, "memory-providers", "a")
-    assert sid in sub.vector_candidates(emb.embed_query("harbour notes quay"), MEM, 10)
+    assert sid in sub.vector_candidates(emb.embed_query("harbour notes quay"), MEM, 10, model_id=emb.model_id)
 
 
 def test_document_centroid_vector_is_normalised_mean_of_paragraphs(sub):
@@ -52,11 +52,11 @@ def test_document_centroid_vector_is_normalised_mean_of_paragraphs(sub):
     doc = b"The quay watch rota covers night shifts.\n\nHarbour lamps are trimmed at dusk."
     sid = Ingestor(sub, embedder=emb, doc_centroid=True).ingest_document(
         "harbour.md", doc, USER, "memory-providers", "a")
-    assert sid in sub.vector_candidates(emb.embed_query("harbour lamps dusk"), MEM, 10)
+    assert sid in sub.vector_candidates(emb.embed_query("harbour lamps dusk"), MEM, 10, model_id=emb.model_id)
 
 
 def test_document_centroid_on_by_default(sub):
     emb = FakeEmbedder()
     doc = b"The quay watch rota covers night shifts.\n\nHarbour lamps are trimmed at dusk."
     sid = Ingestor(sub, embedder=emb).ingest_document("harbour.md", doc, USER, "memory-providers", "a")
-    assert sid in sub.vector_candidates(emb.embed_query("harbour lamps dusk"), MEM, 10)
+    assert sid in sub.vector_candidates(emb.embed_query("harbour lamps dusk"), MEM, 10, model_id=emb.model_id)

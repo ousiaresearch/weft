@@ -10,6 +10,7 @@ The output records the gold-set status; a DRAFT gold set is not acceptance evide
 """
 
 import glob
+import hashlib
 import json
 import os
 import sys
@@ -68,6 +69,21 @@ class CachedEmbedder:
 
 
 EMBEDDER = "bge"  # adopted default: BAAI/bge-m3 (MIT)
+
+
+def entries_sha256(entries):
+    """Hash of the gold entries exactly as the user approved them (canonical JSON)."""
+    return hashlib.sha256(json.dumps(entries, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+
+
+def gold_is_approved(gold: dict) -> bool:
+    """Review 717b85a F6: approval is exact and bound to content.
+
+    Status must be exactly "APPROVED", and approved_sha256 must match the current entries.
+    Prefix matches and edited entries do not count.
+    """
+    return (gold.get("status") == "APPROVED"
+            and gold.get("approved_sha256") == entries_sha256(gold.get("entries", [])))
 
 
 def make_embedder():
@@ -151,7 +167,7 @@ def main(gold_path: str, out_path: str, doc_vectors: bool = False, centroid: boo
     n = len(entries)
     recall_at = {m: {"recall@1": round(hits[m][1] / n, 3), "recall@5": round(hits[m][K] / n, 3)}
                  for m in modes}
-    approved = str(gold.get("status", "")).upper().startswith("APPROVED")
+    approved = gold_is_approved(gold)
     passes = (recall_at["hybrid"]["recall@5"] >= RECALL5_FLOOR
               and recall_at["hybrid"]["recall@5"] >= recall_at["lexical"]["recall@5"])
     # R-B6-3: a draft gold set is never a decision. Only an approved set can enable vector.

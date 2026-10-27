@@ -123,7 +123,7 @@ class Ingestor:
             attribution=attribution, source_ids=[], provenance=provenance,
         ), ctx)
         if self.embedder is not None:
-            self.sub.vector_put(rid, scope, self.embedder.embed_document(clean), ctx=ctx)
+            self.sub.vector_put(rid, scope, self.embedder.embed_document(clean), ctx=ctx, model_id=self.embedder.model_id)
         return rid
 
     def ingest_document(self, name: str, data: bytes, ctx, scope: str, author: str):
@@ -147,7 +147,7 @@ class Ingestor:
         except RecordConflict:
             pass  # the Source from an interrupted earlier run
         if self.embedder is not None and self.doc_vectors:
-            self.sub.vector_put(sid, scope, self.embedder.embed_document(parsed[:DOC_HEAD_CHARS]), ctx=ctx)
+            self.sub.vector_put(sid, scope, self.embedder.embed_document(parsed[:DOC_HEAD_CHARS]), ctx=ctx, model_id=self.embedder.model_id)
         paragraph_vectors = []
         for i, paragraph in enumerate(_extract_paragraphs(parsed)):
             oid = f"{sid}-p{i:04d}"
@@ -162,9 +162,9 @@ class Ingestor:
             if self.embedder is not None:
                 vec = self.embedder.embed_document(paragraph)
                 paragraph_vectors.append(vec)
-                self.sub.vector_put(oid, scope, vec, ctx=ctx)
+                self.sub.vector_put(oid, scope, vec, ctx=ctx, model_id=self.embedder.model_id)
         if self.embedder is not None and self.doc_centroid and paragraph_vectors:
-            self.sub.vector_put(sid, scope, _centroid(paragraph_vectors), ctx=ctx)
+            self.sub.vector_put(sid, scope, _centroid(paragraph_vectors), ctx=ctx, model_id=self.embedder.model_id)
         self.sub.set_job(sid, "ingest", content_hash, "done", scope=scope, ctx=ctx)
         return sid
 
@@ -205,6 +205,6 @@ class Ingestor:
         except RecordConflict:
             pass
         if self.embedder is not None:
-            self.sub.vector_put(sid, scope, self.embedder.embed_document(text.strip()), ctx=ctx)
+            self.sub.vector_put(sid, scope, self.embedder.embed_document(text.strip()), ctx=ctx, model_id=self.embedder.model_id)
         self.sub.set_job(sid, "derive", content_hash, "done", scope=scope, ctx=ctx)
         return sid
