@@ -5,7 +5,7 @@ Interfaces under test (to be implemented in weft/ingest.py and weft/retrieval.py
     .ingest_turn(text, speaker, ctx, scope, conversation_id) -> source_id
     .ingest_document(name, data: bytes, ctx, scope, author) -> source_id | Rejection
     .ingest_media(name, data: bytes, kind, ctx, scope) -> source_id | Rejection
-  recall(substrate, query, ctx, scope_hint=None) -> (items, receipt)
+  recall(substrate, query, ctx, scope_hint=None) -> (items, receipt, mode="lexical")
   fence(text) -> text with recall fence markers stripped
 """
 
@@ -36,7 +36,7 @@ def ing(sub):
 
 def _recall(sub, query, ctx, scope_hint=None):
     from weft.retrieval import recall
-    return recall(sub, query, ctx, scope_hint=scope_hint)
+    return recall(sub, query, ctx, scope_hint=scope_hint, mode="lexical")
 
 
 # ---- Plan §4 regression targets -------------------------------------------

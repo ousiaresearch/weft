@@ -80,7 +80,7 @@ def _fuse(ranked_lists: list, limit: int) -> list:
 
 
 def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
-           mode: str = "lexical", embedder=None):
+           mode: str = "hybrid", embedder=None):
     """Recall over the caller's readable scopes. Returns (items, receipt)."""
     if mode not in MODES:
         raise ValueError(f"unknown recall mode: {mode!r}")

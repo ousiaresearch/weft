@@ -303,3 +303,17 @@ Verdict APPROVE_WITH_RESIDUALS, no gate-class findings. Build pass 2 addresses t
 - F6 (approval match): approval is exact: status must equal "APPROVED" and approved_sha256 must match the current entries. Prefix or lookalike statuses and edited sets do not count. The approved gold set was re-recorded: its content is unchanged since the user approved it; the previous status text is kept as approval_note. Tests: tests/test_gate_approval.py.
 - Residual: the approver is still recorded in the gold file, which is not signed. The hash binds the content, not the identity of the approver.
 - Gate re-run after the changes: hybrid recall@5 0.757, vector 0.743, decision "decided" from an approved set. Shipped default remains OFF until re-review.
+
+
+### Review 3544e20 and default flip (2026-10-27)
+
+- Review (Claude, CLI route, adversarial): APPROVE_WITH_RESIDUALS, no GATE findings. GATE-1 from ec112bc confirmed closed (approval pinned in tracked code).
+- Default recall mode is now HYBRID (user direction: ship with vector on). recall() without an embedder raises ValueError (visible), never a silent lexical fallback. Test: tests/test_review9.py. Existing lexical-behaviour tests now name mode="lexical" explicitly.
+- Residuals accepted and recorded:
+  - R-model-id: Harrier and Qwen3 adapters report constant model ids (not used in production; their weights are removed). BGE ids are per checkpoint.
+  - R-centroid: a document centroid is not recomputed when a paragraph is deleted; the Source's centroid still encodes the deleted paragraph (the deleted id cannot surface).
+  - R-gold-constant: the pinned approval hash is a constant in tracked code; changes rely on git review of that line.
+  - R-overwrite-no-reembed: an overwritten or corrected record has no vector until re-ingested (FTS holds the new text).
+  - R-round: recall is rounded to 3 decimals before the floor comparison (no effect at n=74).
+  - R-spec-drift: design doc D3-1 and older ADR lines still say 0.90; code and ADR decision say 0.70.
+  - R-default-manual: vector_default_on is only written to the results file; the default is set by code, not by the gate.

@@ -69,14 +69,14 @@ def test_derived_media_is_labelled_on_read(sub):
     ing = Ingestor(sub)
     ing.ingest_media("p.png", b"\x89PNG-lh", "image", USER, "memory-providers",
                      describer=lambda _d: "a lighthouse at dusk")
-    items, _ = recall(sub, "lighthouse", MEM)
+    items, _ = recall(sub, "lighthouse", MEM, mode="lexical")
     assert items and items[0].derived is True
     assert 'derived="machine"' in items[0].render()
 
 
 def test_document_text_is_not_labelled_derived(sub):
     Ingestor(sub).ingest_document("n.txt", b"a lighthouse note", USER, "memory-providers", "a")
-    items, _ = recall(sub, "lighthouse", MEM)
+    items, _ = recall(sub, "lighthouse", MEM, mode="lexical")
     assert items and items[0].derived is False
     assert "derived=" not in items[0].render()
 
@@ -87,7 +87,7 @@ def test_scope_hint_narrows_candidates(sub):
     ing = Ingestor(sub)
     ing.ingest_turn("zebra stripes are in the acs archive", "user", USER, "acs-project", "c1")
     ing.ingest_turn("zebra stripes are in memory", "user", USER, "memory-providers", "c2")
-    items, _ = recall(sub, "zebra", USER, scope_hint="memory-providers")
+    items, _ = recall(sub, "zebra", USER, scope_hint="memory-providers", mode="lexical")
     assert items and all(i.scope == "memory-providers" for i in items)
 
 

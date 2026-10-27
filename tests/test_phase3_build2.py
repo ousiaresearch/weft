@@ -44,7 +44,7 @@ def ing(sub):
 def test_tier_l1_when_query_term_is_past_the_abstract(sub, ing):
     long_text = ("filler sentence about nothing. " * 30) + "The quartz anchor sits near the end."
     ing.ingest_turn(long_text, "user", USER, "memory-providers", "c1")
-    items, receipt = recall(sub, "quartz anchor", MEM_AGENT)
+    items, receipt = recall(sub, "quartz anchor", MEM_AGENT, mode="lexical")
     assert items and items[0].tier == "L1"
     assert "quartz" in items[0].text
     assert receipt.tier == "L1"
@@ -53,7 +53,7 @@ def test_tier_l1_when_query_term_is_past_the_abstract(sub, ing):
 def test_tier_l2_when_term_is_past_two_thousand_chars(sub, ing):
     text = ("padding words here. " * 200) + "The obsidian lighthouse waits at the very end."
     ing.ingest_turn(text, "user", USER, "memory-providers", "c1")
-    items, receipt = recall(sub, "obsidian lighthouse", MEM_AGENT)
+    items, receipt = recall(sub, "obsidian lighthouse", MEM_AGENT, mode="lexical")
     assert items and items[0].tier == "L2"
     assert "obsidian" in items[0].text
     assert receipt.tier == "L2"
@@ -61,7 +61,7 @@ def test_tier_l2_when_term_is_past_two_thousand_chars(sub, ing):
 
 def test_tier_l0_when_abstract_already_matches(sub, ing):
     ing.ingest_turn("Honcho uses hybrid recall.", "user", USER, "memory-providers", "c1")
-    items, receipt = recall(sub, "honcho", MEM_AGENT)
+    items, receipt = recall(sub, "honcho", MEM_AGENT, mode="lexical")
     assert items[0].tier == "L0"
     assert receipt.tier == "L0"
 

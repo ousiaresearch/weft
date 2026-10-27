@@ -37,7 +37,7 @@ def test_memory_caller_cannot_overwrite_acs_job(sub):
 def test_recall_render_is_fenced_when_reingested(sub):
     ing = Ingestor(sub)
     ing.ingest_turn("the lantern protocol is settled", "user", USER, "memory-providers", "c1")
-    items, _ = recall(sub, "lantern", MEM)
+    items, _ = recall(sub, "lantern", MEM, mode="lexical")
     assert items
     rendered = "\n".join(i.render() for i in items)
     sid = ing.ingest_turn("Earlier you said: " + rendered, "user", USER, "memory-providers", "c2")

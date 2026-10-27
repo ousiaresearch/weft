@@ -24,7 +24,7 @@ def test_one_result_per_document(sub):
     ing.ingest_document("alpha.md", b"harbour one\n\nharbour two\n\nharbour three", USER,
                         "memory-providers", "a")
     ing.ingest_document("beta.md", b"harbour elsewhere", USER, "memory-providers", "a")
-    items, _ = recall(sub, "harbour", MEM, limit=2)
+    items, _ = recall(sub, "harbour", MEM, limit=2, mode="lexical")
     names = [sub.get(i.record_id, MEM).provenance["document"] for i in items]
     assert sorted(names) == ["alpha.md", "beta.md"]
 
@@ -33,5 +33,5 @@ def test_turns_are_not_collapsed(sub):
     ing = Ingestor(sub)
     ing.ingest_turn("harbour bells one", "user", USER, "memory-providers", "c1")
     ing.ingest_turn("harbour bells two", "user", USER, "memory-providers", "c2")
-    items, _ = recall(sub, "harbour", MEM, limit=5)
+    items, _ = recall(sub, "harbour", MEM, limit=5, mode="lexical")
     assert len(items) == 2
