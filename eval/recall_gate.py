@@ -76,14 +76,22 @@ def entries_sha256(entries):
     return hashlib.sha256(json.dumps(entries, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
 
-def gold_is_approved(gold: dict) -> bool:
-    """Review 717b85a F6: approval is exact and bound to content.
+# Review ec112bc GATE-1: the approved hash is pinned in tracked code. Editing the gold file and
+# recomputing its own hash must not make a set approved; changing this constant needs a reviewed commit.
+APPROVED_GOLD_SHA256 = "8d245fab980ee4aeef7424ea16c55340a60d21bb03d59ba6abe54236644d86c7"  # gold v0.4, approved by the user 2026-10-26
 
-    Status must be exactly "APPROVED", and approved_sha256 must match the current entries.
-    Prefix matches and edited entries do not count.
+
+def gold_is_approved(gold: dict) -> bool:
+    """Approval is exact, content-bound, and pinned in tracked code (review 717b85a F6, ec112bc GATE-1).
+
+    Status must be exactly "APPROVED"; entries must be non-empty; the entries' hash must equal the
+    pinned constant AND the hash recorded in the file.
     """
-    return (gold.get("status") == "APPROVED"
-            and gold.get("approved_sha256") == entries_sha256(gold.get("entries", [])))
+    entries = gold.get("entries") or []
+    if not entries or gold.get("status") != "APPROVED":
+        return False
+    digest = entries_sha256(entries)
+    return digest == APPROVED_GOLD_SHA256 and gold.get("approved_sha256") == digest
 
 
 def make_embedder():

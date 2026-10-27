@@ -10,6 +10,7 @@ Models load lazily on first use and stay resident for the adapter's lifetime.
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -183,7 +184,12 @@ class BgeM3Embedder(HarrierEmbedder):
 
     def __init__(self, model_dir):
         super().__init__(model_dir)
-        self.model_id = "BAAI/bge-m3 (mlx-community 4-bit, mlx-embeddings)"
+        # Review ec112bc RESIDUAL-1: the id names the repo and revision, so different
+        # checkpoints or quantisations never share a vector table.
+        repo = re.search(r"models--([^/]+)", str(model_dir))
+        rev = re.search(r"snapshots/([0-9a-f]+)", str(model_dir))
+        name = repo.group(1).replace("--", "/") if repo else "local"
+        self.model_id = f"BAAI/bge-m3 via {name}@{rev.group(1)[:12] if rev else 'unpinned'} (mlx-embeddings)"
 
     def _embed(self, text: str) -> list:
         if self._model is None:

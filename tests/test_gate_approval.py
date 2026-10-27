@@ -19,6 +19,12 @@ _spec.loader.exec_module(gate)
 ENTRIES = [{"query": "a", "expected_note": "n1.md", "kind": "keyword"}]
 
 
+@pytest.fixture(autouse=True)
+def _pin(monkeypatch):
+    # the approved hash is pinned in tracked code (review ec112bc GATE-1); pin it to the fixture entries
+    monkeypatch.setattr(gate, "APPROVED_GOLD_SHA256", _sha(ENTRIES))
+
+
 def _sha(entries):
     return hashlib.sha256(json.dumps(entries, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
