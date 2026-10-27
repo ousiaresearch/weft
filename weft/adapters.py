@@ -204,3 +204,19 @@ class BgeM3Embedder(HarrierEmbedder):
     def embed_query(self, text: str) -> list:
         return self._embed(text)
 
+
+def default_text_embedder():
+    """The adopted alpha embedder: BAAI/bge-m3, 4-bit MLX build (MIT), from the local HF cache.
+
+    Raises RuntimeError when the weights are absent. There is no silent cloud or lexical fallback
+    (spec: a missing local model is a visible failure).
+    """
+    import glob
+
+    snapshots = glob.glob(os.path.expanduser(
+        "~/.cache/huggingface/hub/models--mlx-community--bge-m3-mlx-4bit/snapshots/*"))
+    if not snapshots:
+        raise RuntimeError(
+            "embedding model not present: expected mlx-community/bge-m3-mlx-4bit in the local "
+            "Hugging Face cache")
+    return BgeM3Embedder(snapshots[0])

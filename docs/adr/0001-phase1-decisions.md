@@ -317,3 +317,11 @@ Verdict APPROVE_WITH_RESIDUALS, no gate-class findings. Build pass 2 addresses t
   - R-round: recall is rounded to 3 decimals before the floor comparison (no effect at n=74).
   - R-spec-drift: design doc D3-1 and older ADR lines still say 0.90; code and ADR decision say 0.70.
   - R-default-manual: vector_default_on is only written to the results file; the default is set by code, not by the gate.
+
+
+### Embedder wiring (2026-10-27)
+
+- weft/adapters.py: default_text_embedder() returns BGE-M3 4-bit (MIT) from the local Hugging Face cache. Missing weights raise RuntimeError (visible; no cloud or lexical fallback).
+- Ingestor still takes an explicit embedder. The library has no production entry point yet; the composition root (the Phase 6 service or a CLI) must pass default_text_embedder(). Until one exists, records ingested without an embedder have no vectors and hybrid recall covers them lexically only.
+- Tests: tests/test_review10.py. The real-model test runs when the weights are present and ingests a turn, then finds it by vector under the adopted model id.
+- Process note: the factory and its tests were written in one step, so the tests did not fail first. They are new functions, so there was no earlier red state to show.
