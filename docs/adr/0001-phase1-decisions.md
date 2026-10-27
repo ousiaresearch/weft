@@ -267,3 +267,12 @@ Verdict APPROVE_WITH_RESIDUALS, no gate-class findings. Build pass 2 addresses t
 - Removed: Harrier-0.6B and Qwen3-Embedding-0.6B Hugging Face caches; their embedding caches; recall_gate WAL/SHM files; models/qwen_dl.log.
 - Kept: BGE-M3 4-bit (adopted, in use); Qwen3.5-2B 8-bit (OCR/description adapter and tests); whisper large-v3-turbo q5_0 (transcription and tests); smoke fixtures.
 - Other Hugging Face caches in ~/.cache/huggingface (Wan, MiniMax, neucodec, depth-anything, faster-whisper-base, etc.) are not created by Weft and were not touched.
+
+
+### Quantisation decision: BGE-M3 4-bit adopted (user, 2026-10-26)
+
+- Gold v0.4 (74 entries), recall@5. 4-bit: vector 0.743 (paraphrase 0.50, keyword 0.95), hybrid 0.757 (keyword 1.00). 8-bit: vector 0.770 (paraphrase 0.56, keyword 0.95), hybrid 0.730 (keyword 0.975).
+- Differences are 2 to 4 queries out of 74; user judged them inconsequential and adopted the 4-bit build (smaller, already the code default).
+- Full-precision fp16 not measured: download failed repeatedly (xet I/O error, then stalls).
+- Vector stays off by default; neither build clears the 0.90 floor.
+- 8-bit weights removed from the Hugging Face cache after this decision.
