@@ -276,3 +276,11 @@ Verdict APPROVE_WITH_RESIDUALS, no gate-class findings. Build pass 2 addresses t
 - Full-precision fp16 not measured: download failed repeatedly (xet I/O error, then stalls).
 - Vector stays off by default; neither build clears the 0.90 floor.
 - 8-bit weights removed from the Hugging Face cache after this decision.
+
+
+### Recall floor and vector default (user decision, 2026-10-27)
+
+- Floor for enabling vector by default lowered from 0.90 to 0.70 (hybrid recall@5, approved gold set, must also be >= lexical recall@5). Set in eval/recall_gate.py as RECALL5_FLOOR.
+- Basis: approved gold v0.4 (74 entries). BGE-M3 4-bit hybrid recall@5 0.757 (keyword 1.00, paraphrase 0.47); lexical 0.554. Vector alone 0.743 (paraphrase 0.50).
+- The pass is carried mostly by keyword queries. Paraphrase recall stays weak (0.47 hybrid, 0.50 vector) and must be reported beside the headline number.
+- Default mode: hybrid. Shipped default stays OFF until the Codex review of the vector path (717b85a) passes with no GATE findings.

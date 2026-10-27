@@ -4,7 +4,7 @@ Ingests the Arien vault notes into a fresh store (scope acs-project), then score
 gold entry in lexical, vector, and hybrid modes. A hit means the expected note is among
 the top-k returned records' documents.
 
-Thresholds are proposals (see the ADR): hybrid recall@5 must reach RECALL5_FLOOR and
+Thresholds are user decisions (see the ADR): hybrid recall@5 must reach RECALL5_FLOOR and
 must not fall below lexical recall@5 for vector retrieval to be enabled by default.
 The output records the gold-set status; a DRAFT gold set is not acceptance evidence.
 """
@@ -29,7 +29,7 @@ VAULT = Path(os.path.expanduser("~/Documents/Obsidian Vault/Arien"))
 SCRATCH = Path(os.path.expanduser("~/.hermes/profiles/arien/cache/scratch"))
 MODEL = None  # Harrier path resolved only when EMBEDDER == "harrier" (its cache was removed in cleanup)
 SCOPE = "acs-project"
-RECALL5_FLOOR = 0.90  # proposed floor for enabling vector retrieval by default
+RECALL5_FLOOR = 0.70  # user decision 2026-10-27: floor lowered from 0.90 for alpha (hybrid must reach this and lexical)
 K = 5
 USER = ScopeContext(granted_scopes=frozenset({SCOPE}), user_authored=True, actor="recall-gate")
 
