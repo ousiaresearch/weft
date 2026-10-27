@@ -432,9 +432,11 @@ class Substrate:
         Needs write authority over the scope (review-style gate: same rule as writes).
         """
         import sqlite_vec
-        stub = Record(record_id=record_id, record_type="Observation", scope=scope,
-                      payload={}, attribution="document", source_ids=[])
-        if ctx is None or not self.scope_engine.authorize_write(stub, ctx).allowed:
+        # Review 717b85a F1: authorize against the STORED record, not the caller's
+        # scope argument. The record must exist, and must live in `scope`.
+        stored = self._lookup_record(record_id)
+        if (ctx is None or stored is None or stored.scope != scope
+                or not self.scope_engine.authorize_write(stored, ctx).allowed):
             raise ScopeViolation("write not permitted")
         if len(vector) != VEC_DIM:
             raise ValueError(f"embedding must have {VEC_DIM} dimensions")

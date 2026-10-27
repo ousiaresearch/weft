@@ -284,3 +284,13 @@ Verdict APPROVE_WITH_RESIDUALS, no gate-class findings. Build pass 2 addresses t
 - Basis: approved gold v0.4 (74 entries). BGE-M3 4-bit hybrid recall@5 0.757 (keyword 1.00, paraphrase 0.47); lexical 0.554. Vector alone 0.743 (paraphrase 0.50).
 - The pass is carried mostly by keyword queries. Paraphrase recall stays weak (0.47 hybrid, 0.50 vector) and must be reported beside the headline number.
 - Default mode: hybrid. Shipped default stays OFF until the Codex review of the vector path (717b85a) passes with no GATE findings.
+
+
+### Review 717b85a (Claude subagent, adversarial) and response
+
+- GATE F1 (fixed, uncommitted): vector_put authorized against the caller-supplied scope, not the stored record, and accepted unknown ids. Fix: look up the stored record; require it to exist, live in `scope`, and pass write authority. Regression tests: tests/test_phase3_review6.py (3 tests; 2 red before the fix). Suite passes.
+- GATE F2 (reclassified as RESIDUAL + doc correction): the line "the paraphrase set is unapproved" in the 4-bit result entry above predates the user's approval of gold v0.4 (2026-10-26). The gold file status is correct. The real weakness is that the gate trusts a self-declared status string in the gold file. Residual: approval should be recorded out-of-band (for example a hash of the approved file) before the gate can decide a default.
+- RESIDUAL F3: model identity is not stored in the vector table; mixing models in one scope is accepted silently. Harness-only isolation.
+- RESIDUAL F4: overwrite and delete do not keep vector rows in step with records (old vector kept after overwrite; delete only clears the record's own scope table). Deletion across scopes should be closed with the F1 fix, but overwrite needs its own fix.
+- RESIDUAL F5: embed cache keyed by text only, one file per model name.
+- Review verdict on 717b85a: BLOCK (F1). Re-review required on the fixed commit before vector can default on.
