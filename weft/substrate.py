@@ -191,15 +191,15 @@ class Substrate:
         busy_timeout: float = 5.0,
     ):
         self.db_path = Path(db_path)
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
         # Fail closed: never operate without a gate.
         self.scope_engine = scope_engine if scope_engine is not None else ScopeEngine()
         self._lock = threading.RLock()
-        # The store holds every scope in plaintext. Create the database and its
-        # sidecar files owner-only from the start (review N8, F-E, F21). Encryption
-        # at rest is a later phase.
+        self._conn: sqlite3.Connection
+        # The store holds plaintext memory. Create new path components owner-only, and
+        # keep the restrictive umask active while SQLite creates its sidecar files.
         old_umask = os.umask(0o077)
         try:
+            self.db_path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
             fd = os.open(str(self.db_path), os.O_CREAT | os.O_RDWR, 0o600)
             os.close(fd)
             self._conn = sqlite3.connect(
@@ -213,22 +213,22 @@ class Substrate:
             self._conn.execute("PRAGMA synchronous=FULL")
             self._conn.execute("PRAGMA foreign_keys=ON")
             self._conn.executescript(_SCHEMA)
-            try:
-                self._migrate()
-            except Exception:
-                self._conn.close()
-                raise
+            self._migrate()
             self._conn.execute(
                 "INSERT OR IGNORE INTO meta(key, value) VALUES('schema_version', ?)",
                 (str(SCHEMA_VERSION),),
             )
             self._conn.execute("INSERT OR IGNORE INTO meta(key, value) VALUES('store_version', '0')")
+            for suffix in ("", "-wal", "-shm"):
+                path = str(self.db_path) + suffix
+                if os.path.exists(path):
+                    os.chmod(path, 0o600)
+        except Exception:
+            if hasattr(self, "_conn"):
+                self._conn.close()
+            raise
         finally:
             os.umask(old_umask)
-        for suffix in ("", "-wal", "-shm"):
-            path = str(self.db_path) + suffix
-            if os.path.exists(path):
-                os.chmod(path, 0o600)
 
     # ---- transaction helpers ------------------------------------------
 
@@ -443,6 +443,54 @@ class Substrate:
         ).fetchone()
         return row is not None
 
+    def vector_has_record(self, record_id: str, scope: str, ctx, *, model_id: str) -> bool:
+        """Return whether a caller-readable record has a vector in its scope/model index."""
+        if ctx is None:
+            return False
+        rec = self._lookup_record(record_id)
+        if (rec is None or rec.scope != scope
+                or not self.scope_engine.authorize_read(
+                    scope, ctx, self.scope_engine._payload_text(rec)
+                ).allowed):
+            return False
+        with self._lock:
+            if not self._vec_exists(scope, model_id):
+                return False
+            return self._conn.execute(
+                f"SELECT 1 FROM {self._vec_table(scope, model_id)} WHERE record_id = ?",
+                (record_id,),
+            ).fetchone() is not None
+
+    def vector_index_complete(self, scope: str, ctx, *, model_id: str) -> bool:
+        """Whether every readable text record in one authorized scope has this model's vector.
+
+        Used by hybrid recall to fail visibly rather than silently become lexical-only.
+        The method returns no identifiers or counts.
+        """
+        if ctx is None or not self.scope_engine.authorize_read(scope, ctx, "").allowed:
+            raise ScopeViolation("read not permitted")
+        with self._lock:
+            record_ids = [row[0] for row in self._conn.execute(
+                "SELECT record_id FROM fts WHERE scope = ?", (scope,)
+            ).fetchall()]
+            if not record_ids:
+                return True
+            if not self._vec_exists(scope, model_id):
+                return False
+            table = self._vec_table(scope, model_id)
+            for rid in record_ids:
+                rec = self._source_or_record(rid)
+                if rec is None or not self.scope_engine.authorize_read(
+                    rec.scope, ctx, self.scope_engine._payload_text(rec)
+                ).allowed:
+                    continue
+                found = self._conn.execute(
+                    f"SELECT 1 FROM {table} WHERE record_id = ?", (rid,)
+                ).fetchone()
+                if found is None:
+                    return False
+            return True
+
     def vector_put(self, record_id: str, scope: str, vector, ctx=None, *, model_id: str) -> None:
         """Store an embedding for a record in its scope's vector table.
 
@@ -487,8 +535,10 @@ class Substrate:
         checked with the read gate (review-style defence in depth, as for FTS).
         """
         import sqlite_vec
-        if ctx is None or len(vector) != VEC_DIM:
+        if ctx is None:
             return []
+        if len(vector) != VEC_DIM:
+            raise ValueError(f"query embedding must have {VEC_DIM} dimensions")
         engine = self.scope_engine
         readable = [s for s in sorted(engine.known_scopes) if engine.authorize_read(s, ctx, "").allowed]
         if scopes is not None:

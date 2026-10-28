@@ -26,6 +26,14 @@ def test_missing_model_is_a_visible_error(monkeypatch, tmp_path):
         default_text_embedder()
 
 
+def test_partial_snapshot_is_a_visible_error(monkeypatch, tmp_path):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    snapshot = tmp_path / ".cache/huggingface/hub/models--mlx-community--bge-m3-mlx-4bit/snapshots/incomplete"
+    snapshot.mkdir(parents=True)
+    with pytest.raises(RuntimeError, match="embedding model unavailable"):
+        default_text_embedder()
+
+
 @pytest.mark.skipif(not MODEL_PRESENT, reason="BGE-M3 4-bit weights not in the local cache")
 def test_ingested_turn_gets_a_vector_under_the_adopted_model(tmp_path):
     emb = default_text_embedder()

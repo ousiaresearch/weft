@@ -206,17 +206,28 @@ class BgeM3Embedder(HarrierEmbedder):
 
 
 def default_text_embedder():
-    """The adopted alpha embedder: BAAI/bge-m3, 4-bit MLX build (MIT), from the local HF cache.
+    """Load and verify the adopted BAAI/bge-m3 4-bit MLX model from the local HF cache.
 
-    Raises RuntimeError when the weights are absent. There is no silent cloud or lexical fallback
-    (spec: a missing local model is a visible failure).
+    Raises RuntimeError when the snapshot is absent, incomplete, or cannot produce a valid
+    embedding. There is no silent cloud or lexical fallback.
     """
     import glob
 
-    snapshots = glob.glob(os.path.expanduser(
-        "~/.cache/huggingface/hub/models--mlx-community--bge-m3-mlx-4bit/snapshots/*"))
+    snapshots = sorted(glob.glob(os.path.expanduser(
+        "~/.cache/huggingface/hub/models--mlx-community--bge-m3-mlx-4bit/snapshots/*")))
     if not snapshots:
         raise RuntimeError(
             "embedding model not present: expected mlx-community/bge-m3-mlx-4bit in the local "
             "Hugging Face cache")
-    return BgeM3Embedder(snapshots[0])
+    model_dir = Path(snapshots[-1])
+    required = (model_dir / "config.json", model_dir / "tokenizer.json", model_dir / "model.safetensors")
+    if any(not path.is_file() or path.stat().st_size == 0 for path in required):
+        raise RuntimeError("embedding model unavailable: local BGE-M3 snapshot is incomplete")
+    embedder = BgeM3Embedder(model_dir)
+    try:
+        probe = embedder.embed_query("Weft local model readiness check")
+        if len(probe) != embedder.dim:
+            raise ValueError(f"expected {embedder.dim} dimensions, got {len(probe)}")
+    except Exception as exc:
+        raise RuntimeError("embedding model unavailable: local BGE-M3 checkpoint failed to load") from exc
+    return embedder

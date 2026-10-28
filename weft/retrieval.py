@@ -102,6 +102,12 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
             sub.record_receipt("recall", readable, {"selected": 0, "excluded": 0}, ctx)
         return [], receipt
 
+    if use_vector:
+        assert embedder is not None
+        for scope in readable:
+            if not sub.vector_index_complete(scope, ctx, model_id=embedder.model_id):
+                raise ValueError("hybrid/vector recall requires a complete vector index for every readable scope")
+
     pool = limit * 4
     ranked = []
     if use_lexical:

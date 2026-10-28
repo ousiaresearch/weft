@@ -360,3 +360,32 @@ class TestGatedWritesAndReads:
     def test_journal_without_context_is_empty(self, substrate):
         substrate.put(make_record("m1"), CTX)
         assert substrate.journal_entries(None) == []
+
+
+def test_new_database_parent_directories_are_owner_only(tmp_path):
+    db_path = tmp_path / "private" / "nested" / "weft.db"
+    sub = Substrate(db_path, ScopeEngine(known_scopes=KNOWN))
+    try:
+        assert os.stat(db_path.parent).st_mode & 0o777 == 0o700
+        assert os.stat(db_path.parent.parent).st_mode & 0o777 == 0o700
+    finally:
+        sub.close()
+
+
+def test_constructor_closes_connection_when_database_is_malformed(tmp_path, monkeypatch):
+    malformed = tmp_path / "broken.db"
+    malformed.write_bytes(b"not sqlite")
+    connections = []
+    real_connect = sqlite3.connect
+
+    def tracking_connect(*args, **kwargs):
+        connection = real_connect(*args, **kwargs)
+        connections.append(connection)
+        return connection
+
+    monkeypatch.setattr("weft.substrate.sqlite3.connect", tracking_connect)
+    with pytest.raises(sqlite3.DatabaseError):
+        Substrate(malformed, ScopeEngine(known_scopes=KNOWN))
+    assert len(connections) == 1
+    with pytest.raises(sqlite3.ProgrammingError, match="closed database"):
+        connections[0].execute("SELECT 1")

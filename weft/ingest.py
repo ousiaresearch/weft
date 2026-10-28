@@ -132,10 +132,33 @@ class Ingestor:
         if isinstance(parsed, Rejection):
             return parsed
         parsed, _ = fence(parsed)  # review G-P3-4: recall blocks never persist from documents
+        if not parsed.strip():
+            return Rejection(name, "empty_document")
         content_hash = _digest(data)
         sid = "doc-" + hashlib.sha256(f"{scope}\0{content_hash}".encode()).hexdigest()[:24]
-        if self.sub.job_state(sid, "ingest", content_hash, scope=scope, ctx=ctx) == "done":
-            return sid  # idempotent re-import (D3-7)
+        paragraphs = _extract_paragraphs(parsed)
+        state = self.sub.job_state(sid, "ingest", content_hash, scope=scope, ctx=ctx)
+        if state == "done":
+            if self.embedder is None:
+                return sid
+            expected_vectors = [f"{sid}-p{i:04d}" for i in range(len(paragraphs))]
+            if self.doc_vectors or (self.doc_centroid and paragraphs):
+                expected_vectors.append(sid)
+            if all(self.sub.vector_has_record(rid, scope, ctx, model_id=self.embedder.model_id)
+                   for rid in expected_vectors):
+                return sid
+
+        # Compute every embedding before writing the job, Source, or Observations. Model
+        # load/inference failures therefore cannot leave an apparently successful partial import.
+        paragraph_vectors = []
+        source_vector = None
+        if self.embedder is not None:
+            paragraph_vectors = [self.embedder.embed_document(paragraph) for paragraph in paragraphs]
+            if self.doc_vectors:
+                source_vector = self.embedder.embed_document(parsed[:DOC_HEAD_CHARS])
+            if self.doc_centroid and paragraph_vectors:
+                source_vector = _centroid(paragraph_vectors)
+
         self.sub.set_job(sid, "ingest", content_hash, "running", scope=scope, ctx=ctx)
         try:
             self.sub.put(Record(
@@ -146,10 +169,7 @@ class Ingestor:
             ), ctx)
         except RecordConflict:
             pass  # the Source from an interrupted earlier run
-        if self.embedder is not None and self.doc_vectors:
-            self.sub.vector_put(sid, scope, self.embedder.embed_document(parsed[:DOC_HEAD_CHARS]), ctx=ctx, model_id=self.embedder.model_id)
-        paragraph_vectors = []
-        for i, paragraph in enumerate(_extract_paragraphs(parsed)):
+        for i, paragraph in enumerate(paragraphs):
             oid = f"{sid}-p{i:04d}"
             try:
                 self.sub.put(Record(
@@ -160,11 +180,9 @@ class Ingestor:
             except RecordConflict:
                 pass  # written by an interrupted earlier run
             if self.embedder is not None:
-                vec = self.embedder.embed_document(paragraph)
-                paragraph_vectors.append(vec)
-                self.sub.vector_put(oid, scope, vec, ctx=ctx, model_id=self.embedder.model_id)
-        if self.embedder is not None and self.doc_centroid and paragraph_vectors:
-            self.sub.vector_put(sid, scope, _centroid(paragraph_vectors), ctx=ctx, model_id=self.embedder.model_id)
+                self.sub.vector_put(oid, scope, paragraph_vectors[i], ctx=ctx, model_id=self.embedder.model_id)
+        if self.embedder is not None and source_vector is not None:
+            self.sub.vector_put(sid, scope, source_vector, ctx=ctx, model_id=self.embedder.model_id)
         self.sub.set_job(sid, "ingest", content_hash, "done", scope=scope, ctx=ctx)
         return sid
 

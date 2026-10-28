@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sqlite3
 import sys
 from pathlib import Path
 
@@ -16,7 +17,7 @@ from weft.adapters import default_text_embedder
 from weft.ingest import Ingestor, Rejection
 from weft.retrieval import recall
 from weft.scope import ScopeContext, ScopeEngine
-from weft.substrate import Substrate
+from weft.substrate import Substrate, SubstrateError
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -53,31 +54,39 @@ def _run_ingest(args) -> int:
     path = Path(args.file).expanduser()
     data = path.read_bytes()
     engine, ctx = _context(args.scope)
-    embedder = default_text_embedder()  # fail visibly if local weights are absent
-    sub = Substrate(args.db, engine)
+    embedder = default_text_embedder()  # loads/verifies locally; no cloud or lexical fallback
+    sub = None
     try:
+        sub = Substrate(args.db, engine)
         result = Ingestor(sub, embedder=embedder).ingest_document(
             path.name, data, ctx, args.scope, args.author
         )
         if isinstance(result, Rejection):
             print(json.dumps({"status": "rejected", "reason": result.reason, "name": result.name}))
             return 2
+        if not sub.vector_has_record(result, args.scope, ctx, model_id=embedder.model_id):
+            raise RuntimeError("ingestion completed without a vector for the adopted model")
         print(json.dumps({
             "status": "ingested", "record_id": result, "scope": args.scope,
-            "vectors_written": True, "model_id": embedder.model_id,
+            "vector_indexed": True, "model_id": embedder.model_id,
         }))
         return 0
     finally:
-        sub.close()
+        if sub is not None:
+            sub.close()
 
 
 def _run_recall(args) -> int:
     if args.limit < 1 or args.limit > 100:
         raise ValueError("limit must be between 1 and 100")
+    db_path = Path(args.db).expanduser()
+    if not db_path.is_file():
+        raise FileNotFoundError(f"Weft database not found: {db_path}")
     embedder = default_text_embedder()  # hybrid recall requires the local query embedder
     engine, ctx = _context(args.scope)
-    sub = Substrate(args.db, engine)
+    sub = None
     try:
+        sub = Substrate(db_path, engine)
         items, receipt = recall(sub, args.query, ctx, limit=args.limit, mode="hybrid", embedder=embedder)
         print(json.dumps({
             "mode": receipt.mode,
@@ -92,7 +101,8 @@ def _run_recall(args) -> int:
         }, ensure_ascii=False))
         return 0
     finally:
-        sub.close()
+        if sub is not None:
+            sub.close()
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -102,7 +112,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "ingest":
             return _run_ingest(args)
         return _run_recall(args)
-    except (OSError, RuntimeError, ValueError) as exc:
+    except (OSError, RuntimeError, ValueError, ImportError, sqlite3.Error, SubstrateError) as exc:
         print(f"weft: {exc}", file=sys.stderr)
         return 1
 
