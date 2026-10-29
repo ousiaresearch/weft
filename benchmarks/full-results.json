@@ -70,5 +70,9 @@
       },
       "hybrid": null
     }
+  },
+  "methodology": {
+    "scoring": "Retrieval hit@k + MRR when evidence_ids available (LoCoMo); token F1 fallback (LongMemEval-S, BEAM). Previous exact-match substring was wrong for generative QA benchmarks.",
+    "reranking": "Disabled by default in benchmark (bi-encoder cosine reranker available via recall(..., rerank=True))"
   }
 }
