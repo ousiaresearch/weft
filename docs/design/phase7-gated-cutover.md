@@ -1,7 +1,7 @@
 # Phase 7 — Gated Cutover Checklist
 
 **Plan:** `~/.hermes/plans/2026-10-24_weft-memory-system-full-plan.md`
-**Current HEAD:** `3ca1aa8` (Phase 7 E5 gold answer aligned with actual abstention)
+**Current HEAD:** `2d7ed59` (Phase 7 alpha checklist verified; provenance completed; wheel rebuilt)
 
 ## Gates
 
@@ -37,11 +37,10 @@ Each gate must be PASS before the next is attempted.
    - **Residual:** None identified.
 
 7. **Independent review passed**
-   - **PASS:** Phase 6 adversarial review APPROVED (17th review, 0 findings).
-   - **Note:** Gates 3–4 additions need fresh adversarial review before cutover.
+   - **PASS:** Phase 6 adversarial review APPROVED (17th review, 0 findings). Phase 7 adversarial review APPROVED (11th review, 0 findings). Subsequent clean-room provenance fixes reviewed and cleared.
+   - **Note:** All Phase 7 additions reviewed and approved.
 
 ## Next Actions
 
-1. Verify G1–G10 on a clean checkout.
-2. Tag `v0.1.0a0` and push to origin.
-3. Create GitHub release with wheel and install instructions.
+1. Tag `v0.1.0a0` and push to origin.
+2. Create GitHub release with wheel and install instructions.
