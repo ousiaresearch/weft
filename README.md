@@ -17,6 +17,14 @@ Alpha. Phases 1–6 implemented and reviewed. Phase 7 alpha-reviewed and gated c
 
 ## Install
 
+### From PyPI (alpha)
+
+```bash
+pip install weft-memory==0.1.0a0
+```
+
+### From source
+
 ```bash
 git clone https://github.com/ousiaresearch/weft.git
 cd weft
