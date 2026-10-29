@@ -1,7 +1,7 @@
 # Phase 7 — Gated Cutover Checklist
 
 **Plan:** `~/.hermes/plans/2026-10-24_weft-memory-system-full-plan.md`
-**Current HEAD:** `f31b995` (Phase 6 adversarial review fixes)
+**Current HEAD:** `bbc12d7` (Phase 7 evaluation runner rewrite)
 
 ## Gates
 
@@ -13,7 +13,7 @@ Each gate must be PASS before the next is attempted.
    - **Evidence:** 429 passing tests, including shadow recall/reason/compare.
 
 2. **Grounded reasoning measured**
-   - **PASS:** Evaluation set v1 committed (`docs/evaluation/set-v1.md`) with Phase 7 runner (`tests/test_evaluation.py`). All 6 cases pass: grounded synthesis, abstention, contradiction detection, cross-scope leak, scope-from-content, correction lineage.
+   - **PASS:** Evaluation set v1 committed (`docs/evaluation/set-v1.md`) with Phase 7 runner (`tests/test_evaluation.py`). Runner invokes actual `synthesize`, `contradict`, and `hypothesize` functions with fake model layer; validates gold answers, citation presence, and abstention behavior. All 6 cases pass: grounded synthesis, abstention, contradiction detection, cross-scope leak, content-conflict denial, correction lineage.
    - **Artifacts:** `docs/evaluation/set-v1.md`, `tests/test_evaluation.py`
    - **Evidence:** 7 evaluation tests passing.
 
