@@ -1373,5 +1373,21 @@
         "session": 7
       }
     ]
+  },
+  {
+    "id": "longmemeval-s-abstain-001",
+    "query": "What is the meaning of life?",
+    "gold_record_ids": [],
+    "gold_text_tokens": [],
+    "abstain": true,
+    "setup_records": []
+  },
+  {
+    "id": "longmemeval-s-abstain-002",
+    "query": "Who won the 2030 Nobel Prize in Physics?",
+    "gold_record_ids": [],
+    "gold_text_tokens": [],
+    "abstain": true,
+    "setup_records": []
   }
 ]

@@ -145,32 +145,36 @@ def _run_case(case: Case, embedder=None) -> Result:
             else:
                 abstention_correct = len(selected_ids) > 0
 
-            text_match = True
-            if gold_set and case.gold_text_tokens:
-                selected_texts = []
-                for rid in selected_ids[:5]:
-                    rec = sub.get(rid, ctx)
-                    if rec:
-                        selected_texts.append(
-                            (rec.payload.get("text", "") if isinstance(rec.payload, dict) else str(rec.payload)).lower()
-                        )
-                combined = " ".join(selected_texts)
-                for token in case.gold_text_tokens:
-                    for word in token.lower().split():
-                        if word not in combined:
-                            text_match = False
+            if case.abstain:
+                passed = bool(abstention_correct)
+                failure = None if abstention_correct else "expected abstention but got results"
+            else:
+                text_match = True
+                if gold_set and case.gold_text_tokens:
+                    selected_texts = []
+                    for rid in selected_ids[:5]:
+                        rec = sub.get(rid, ctx)
+                        if rec:
+                            selected_texts.append(
+                                (rec.payload.get("text", "") if isinstance(rec.payload, dict) else str(rec.payload)).lower()
+                            )
+                    combined = " ".join(selected_texts)
+                    for token in case.gold_text_tokens:
+                        for word in token.lower().split():
+                            if word not in combined:
+                                text_match = False
+                                break
+                        if not text_match:
                             break
-                    if not text_match:
-                        break
 
-            passed = hit_5 and abstention_correct in (True, None) and text_match
-            failure = None
-            if not hit_5:
-                failure = f"gold {case.gold_record_ids} not in top-5; got {selected_ids[:5]}"
-            if abstention_correct is False:
-                failure = (failure + "; " if failure else "") + "expected abstention but got results"
-            if not text_match:
-                failure = (failure + "; " if failure else "") + "gold text tokens missing from selected text"
+                passed = hit_5 and abstention_correct and text_match
+                failure = None
+                if not hit_5:
+                    failure = f"gold {case.gold_record_ids} not in top-5; got {selected_ids[:5]}"
+                if abstention_correct is False:
+                    failure = (failure + "; " if failure else "") + "expected abstention but got results"
+                if not text_match:
+                    failure = (failure + "; " if failure else "") + "gold text tokens missing from selected text"
 
             return Result(
                 case_id=case.case_id,

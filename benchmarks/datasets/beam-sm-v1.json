@@ -100,6 +100,104 @@
         "record_type": "Document",
         "text": "September 12 incident cause: memory leak in the cache layer after config change.",
         "session": 12
+      },
+      {
+        "record_id": "dist-beam-001-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment processing is PCI DSS compliant.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-001-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refunds are processed within 5-10 business days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-001-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Subscription renewals charge automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-001-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger retry logic.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-001-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated at checkout based on region.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-001-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Credit cards are tokenized before storage.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-001-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoice PDFs are emailed after each transaction.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-001-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated in billing settings.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-001-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments put accounts into grace period.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-001-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Annual plans include a 14-day refund window.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-001-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Currency conversion uses mid-market rates.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-001-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Webhooks notify on payment status changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-001-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Disputes are handled by the payments team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-001-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment limits are enforced per account tier.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -164,6 +262,139 @@
         "record_type": "Document",
         "text": "Q2 end headcount: 147.",
         "session": 7
+      },
+      {
+        "record_id": "dist-beam-002-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment processing is PCI DSS compliant.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refunds are processed within 5-10 business days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Subscription renewals charge automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger retry logic.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated at checkout based on region.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Credit cards are tokenized before storage.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoice PDFs are emailed after each transaction.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated in billing settings.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments put accounts into grace period.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Annual plans include a 14-day refund window.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Currency conversion uses mid-market rates.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Webhooks notify on payment status changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Disputes are handled by the payments team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment limits are enforced per account tier.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Receipts are available in the transaction history.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Auto-pay can be enabled for recurring invoices.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Chargebacks are investigated within 48 hours.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment confirmations include transaction IDs.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-002-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing addresses are validated against card issuer.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -224,6 +455,146 @@
         "record_type": "Document",
         "text": "August 5 maintenance window: 4 hours starting at 02:00 UTC.",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-003-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment processing is PCI DSS compliant.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refunds are processed within 5-10 business days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Subscription renewals charge automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger retry logic.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated at checkout based on region.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Credit cards are tokenized before storage.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoice PDFs are emailed after each transaction.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated in billing settings.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments put accounts into grace period.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Annual plans include a 14-day refund window.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Currency conversion uses mid-market rates.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Webhooks notify on payment status changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Disputes are handled by the payments team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment limits are enforced per account tier.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Receipts are available in the transaction history.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Auto-pay can be enabled for recurring invoices.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Chargebacks are investigated within 48 hours.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment confirmations include transaction IDs.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing addresses are validated against card issuer.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-003-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment schedules can be modified before renewal.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -286,6 +657,146 @@
         "record_type": "Document",
         "text": "Data loss cause: backup corruption due to faulty disk during snapshot.",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-004-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment processing is PCI DSS compliant.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refunds are processed within 5-10 business days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Subscription renewals charge automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger retry logic.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated at checkout based on region.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Credit cards are tokenized before storage.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoice PDFs are emailed after each transaction.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated in billing settings.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments put accounts into grace period.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Annual plans include a 14-day refund window.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Currency conversion uses mid-market rates.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Webhooks notify on payment status changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Disputes are handled by the payments team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment limits are enforced per account tier.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Receipts are available in the transaction history.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Auto-pay can be enabled for recurring invoices.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Chargebacks are investigated within 48 hours.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment confirmations include transaction IDs.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing addresses are validated against card issuer.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-004-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment schedules can be modified before renewal.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -347,6 +858,146 @@
         "record_type": "Document",
         "text": "Contribution: CFS scheduler patch reducing tail latency by 18%.",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-005-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment processing is PCI DSS compliant.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refunds are processed within 5-10 business days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Subscription renewals charge automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger retry logic.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated at checkout based on region.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Credit cards are tokenized before storage.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoice PDFs are emailed after each transaction.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated in billing settings.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments put accounts into grace period.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Annual plans include a 14-day refund window.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Currency conversion uses mid-market rates.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Webhooks notify on payment status changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Disputes are handled by the payments team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment limits are enforced per account tier.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Receipts are available in the transaction history.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Auto-pay can be enabled for recurring invoices.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Chargebacks are investigated within 48 hours.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment confirmations include transaction IDs.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing addresses are validated against card issuer.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-005-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment schedules can be modified before renewal.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -404,6 +1055,146 @@
         "record_type": "Document",
         "text": "SLA credit issued: $2,400.",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-006-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment processing is PCI DSS compliant.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refunds are processed within 5-10 business days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Subscription renewals charge automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger retry logic.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated at checkout based on region.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Credit cards are tokenized before storage.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoice PDFs are emailed after each transaction.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated in billing settings.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments put accounts into grace period.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Annual plans include a 14-day refund window.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Currency conversion uses mid-market rates.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Webhooks notify on payment status changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Disputes are handled by the payments team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment limits are enforced per account tier.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Receipts are available in the transaction history.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Auto-pay can be enabled for recurring invoices.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Chargebacks are investigated within 48 hours.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment confirmations include transaction IDs.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing addresses are validated against card issuer.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-006-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment schedules can be modified before renewal.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -463,6 +1254,146 @@
         "record_type": "Document",
         "text": "Recommended migration: blue-green with 2-week dual-write.",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-007-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Database migrations run during maintenance windows.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Schema changes require DBA approval.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Index rebuilds are scheduled off-peak.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Connection pools are sized for peak load.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Replication lag is monitored continuously.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Backups run nightly with 30-day retention.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Query plans are reviewed before deployment.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Table partitions rotate monthly by date.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Read replicas serve analytics queries.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Migration scripts are idempotent and retryable.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Database credentials rotate every 90 days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Slow query logs are reviewed daily.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Connection timeouts are set to 30 seconds.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Migration status is tracked in deployment pipeline.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Database patches are applied within SLA.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Query optimization is a weekly engineering task.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Schema changes require feature flags.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Data consistency is verified after each migration.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Rollback procedures are tested monthly.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-007-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Database performance is benchmarked per release.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -520,6 +1451,146 @@
         "record_type": "Document",
         "text": "Penalty for missed deadline: $10,000.",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-008-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment processing is PCI DSS compliant.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refunds are processed within 5-10 business days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Subscription renewals charge automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger retry logic.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated at checkout based on region.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Credit cards are tokenized before storage.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoice PDFs are emailed after each transaction.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated in billing settings.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments put accounts into grace period.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Annual plans include a 14-day refund window.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Currency conversion uses mid-market rates.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Webhooks notify on payment status changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Disputes are handled by the payments team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment limits are enforced per account tier.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Receipts are available in the transaction history.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Auto-pay can be enabled for recurring invoices.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Chargebacks are investigated within 48 hours.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment confirmations include transaction IDs.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing addresses are validated against card issuer.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-008-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment schedules can be modified before renewal.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -581,6 +1652,146 @@
         "record_type": "Document",
         "text": "Security review role: Reviewer (network and access control).",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-009-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment processing is PCI DSS compliant.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refunds are processed within 5-10 business days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Subscription renewals charge automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger retry logic.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated at checkout based on region.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Credit cards are tokenized before storage.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoice PDFs are emailed after each transaction.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated in billing settings.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments put accounts into grace period.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Annual plans include a 14-day refund window.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Currency conversion uses mid-market rates.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Webhooks notify on payment status changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Disputes are handled by the payments team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment limits are enforced per account tier.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Receipts are available in the transaction history.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Auto-pay can be enabled for recurring invoices.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Chargebacks are investigated within 48 hours.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment confirmations include transaction IDs.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing addresses are validated against card issuer.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-009-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment schedules can be modified before renewal.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -641,6 +1852,146 @@
         "record_type": "Document",
         "text": "Throughput target: 10,000 events/sec with p99 < 100ms.",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-010-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment processing is PCI DSS compliant.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refunds are processed within 5-10 business days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Subscription renewals charge automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger retry logic.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated at checkout based on region.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Credit cards are tokenized before storage.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoice PDFs are emailed after each transaction.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated in billing settings.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments put accounts into grace period.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Annual plans include a 14-day refund window.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Currency conversion uses mid-market rates.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Webhooks notify on payment status changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Disputes are handled by the payments team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment limits are enforced per account tier.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Receipts are available in the transaction history.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Auto-pay can be enabled for recurring invoices.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Chargebacks are investigated within 48 hours.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment confirmations include transaction IDs.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing addresses are validated against card issuer.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-010-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment schedules can be modified before renewal.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -698,6 +2049,146 @@
         "record_type": "Document",
         "text": "Certification exam score: 92%.",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-011-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment processing is PCI DSS compliant.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refunds are processed within 5-10 business days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Subscription renewals charge automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger retry logic.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated at checkout based on region.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Credit cards are tokenized before storage.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoice PDFs are emailed after each transaction.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated in billing settings.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments put accounts into grace period.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Annual plans include a 14-day refund window.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Currency conversion uses mid-market rates.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Webhooks notify on payment status changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Disputes are handled by the payments team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment limits are enforced per account tier.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Receipts are available in the transaction history.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Auto-pay can be enabled for recurring invoices.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Chargebacks are investigated within 48 hours.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment confirmations include transaction IDs.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing addresses are validated against card issuer.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-011-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment schedules can be modified before renewal.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -758,6 +2249,146 @@
         "record_type": "Document",
         "text": "Refund policy: 30-day money-back for annual plans.",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-012-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment processing is PCI DSS compliant.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refunds are processed within 5-10 business days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Subscription renewals charge automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger retry logic.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated at checkout based on region.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Credit cards are tokenized before storage.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoice PDFs are emailed after each transaction.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated in billing settings.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments put accounts into grace period.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Annual plans include a 14-day refund window.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Currency conversion uses mid-market rates.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Webhooks notify on payment status changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Disputes are handled by the payments team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment limits are enforced per account tier.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Receipts are available in the transaction history.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Auto-pay can be enabled for recurring invoices.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Chargebacks are investigated within 48 hours.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment confirmations include transaction IDs.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing addresses are validated against card issuer.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-012-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment schedules can be modified before renewal.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -817,6 +2448,146 @@
         "record_type": "Document",
         "text": "Patent: lossless compression for streaming telemetry.",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-013-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment processing is PCI DSS compliant.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refunds are processed within 5-10 business days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Subscription renewals charge automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger retry logic.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated at checkout based on region.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Credit cards are tokenized before storage.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoice PDFs are emailed after each transaction.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated in billing settings.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments put accounts into grace period.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Annual plans include a 14-day refund window.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Currency conversion uses mid-market rates.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Webhooks notify on payment status changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Disputes are handled by the payments team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment limits are enforced per account tier.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Receipts are available in the transaction history.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Auto-pay can be enabled for recurring invoices.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Chargebacks are investigated within 48 hours.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment confirmations include transaction IDs.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing addresses are validated against card issuer.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-013-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment schedules can be modified before renewal.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -875,6 +2646,146 @@
         "record_type": "Document",
         "text": "Total downtime during upgrade: 18 minutes.",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-014-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment processing is PCI DSS compliant.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refunds are processed within 5-10 business days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Subscription renewals charge automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger retry logic.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated at checkout based on region.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Credit cards are tokenized before storage.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoice PDFs are emailed after each transaction.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated in billing settings.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments put accounts into grace period.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Annual plans include a 14-day refund window.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Currency conversion uses mid-market rates.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Webhooks notify on payment status changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Disputes are handled by the payments team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment limits are enforced per account tier.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Receipts are available in the transaction history.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Auto-pay can be enabled for recurring invoices.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Chargebacks are investigated within 48 hours.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment confirmations include transaction IDs.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing addresses are validated against card issuer.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-014-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment schedules can be modified before renewal.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -934,6 +2845,146 @@
         "record_type": "Document",
         "text": "Hackathon final ranking: 2nd place.",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-015-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Hackathon projects are judged on innovation and execution.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Teams have 48 hours to build their prototypes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Mentors are available throughout the event.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "API keys are provisioned at team registration.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Projects must use at least one sponsor API.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Demo day presentations are 5 minutes each.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Prizes are awarded in multiple categories.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Code of conduct applies to all participants.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Sleeping areas are provided at the venue.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Meals and snacks are included in registration.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Judging criteria include design and scalability.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Teams can have up to 4 members.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Intellectual property remains with the team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Hardware is available on a first-come basis.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Live coding is encouraged during the event.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Feedback is collected after each project demo.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Sponsor workshops run alongside the hackathon.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Teams submit code to the judging platform.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Remote participation is supported via video link.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-015-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Finalists present to the full audience.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -993,6 +3044,146 @@
         "record_type": "Document",
         "text": "Custom part lead time: 6 weeks.",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-016-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment processing is PCI DSS compliant.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refunds are processed within 5-10 business days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Subscription renewals charge automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger retry logic.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated at checkout based on region.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Credit cards are tokenized before storage.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoice PDFs are emailed after each transaction.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated in billing settings.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments put accounts into grace period.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Annual plans include a 14-day refund window.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Currency conversion uses mid-market rates.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Webhooks notify on payment status changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Disputes are handled by the payments team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment limits are enforced per account tier.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Receipts are available in the transaction history.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Auto-pay can be enabled for recurring invoices.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Chargebacks are investigated within 48 hours.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment confirmations include transaction IDs.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing addresses are validated against card issuer.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-016-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment schedules can be modified before renewal.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -1052,6 +3243,146 @@
         "record_type": "Document",
         "text": "Patent: lossless compression for streaming telemetry.",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-017-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment processing is PCI DSS compliant.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refunds are processed within 5-10 business days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Subscription renewals charge automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger retry logic.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated at checkout based on region.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Credit cards are tokenized before storage.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoice PDFs are emailed after each transaction.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated in billing settings.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments put accounts into grace period.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Annual plans include a 14-day refund window.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Currency conversion uses mid-market rates.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Webhooks notify on payment status changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Disputes are handled by the payments team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment limits are enforced per account tier.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Receipts are available in the transaction history.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Auto-pay can be enabled for recurring invoices.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Chargebacks are investigated within 48 hours.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment confirmations include transaction IDs.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing addresses are validated against card issuer.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-017-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment schedules can be modified before renewal.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -1114,6 +3445,146 @@
         "record_type": "Document",
         "text": "Root cause: TLS certificate expired; renewal job failed silently.",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-018-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment processing is PCI DSS compliant.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refunds are processed within 5-10 business days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Subscription renewals charge automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger retry logic.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated at checkout based on region.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Credit cards are tokenized before storage.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoice PDFs are emailed after each transaction.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated in billing settings.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments put accounts into grace period.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Annual plans include a 14-day refund window.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Currency conversion uses mid-market rates.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Webhooks notify on payment status changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Disputes are handled by the payments team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment limits are enforced per account tier.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Receipts are available in the transaction history.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Auto-pay can be enabled for recurring invoices.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Chargebacks are investigated within 48 hours.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment confirmations include transaction IDs.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing addresses are validated against card issuer.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-018-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment schedules can be modified before renewal.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -1173,6 +3644,146 @@
         "record_type": "Document",
         "text": "New data center capacity: 10 MW, 2,500 racks.",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-019-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment processing is PCI DSS compliant.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refunds are processed within 5-10 business days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Subscription renewals charge automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger retry logic.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated at checkout based on region.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Credit cards are tokenized before storage.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoice PDFs are emailed after each transaction.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated in billing settings.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments put accounts into grace period.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Annual plans include a 14-day refund window.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Currency conversion uses mid-market rates.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Webhooks notify on payment status changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Disputes are handled by the payments team.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment limits are enforced per account tier.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Receipts are available in the transaction history.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Auto-pay can be enabled for recurring invoices.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Chargebacks are investigated within 48 hours.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment confirmations include transaction IDs.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing addresses are validated against card issuer.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-019-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment schedules can be modified before renewal.",
+        "session": "distractor-session"
       }
     ]
   },
@@ -1232,7 +3843,163 @@
         "record_type": "Document",
         "text": "Resolution: $1,200 credit plus proration fix.",
         "session": 6
+      },
+      {
+        "record_id": "dist-beam-020-000",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing cycles reset on the first of each month.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-001",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Invoices are generated 3 days before charge.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-002",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment failures trigger email notifications.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-003",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing disputes are resolved within 10 days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-004",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Account balances can be checked via API.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-005",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Tax is calculated based on billing address.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-006",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Refund requests require manager approval.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-007",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Pro-rated charges apply for mid-cycle changes.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-008",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing history is retained for 7 years.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-009",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Discounts are applied before tax calculation.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-010",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment methods can be updated anytime.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-011",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Failed payments retry for 3 days.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-012",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing alerts can be sent to multiple recipients.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-013",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Usage metrics feed into billing calculations.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-014",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Cancellations take effect at period end.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-015",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing reports are available in CSV format.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-016",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Payment reconciliation runs daily.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-017",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Overdue accounts are flagged automatically.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-018",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Billing documentation is updated quarterly.",
+        "session": "distractor-session"
+      },
+      {
+        "record_id": "dist-beam-020-019",
+        "record_type": "Document",
+        "scope": "beam",
+        "text": "Revenue recognition follows GAAP guidelines.",
+        "session": "distractor-session"
       }
     ]
+  },
+  {
+    "id": "beam-sm-abstain-001",
+    "query": "What is the meaning of life?",
+    "gold_record_ids": [],
+    "gold_text_tokens": [],
+    "abstain": true,
+    "setup_records": []
+  },
+  {
+    "id": "beam-sm-abstain-002",
+    "query": "Who won the 2030 Nobel Prize in Physics?",
+    "gold_record_ids": [],
+    "gold_text_tokens": [],
+    "abstain": true,
+    "setup_records": []
   }
 ]

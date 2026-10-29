@@ -935,5 +935,21 @@
         "session": 6
       }
     ]
+  },
+  {
+    "id": "locoomo-abstain-001",
+    "query": "What is the meaning of life?",
+    "gold_record_ids": [],
+    "gold_text_tokens": [],
+    "abstain": true,
+    "setup_records": []
+  },
+  {
+    "id": "locoomo-abstain-002",
+    "query": "Who won the 2030 Nobel Prize in Physics?",
+    "gold_record_ids": [],
+    "gold_text_tokens": [],
+    "abstain": true,
+    "setup_records": []
   }
 ]
