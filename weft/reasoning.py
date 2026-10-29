@@ -62,6 +62,7 @@ def _safe_text(rec: Record) -> str:
 
 _INJECTION_PATTERNS = [
     re.compile(r"(?i)^(ignore|you are|your task|answer:|abstain:|system:|user:|assistant:)\b.*$", re.MULTILINE),
+    re.compile(r"</?UNTRUSTED_DOCUMENT>", re.IGNORECASE),
 ]
 
 
@@ -164,9 +165,11 @@ def hypothesize(sub: Substrate, ctx: ScopeContext, query: str, model_layer: Mode
     result = model_layer.run("local-reason", prompt, task="hypothesize")
     try:
         data = json.loads(result.text)
-        text = data.get("hypothesis", "").strip()
-    except json.JSONDecodeError:
-        text = result.text.strip()
+    except json.JSONDecodeError as exc:
+        raise ReasoningError(f"hypothesis model returned invalid JSON: {exc}") from exc
+    if not isinstance(data, dict):
+        raise Abstention("model returned non-object JSON for hypothesis")
+    text = data.get("hypothesis", "").strip()
     if not text:
         raise Abstention("model returned empty hypothesis")
     return Hypothesis(text=text, evidence_ids=evidence_ids)
@@ -183,6 +186,8 @@ def contradict(sub: Substrate, ctx: ScopeContext, claim: Record, model_layer: Mo
     if canonical is None:
         raise ReasoningError(f"claim {claim.record_id} not found or not readable")
     claim = canonical
+    if claim.epistemic_status != "derived":
+        raise ReasoningError("contradiction-check requires a derived claim")
     evidence = _candidates(sub, ctx, claim.payload.get("text", ""), limit=10)
     if not evidence:
         raise Abstention("no evidence available for contradiction check")
@@ -201,9 +206,13 @@ def contradict(sub: Substrate, ctx: ScopeContext, claim: Record, model_layer: Mo
         conflicts_data = json.loads(result.text)
     except json.JSONDecodeError as exc:
         raise Abstention(f"contradiction model returned invalid JSON: {exc}") from exc
+    if not isinstance(conflicts_data, list):
+        raise Abstention("contradiction model returned non-list JSON")
     valid_ids = {rec.record_id for rec in evidence}
     conflicts = []
     for item in conflicts_data:
+        if not isinstance(item, dict):
+            continue
         cid = item.get("conflict_with", "")
         if cid not in valid_ids:
             continue
@@ -227,6 +236,8 @@ def conclude(sub: Substrate, ctx: ScopeContext, claim: Record, model_layer: Mode
     if canonical is None:
         raise ReasoningError(f"claim {claim.record_id} not found or not readable")
     claim = canonical
+    if claim.epistemic_status != "derived":
+        raise ReasoningError("conclusion requires a derived claim")
     if not claim.source_ids:
         raise ReasoningError("conclusion requires evidence citations")
     for sid in claim.source_ids:
