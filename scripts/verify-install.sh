@@ -34,6 +34,7 @@ if [ -z "${PYTHON_BIN:-}" ]; then
 fi
 
 rm -rf "${VENV}"
+umask 0077
 "${PYTHON_BIN}" -m venv "${VENV}"
 "${VENV}/bin/python" -m pip install --quiet "${WHEEL}"
 

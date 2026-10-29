@@ -54,6 +54,7 @@ ls -lh dist/*.whl
 
 echo "==> Installing wheel in fresh venv"
 rm -rf /tmp/weft-alpha-verify
+umask 0077
 "${PYTHON_BIN}" -m venv /tmp/weft-alpha-verify
 /tmp/weft-alpha-verify/bin/python -m pip install --quiet dist/*.whl
 

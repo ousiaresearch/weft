@@ -20,14 +20,13 @@
 2. `docs/pypi-publishing.md` — step-by-step token creation and upload
 3. `scripts/verify-install.sh` — fresh-venv install + uninstall + smoke test
 4. `tests/test_install.py` — install/uninstall regression
-5. Updated `CHANGELOG.md` template with release date and SHA
 
 **Gates:**
-- G1: Signed artifacts verified
-- G2: Security audit cleared (temp files, egress, injection)
-- G3: Install docs verified on clean macOS/Linux
-- G4: Install/uninstall regression passing
-- G5: PyPI runbook reviewed
+- G1: Wheel metadata valid and installs cleanly in fresh venv.
+- G2: Security audit cleared (entrypoints, temp files, egress, injection).
+- G3: Install docs verified on clean macOS/Linux.
+- G4: Install/uninstall regression passing.
+- G5: PyPI runbook reviewed.
 
 **Risks:**
 - PyPI token not yet available; publishing blocked until token is provided
