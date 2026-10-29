@@ -53,10 +53,37 @@ echo "==> Verifying wheel"
 ls -lh dist/*.whl
 
 echo "==> Checking wheel metadata"
-if ! "${PYTHON_BIN}" -m pip install --quiet twine 2>/dev/null; then
-  echo "Warning: could not install twine; skipping metadata check" >&2
+METADATA_CHECK=0
+if "${PYTHON_BIN}" -m pip install --quiet twine 2>/dev/null; then
+  "${PYTHON_BIN}" -m twine check dist/*.whl
+  METADATA_CHECK=1
 else
-  twine check dist/*.whl
+  if "${PYTHON_BIN}" -m pip install --quiet --break-system-packages twine 2>/dev/null; then
+    "${PYTHON_BIN}" -m twine check dist/*.whl
+    METADATA_CHECK=1
+  else
+    echo "Info: twine unavailable; checking wheel metadata with Python" >&2
+    if "${PYTHON_BIN}" -c "
+import zipfile, sys
+p = __import__('glob').glob('dist/*.whl')[0]
+with zipfile.ZipFile(p) as z:
+    for n in z.namelist():
+        if n.endswith('METADATA'):
+            data = z.read(n).decode()
+            print('METADATA present:', n)
+            print('Name:', data.split('Name: ')[1].split('\n')[0])
+            print('Version:', data.split('Version: ')[1].split('\n')[0])
+            sys.exit(0)
+    print('Error: no METADATA in wheel', file=sys.stderr)
+    sys.exit(1)
+"; then
+      METADATA_CHECK=1
+    fi
+  fi
+fi
+if [ "${METADATA_CHECK}" -ne 1 ]; then
+  echo "Error: wheel metadata check failed" >&2
+  exit 1
 fi
 
 echo "==> Installing wheel in fresh venv"
