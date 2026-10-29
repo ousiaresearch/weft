@@ -1,0 +1,108 @@
+import json
+import os
+import tempfile
+
+import pytest
+from fastapi.testclient import TestClient
+
+from weft.server import app
+from weft.substrate import Substrate, Record
+from weft.scope import ScopeContext, ScopeEngine
+
+KNOWN = {"s"}
+
+
+def _seed(sub, scope):
+    sub._conn.execute(
+        "INSERT OR IGNORE INTO records (record_id, record_type, scope, epistemic_status, payload, "
+        "created_at, effective_at, supersedes, source_ids, provenance, attribution) "
+        "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+        ("src-1-s", "Source", scope, "stated", '{"text": "seed"}', 0.0, None, None, "[]", "{}", "document"),
+    )
+    sub._conn.commit()
+
+
+def test_health_endpoint():
+    client = TestClient(app)
+    resp = client.get("/health")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "ok"
+
+
+def test_query_endpoint_returns_matches(tmp_path, monkeypatch):
+    db_path = tmp_path / "weft.db"
+    engine = ScopeEngine(known_scopes=KNOWN)
+    sub = Substrate(db_path, engine)
+    try:
+        _seed(sub, "s")
+        ctx = ScopeContext(granted_scopes=frozenset({"s"}), user_authored=True)
+        sub._write(Record(record_id="r1", record_type="Observation", scope="s", attribution="document",
+                           source_ids=["src-1-s"], payload={"text": "hello world"}, effective_at=100.0),
+                    ctx, validate_schema=True, overwrite=False)
+    finally:
+        sub.close()
+    monkeypatch.setenv("HOME", str(tmp_path))
+    os.makedirs(tmp_path / ".weft", exist_ok=True)
+    os.replace(db_path, tmp_path / ".weft" / "weft.sqlite3")
+    client = TestClient(app)
+    resp = client.post("/query", json={"scope": "s", "query": "hello", "limit": 5})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data["matches"]) == 1
+    assert data["matches"][0]["record_id"] == "r1"
+
+
+def test_get_record_returns_detail(tmp_path, monkeypatch):
+    db_path = tmp_path / "weft.db"
+    engine = ScopeEngine(known_scopes=KNOWN)
+    sub = Substrate(db_path, engine)
+    try:
+        _seed(sub, "s")
+        ctx = ScopeContext(granted_scopes=frozenset({"s"}), user_authored=True)
+        sub._write(Record(record_id="r1", record_type="Observation", scope="s", attribution="document",
+                           source_ids=["src-1-s"], payload={"text": "detail"}, effective_at=100.0),
+                    ctx, validate_schema=True, overwrite=False)
+    finally:
+        sub.close()
+    monkeypatch.setenv("HOME", str(tmp_path))
+    os.makedirs(tmp_path / ".weft", exist_ok=True)
+    os.replace(db_path, tmp_path / ".weft" / "weft.sqlite3")
+    client = TestClient(app)
+    resp = client.get("/record/r1", params={"scope": "s"})
+    assert resp.status_code == 200
+    assert resp.json()["payload"]["text"] == "detail"
+
+
+def test_get_record_missing_returns_404(tmp_path, monkeypatch):
+    db_path = tmp_path / "weft.db"
+    engine = ScopeEngine(known_scopes=KNOWN)
+    Substrate(db_path, engine).close()
+    monkeypatch.setenv("HOME", str(tmp_path))
+    os.makedirs(tmp_path / ".weft", exist_ok=True)
+    os.replace(db_path, tmp_path / ".weft" / "weft.sqlite3")
+    client = TestClient(app)
+    resp = client.get("/record/nonexistent", params={"scope": "s"})
+    assert resp.status_code == 404
+
+
+def test_export_endpoint_returns_payload(tmp_path, monkeypatch):
+    db_path = tmp_path / "weft.db"
+    engine = ScopeEngine(known_scopes=KNOWN)
+    sub = Substrate(db_path, engine)
+    try:
+        _seed(sub, "s")
+        ctx = ScopeContext(granted_scopes=frozenset({"s"}), user_authored=True)
+        sub._write(Record(record_id="r1", record_type="Observation", scope="s", attribution="document",
+                           source_ids=["src-1-s"], payload={"text": "v1"}, effective_at=100.0),
+                    ctx, validate_schema=True, overwrite=False)
+    finally:
+        sub.close()
+    monkeypatch.setenv("HOME", str(tmp_path))
+    os.makedirs(tmp_path / ".weft", exist_ok=True)
+    os.replace(db_path, tmp_path / ".weft" / "weft.sqlite3")
+    client = TestClient(app)
+    resp = client.post("/export", json={"scope": "s"})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["scope"] == "s"
+    assert len(data["records"]) == 2

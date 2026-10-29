@@ -38,6 +38,9 @@ def _parser() -> argparse.ArgumentParser:
     search.add_argument("--scope", required=True, help="the one scope this invocation may read")
     search.add_argument("--query", required=True, help="natural-language search query")
     search.add_argument("--limit", type=int, default=5)
+    serve = commands.add_parser("serve", help="start local HTTP service for desktop integration")
+    serve.add_argument("--host", default="127.0.0.1", help="bind address (default: 127.0.0.1)")
+    serve.add_argument("--port", type=int, default=8765, help="bind port (default: 8765)")
     rebuild = commands.add_parser("rebuild-fts", help="rebuild one scope's local text index")
     rebuild.add_argument("--scope", required=True)
     return parser
@@ -133,6 +136,14 @@ def _run_rebuild_fts(args) -> int:
         sub.close()
 
 
+def _run_serve(args) -> int:
+    import uvicorn
+    from weft.server import app
+    print(json.dumps({"status": "serving", "host": args.host, "port": args.port}))
+    uvicorn.run(app, host=args.host, port=args.port, log_level="info")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = _parser()
     args = parser.parse_args(argv)
@@ -141,6 +152,8 @@ def main(argv: list[str] | None = None) -> int:
             return _run_ingest(args)
         if args.command == "rebuild-fts":
             return _run_rebuild_fts(args)
+        if args.command == "serve":
+            return _run_serve(args)
         return _run_recall(args)
     except (OSError, RuntimeError, ValueError, ImportError, sqlite3.Error, SubstrateError) as exc:
         print(f"weft: {exc}", file=sys.stderr)
