@@ -2,264 +2,938 @@
   {
     "id": "locoomo-001",
     "query": "What restaurant did Alice recommend for dinner on Tuesday?",
-    "gold_record_ids": ["rec-loc-017"],
-    "gold_text_tokens": ["Alice", "Osteria", "Tuesday", "dinner"],
+    "gold_record_ids": [
+      "rec-loc-017"
+    ],
+    "gold_text_tokens": [
+      "alice",
+      "dinner",
+      "great",
+      "osteria",
+      "pasta",
+      "recommended",
+      "tuesday"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-001", "scope": "locoomo", "record_type": "Observation", "text": "User mentioned they love Italian food.", "session": 1},
-      {"record_id": "rec-loc-002", "scope": "locoomo", "record_type": "Observation", "text": "Alice joined the conversation and said she knows a great place.", "session": 2},
-      {"record_id": "rec-loc-003", "scope": "locoomo", "record_type": "Observation", "text": "User asked for restaurant recommendations near downtown.", "session": 3},
-      {"record_id": "rec-loc-017", "scope": "locoomo", "record_type": "Observation", "text": "On Tuesday, Alice recommended Osteria for dinner because it has great pasta.", "session": 3}
+      {
+        "record_id": "rec-loc-001",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User mentioned they love Italian food.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-loc-002",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Alice joined the conversation and said she knows a great place.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-loc-003",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User asked for restaurant recommendations near downtown.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-loc-017",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "On Tuesday, Alice recommended Osteria for dinner because it has great pasta.",
+        "session": 3
+      }
     ]
   },
   {
     "id": "locoomo-002",
     "query": "What is the user's preferred programming language for backend work?",
-    "gold_record_ids": ["rec-loc-007"],
-    "gold_text_tokens": ["prefers", "TypeScript", "backend"],
+    "gold_record_ids": [
+      "rec-loc-007"
+    ],
+    "gold_text_tokens": [
+      "backend",
+      "confirmed",
+      "language",
+      "preferred",
+      "typescript"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-004", "scope": "locoomo", "record_type": "Observation", "text": "User said they use Python for scripts.", "session": 1},
-      {"record_id": "rec-loc-005", "scope": "locoomo", "record_type": "Observation", "text": "User mentioned React for frontend.", "session": 2},
-      {"record_id": "rec-loc-006", "scope": "locoomo", "record_type": "Observation", "text": "User prefers TypeScript over Python for backend work.", "session": 4},
-      {"record_id": "rec-loc-007", "scope": "locoomo", "record_type": "Observation", "text": "Confirmed: TypeScript is the preferred backend language.", "session": 7}
+      {
+        "record_id": "rec-loc-004",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User said they use Python for scripts.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-loc-005",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User mentioned React for frontend.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-loc-006",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User prefers TypeScript over Python for backend work.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-loc-007",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Confirmed: TypeScript is the preferred backend language.",
+        "session": 7
+      }
     ]
   },
   {
     "id": "locoomo-003",
     "query": "Who has access to the staging database?",
-    "gold_record_ids": ["rec-loc-012"],
-    "gold_text_tokens": ["staging", "database", "Alice", "Bob"],
+    "gold_record_ids": [
+      "rec-loc-012"
+    ],
+    "gold_text_tokens": [
+      "access",
+      "alice",
+      "bob",
+      "database",
+      "qa",
+      "staging",
+      "team"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-008", "scope": "locoomo", "record_type": "Document", "text": "Production database credentials are in the vault.", "session": 1},
-      {"record_id": "rec-loc-009", "scope": "locoomo", "record_type": "Observation", "text": "Only the SRE team can access production.", "session": 2},
-      {"record_id": "rec-loc-010", "scope": "locoomo", "record_type": "Observation", "text": "Staging is less restricted.", "session": 3},
-      {"record_id": "rec-loc-011", "scope": "locoomo", "record_type": "Observation", "text": "Bob requested staging access for debugging.", "session": 5},
-      {"record_id": "rec-loc-012", "scope": "locoomo", "record_type": "Document", "text": "Staging database access: Alice, Bob, and the QA team.", "session": 6}
+      {
+        "record_id": "rec-loc-008",
+        "scope": "locoomo",
+        "record_type": "Document",
+        "text": "Production database credentials are in the vault.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-loc-009",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Only the SRE team can access production.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-loc-010",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Staging is less restricted.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-loc-011",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Bob requested staging access for debugging.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-loc-012",
+        "scope": "locoomo",
+        "record_type": "Document",
+        "text": "Staging database access: Alice, Bob, and the QA team.",
+        "session": 6
+      }
     ]
   },
   {
     "id": "locoomo-004",
     "query": "What was the outcome of the design review last week?",
-    "gold_record_ids": ["rec-loc-020"],
-    "gold_text_tokens": ["design review", "approved", "revisions"],
+    "gold_record_ids": [
+      "rec-loc-020"
+    ],
+    "gold_text_tokens": [
+      "approved",
+      "design",
+      "flow",
+      "navigation",
+      "outcome",
+      "review",
+      "revisions"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-013", "scope": "locoomo", "record_type": "Observation", "text": "Design review was scheduled for Thursday.", "session": 8},
-      {"record_id": "rec-loc-014", "scope": "locoomo", "record_type": "Observation", "text": "Three stakeholders attended.", "session": 8},
-      {"record_id": "rec-loc-015", "scope": "locoomo", "record_type": "Observation", "text": "Concerns were raised about the color palette.", "session": 8},
-      {"record_id": "rec-loc-016", "scope": "locoomo", "record_type": "Observation", "text": "The team requested revisions to the navigation flow.", "session": 8},
-      {"record_id": "rec-loc-020", "scope": "locoomo", "record_type": "Document", "text": "Design review outcome: approved with revisions to navigation flow.", "session": 8}
+      {
+        "record_id": "rec-loc-013",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Design review was scheduled for Thursday.",
+        "session": 8
+      },
+      {
+        "record_id": "rec-loc-014",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Three stakeholders attended.",
+        "session": 8
+      },
+      {
+        "record_id": "rec-loc-015",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Concerns were raised about the color palette.",
+        "session": 8
+      },
+      {
+        "record_id": "rec-loc-016",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "The team requested revisions to the navigation flow.",
+        "session": 8
+      },
+      {
+        "record_id": "rec-loc-020",
+        "scope": "locoomo",
+        "record_type": "Document",
+        "text": "Design review outcome: approved with revisions to navigation flow.",
+        "session": 8
+      }
     ]
   },
   {
     "id": "locoomo-005",
     "query": "What is the user's favorite coffee order?",
-    "gold_record_ids": ["rec-loc-025"],
-    "gold_text_tokens": ["oat", "latte", "large"],
+    "gold_record_ids": [
+      "rec-loc-025"
+    ],
+    "gold_text_tokens": [
+      "favorite",
+      "large",
+      "latte",
+      "oat",
+      "order"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-021", "scope": "locoomo", "record_type": "Observation", "text": "User drinks coffee every morning.", "session": 1},
-      {"record_id": "rec-loc-022", "scope": "locoomo", "record_type": "Observation", "text": "User tried oat milk and liked it.", "session": 3},
-      {"record_id": "rec-loc-023", "scope": "locoomo", "record_type": "Observation", "text": "User usually gets a large latte.", "session": 5},
-      {"record_id": "rec-loc-025", "scope": "locoomo", "record_type": "Observation", "text": "Favorite order: large oat latte.", "session": 9}
+      {
+        "record_id": "rec-loc-021",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User drinks coffee every morning.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-loc-022",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User tried oat milk and liked it.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-loc-023",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User usually gets a large latte.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-loc-025",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Favorite order: large oat latte.",
+        "session": 9
+      }
     ]
   },
   {
     "id": "locoomo-006",
     "query": "When did the user first mention moving to Berlin?",
-    "gold_record_ids": ["rec-loc-031"],
-    "gold_text_tokens": ["Berlin", "relocating", "October"],
+    "gold_record_ids": [
+      "rec-loc-031"
+    ],
+    "gold_text_tokens": [
+      "berlin",
+      "early",
+      "first",
+      "mention",
+      "october",
+      "relocating"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-026", "scope": "locoomo", "record_type": "Observation", "text": "User talked about travel plans.", "session": 2},
-      {"record_id": "rec-loc-027", "scope": "locoomo", "record_type": "Observation", "text": "User mentioned Berlin as a possible destination.", "session": 4},
-      {"record_id": "rec-loc-028", "scope": "locoomo", "record_type": "Observation", "text": "User found an apartment in Berlin.", "session": 6},
-      {"record_id": "rec-loc-031", "scope": "locoomo", "record_type": "Observation", "text": "First mention of relocating to Berlin was in early October.", "session": 7}
+      {
+        "record_id": "rec-loc-026",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User talked about travel plans.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-loc-027",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User mentioned Berlin as a possible destination.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-loc-028",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User found an apartment in Berlin.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-loc-031",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "First mention of relocating to Berlin was in early October.",
+        "session": 7
+      }
     ]
   },
   {
     "id": "locoomo-007",
     "query": "What framework does the team use for API tests?",
-    "gold_record_ids": ["rec-loc-035"],
-    "gold_text_tokens": ["pytest", "API", "tests"],
+    "gold_record_ids": [
+      "rec-loc-035"
+    ],
+    "gold_text_tokens": [
+      "api",
+      "pytest",
+      "requests-mock",
+      "tests"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-032", "scope": "locoomo", "record_type": "Document", "text": "Unit tests use pytest.", "session": 1},
-      {"record_id": "rec-loc-033", "scope": "locoomo", "record_type": "Observation", "text": "Integration tests are written in Python.", "session": 3},
-      {"record_id": "rec-loc-034", "scope": "locoomo", "record_type": "Observation", "text": "API tests are a separate suite.", "session": 5},
-      {"record_id": "rec-loc-035", "scope": "locoomo", "record_type": "Document", "text": "API tests use pytest with requests-mock.", "session": 6}
+      {
+        "record_id": "rec-loc-032",
+        "scope": "locoomo",
+        "record_type": "Document",
+        "text": "Unit tests use pytest.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-loc-033",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Integration tests are written in Python.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-loc-034",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "API tests are a separate suite.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-loc-035",
+        "scope": "locoomo",
+        "record_type": "Document",
+        "text": "API tests use pytest with requests-mock.",
+        "session": 6
+      }
     ]
   },
   {
     "id": "locoomo-008",
     "query": "What is the user's stance on remote work?",
-    "gold_record_ids": ["rec-loc-042"],
-    "gold_text_tokens": ["remote", "preferred", "office"],
+    "gold_record_ids": [
+      "rec-loc-042"
+    ],
+    "gold_text_tokens": [
+      "office",
+      "optional",
+      "preferred",
+      "remote",
+      "stance",
+      "visits",
+      "work"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-038", "scope": "locoomo", "record_type": "Observation", "text": "User works from home most days.", "session": 2},
-      {"record_id": "rec-loc-039", "scope": "locoomo", "record_type": "Observation", "text": "User visits the office on Wednesdays.", "session": 4},
-      {"record_id": "rec-loc-040", "scope": "locoomo", "record_type": "Observation", "text": "User finds remote work more productive.", "session": 6},
-      {"record_id": "rec-loc-042", "scope": "locoomo", "record_type": "Observation", "text": "Stance: remote work is preferred, office visits optional.", "session": 9}
+      {
+        "record_id": "rec-loc-038",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User works from home most days.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-loc-039",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User visits the office on Wednesdays.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-loc-040",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User finds remote work more productive.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-loc-042",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Stance: remote work is preferred, office visits optional.",
+        "session": 9
+      }
     ]
   },
   {
     "id": "locoomo-009",
     "query": "What was the bug fix discussed in session 5?",
-    "gold_record_ids": ["rec-loc-049"],
-    "gold_text_tokens": ["bug", "session 5", "auth", "token"],
+    "gold_record_ids": [
+      "rec-loc-049"
+    ],
+    "gold_text_tokens": [
+      "auth",
+      "bug",
+      "fix",
+      "refresh",
+      "resolved",
+      "rotation",
+      "session",
+      "timeout"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-043", "scope": "locoomo", "record_type": "Observation", "text": "Session 5 started with a retro.", "session": 5},
-      {"record_id": "rec-loc-044", "scope": "locoomo", "record_type": "Observation", "text": "Auth timeout bug was raised.", "session": 5},
-      {"record_id": "rec-loc-045", "scope": "locoomo", "record_type": "Observation", "text": "Fix involved rotating the refresh token.", "session": 5},
-      {"record_id": "rec-loc-049", "scope": "locoomo", "record_type": "Document", "text": "Session 5 bug fix: auth timeout resolved by refresh token rotation.", "session": 5}
+      {
+        "record_id": "rec-loc-043",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Session 5 started with a retro.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-loc-044",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Auth timeout bug was raised.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-loc-045",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Fix involved rotating the refresh token.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-loc-049",
+        "scope": "locoomo",
+        "record_type": "Document",
+        "text": "Session 5 bug fix: auth timeout resolved by refresh token rotation.",
+        "session": 5
+      }
     ]
   },
   {
     "id": "locoomo-010",
     "query": "Which integrations are on the Q4 roadmap?",
-    "gold_record_ids": ["rec-loc-055"],
-    "gold_text_tokens": ["Q4", "roadmap", "Slack", "GitHub"],
+    "gold_record_ids": [
+      "rec-loc-055"
+    ],
+    "gold_text_tokens": [
+      "github",
+      "integrations",
+      "q4",
+      "roadmap",
+      "slack"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-050", "scope": "locoomo", "record_type": "Document", "text": "Q3 focused on stability.", "session": 7},
-      {"record_id": "rec-loc-051", "scope": "locoomo", "record_type": "Observation", "text": "Team discussed Q4 priorities.", "session": 8},
-      {"record_id": "rec-loc-052", "scope": "locoomo", "record_type": "Observation", "text": "Slack integration was requested by support.", "session": 8},
-      {"record_id": "rec-loc-053", "scope": "locoomo", "record_type": "Observation", "text": "GitHub integration would help with PR reviews.", "session": 9},
-      {"record_id": "rec-loc-055", "scope": "locoomo", "record_type": "Document", "text": "Q4 roadmap: Slack and GitHub integrations.", "session": 10}
+      {
+        "record_id": "rec-loc-050",
+        "scope": "locoomo",
+        "record_type": "Document",
+        "text": "Q3 focused on stability.",
+        "session": 7
+      },
+      {
+        "record_id": "rec-loc-051",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Team discussed Q4 priorities.",
+        "session": 8
+      },
+      {
+        "record_id": "rec-loc-052",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Slack integration was requested by support.",
+        "session": 8
+      },
+      {
+        "record_id": "rec-loc-053",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "GitHub integration would help with PR reviews.",
+        "session": 9
+      },
+      {
+        "record_id": "rec-loc-055",
+        "scope": "locoomo",
+        "record_type": "Document",
+        "text": "Q4 roadmap: Slack and GitHub integrations.",
+        "session": 10
+      }
     ]
   },
   {
     "id": "locoomo-011",
     "query": "What was the user's score on the last evaluation?",
-    "gold_record_ids": ["rec-loc-061"],
-    "gold_text_tokens": ["evaluation", "score", "4.2"],
+    "gold_record_ids": [
+      "rec-loc-061"
+    ],
+    "gold_text_tokens": [
+      "evaluation",
+      "last",
+      "score"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-056", "scope": "locoomo", "record_type": "Observation", "text": "User completed the quarterly evaluation.", "session": 3},
-      {"record_id": "rec-loc-057", "scope": "locoomo", "record_type": "Observation", "text": "Manager submitted feedback.", "session": 4},
-      {"record_id": "rec-loc-058", "scope": "locoomo", "record_type": "Observation", "text": "User was pleased with the feedback.", "session": 5},
-      {"record_id": "rec-loc-061", "scope": "locoomo", "record_type": "Document", "text": "Last evaluation score: 4.2/5.", "session": 6}
+      {
+        "record_id": "rec-loc-056",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User completed the quarterly evaluation.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-loc-057",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Manager submitted feedback.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-loc-058",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User was pleased with the feedback.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-loc-061",
+        "scope": "locoomo",
+        "record_type": "Document",
+        "text": "Last evaluation score: 4.2/5.",
+        "session": 6
+      }
     ]
   },
   {
     "id": "locoomo-012",
     "query": "What was agreed upon in the contract negotiation?",
-    "gold_record_ids": ["rec-loc-068"],
-    "gold_text_tokens": ["contract", "negotiation", "rate", "hours"],
+    "gold_record_ids": [
+      "rec-loc-068"
+    ],
+    "gold_text_tokens": [
+      "agreed",
+      "hr",
+      "hrs",
+      "minimum",
+      "rate",
+      "week"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-062", "scope": "locoomo", "record_type": "Observation", "text": "Contract negotiation started on Monday.", "session": 2},
-      {"record_id": "rec-loc-063", "scope": "locoomo", "record_type": "Observation", "text": "Both sides proposed rates.", "session": 3},
-      {"record_id": "rec-loc-064", "scope": "locoomo", "record_type": "Observation", "text": "Hours were a sticking point.", "session": 4},
-      {"record_id": "rec-loc-068", "scope": "locoomo", "record_type": "Document", "text": "Agreed rate: $150/hr, 20 hrs/week minimum.", "session": 5}
+      {
+        "record_id": "rec-loc-062",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Contract negotiation started on Monday.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-loc-063",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Both sides proposed rates.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-loc-064",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Hours were a sticking point.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-loc-068",
+        "scope": "locoomo",
+        "record_type": "Document",
+        "text": "Agreed rate: $150/hr, 20 hrs/week minimum.",
+        "session": 5
+      }
     ]
   },
   {
     "id": "locoomo-013",
     "query": "What topic did the user give a talk about at the conference?",
-    "gold_record_ids": ["rec-loc-075"],
-    "gold_text_tokens": ["conference", "talk", "privacy", "agents"],
+    "gold_record_ids": [
+      "rec-loc-075"
+    ],
+    "gold_text_tokens": [
+      "agent",
+      "ai",
+      "memory",
+      "privacy-preserving",
+      "safety",
+      "talk"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-069", "scope": "locoomo", "record_type": "Observation", "text": "User attended AI Safety conference.", "session": 1},
-      {"record_id": "rec-loc-070", "scope": "locoomo", "record_type": "Observation", "text": "User was a speaker.", "session": 2},
-      {"record_id": "rec-loc-071", "scope": "locoomo", "record_type": "Observation", "text": "Talk title mentioned privacy.", "session": 3},
-      {"record_id": "rec-loc-075", "scope": "locoomo", "record_type": "Document", "text": "Talk: 'Privacy-Preserving Agent Memory' at AI Safety 2026.", "session": 4}
+      {
+        "record_id": "rec-loc-069",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User attended AI Safety conference.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-loc-070",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User was a speaker.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-loc-071",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Talk title mentioned privacy.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-loc-075",
+        "scope": "locoomo",
+        "record_type": "Document",
+        "text": "Talk: 'Privacy-Preserving Agent Memory' at AI Safety 2026.",
+        "session": 4
+      }
     ]
   },
   {
     "id": "locoomo-014",
     "query": "What is the user's go-to debugging strategy?",
-    "gold_record_ids": ["rec-loc-082"],
-    "gold_text_tokens": ["debugging", "strategy", "logs", "bisect"],
+    "gold_record_ids": [
+      "rec-loc-082"
+    ],
+    "gold_text_tokens": [
+      "bisect",
+      "check",
+      "commits",
+      "debugging",
+      "failing",
+      "go-to",
+      "isolate",
+      "logs"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-076", "scope": "locoomo", "record_type": "Observation", "text": "User uses print statements.", "session": 1},
-      {"record_id": "rec-loc-077", "scope": "locoomo", "record_type": "Observation", "text": "User checks logs first.", "session": 2},
-      {"record_id": "rec-loc-078", "scope": "locoomo", "record_type": "Observation", "text": "User reverts to the last known good commit.", "session": 3},
-      {"record_id": "rec-loc-082", "scope": "locoomo", "record_type": "Observation", "text": "Go-to debugging strategy: check logs, bisect commits, isolate the failing module.", "session": 5}
+      {
+        "record_id": "rec-loc-076",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User uses print statements.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-loc-077",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User checks logs first.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-loc-078",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User reverts to the last known good commit.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-loc-082",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Go-to debugging strategy: check logs, bisect commits, isolate the failing module.",
+        "session": 5
+      }
     ]
   },
   {
     "id": "locoomo-015",
     "query": "What was the resolution for the outage on Friday?",
-    "gold_record_ids": ["rec-loc-089"],
-    "gold_text_tokens": ["outage", "Friday", "rollback", "v2.3.1"],
+    "gold_record_ids": [
+      "rec-loc-089"
+    ],
+    "gold_text_tokens": [
+      "friday",
+      "outage",
+      "resolved",
+      "rollback",
+      "v2"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-083", "scope": "locoomo", "record_type": "Observation", "text": "Outage reported at 9am Friday.", "session": 7},
-      {"record_id": "rec-loc-084", "scope": "locoomo", "record_type": "Observation", "text": "Root cause: bad config push.", "session": 7},
-      {"record_id": "rec-loc-085", "scope": "locoomo", "record_type": "Observation", "text": "Team rolled back to previous version.", "session": 7},
-      {"record_id": "rec-loc-089", "scope": "locoomo", "record_type": "Document", "text": "Friday outage resolved by rollback to v2.3.1.", "session": 7}
+      {
+        "record_id": "rec-loc-083",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Outage reported at 9am Friday.",
+        "session": 7
+      },
+      {
+        "record_id": "rec-loc-084",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Root cause: bad config push.",
+        "session": 7
+      },
+      {
+        "record_id": "rec-loc-085",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Team rolled back to previous version.",
+        "session": 7
+      },
+      {
+        "record_id": "rec-loc-089",
+        "scope": "locoomo",
+        "record_type": "Document",
+        "text": "Friday outage resolved by rollback to v2.3.1.",
+        "session": 7
+      }
     ]
   },
   {
     "id": "locoomo-016",
     "query": "What does the user collect?",
-    "gold_record_ids": ["rec-loc-095"],
-    "gold_text_tokens": ["collects", "vintage", "cameras"],
+    "gold_record_ids": [
+      "rec-loc-095"
+    ],
+    "gold_text_tokens": [
+      "cameras",
+      "collects",
+      "user",
+      "vintage"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-090", "scope": "locoomo", "record_type": "Observation", "text": "User has many hobbies.", "session": 1},
-      {"record_id": "rec-loc-091", "scope": "locoomo", "record_type": "Observation", "text": "User mentioned old electronics.", "session": 2},
-      {"record_id": "rec-loc-092", "scope": "locoomo", "record_type": "Observation", "text": "User showed photos of their collection.", "session": 4},
-      {"record_id": "rec-loc-095", "scope": "locoomo", "record_type": "Observation", "text": "User collects vintage cameras from the 1970s.", "session": 6}
+      {
+        "record_id": "rec-loc-090",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User has many hobbies.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-loc-091",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User mentioned old electronics.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-loc-092",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User showed photos of their collection.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-loc-095",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User collects vintage cameras from the 1970s.",
+        "session": 6
+      }
     ]
   },
   {
     "id": "locoomo-017",
     "query": "What is the SLA for the payment service?",
-    "gold_record_ids": ["rec-loc-102"],
-    "gold_text_tokens": ["SLA", "payment", "99.9%"],
+    "gold_record_ids": [
+      "rec-loc-102"
+    ],
+    "gold_text_tokens": [
+      "latency",
+      "ms",
+      "p95",
+      "payment",
+      "service",
+      "sla",
+      "uptime"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-096", "scope": "locoomo", "record_type": "Document", "text": "Service catalog lists SLAs.", "session": 3},
-      {"record_id": "rec-loc-097", "scope": "locoomo", "record_type": "Observation", "text": "Payment service is critical.", "session": 4},
-      {"record_id": "rec-loc-098", "scope": "locoomo", "record_type": "Observation", "text": "Uptime target is high.", "session": 5},
-      {"record_id": "rec-loc-102", "scope": "locoomo", "record_type": "Document", "text": "Payment service SLA: 99.9% uptime, 500ms p95 latency.", "session": 6}
+      {
+        "record_id": "rec-loc-096",
+        "scope": "locoomo",
+        "record_type": "Document",
+        "text": "Service catalog lists SLAs.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-loc-097",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Payment service is critical.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-loc-098",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Uptime target is high.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-loc-102",
+        "scope": "locoomo",
+        "record_type": "Document",
+        "text": "Payment service SLA: 99.9% uptime, 500ms p95 latency.",
+        "session": 6
+      }
     ]
   },
   {
     "id": "locoomo-018",
     "query": "Who approved the budget for the offsite?",
-    "gold_record_ids": ["rec-loc-108"],
-    "gold_text_tokens": ["budget", "offsite", "approved", "CFO"],
+    "gold_record_ids": [
+      "rec-loc-108"
+    ],
+    "gold_text_tokens": [
+      "approved",
+      "budget",
+      "cfo",
+      "july",
+      "offsite"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-103", "scope": "locoomo", "record_type": "Observation", "text": "Offsite was proposed in June.", "session": 2},
-      {"record_id": "rec-loc-104", "scope": "locoomo", "record_type": "Observation", "text": "Budget estimate was $25k.", "session": 3},
-      {"record_id": "rec-loc-105", "scope": "locoomo", "record_type": "Observation", "text": "Finance reviewed the request.", "session": 4},
-      {"record_id": "rec-loc-108", "scope": "locoomo", "record_type": "Document", "text": "Offsite budget approved by the CFO on July 12.", "session": 5}
+      {
+        "record_id": "rec-loc-103",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Offsite was proposed in June.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-loc-104",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Budget estimate was $25k.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-loc-105",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Finance reviewed the request.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-loc-108",
+        "scope": "locoomo",
+        "record_type": "Document",
+        "text": "Offsite budget approved by the CFO on July 12.",
+        "session": 5
+      }
     ]
   },
   {
     "id": "locoomo-019",
     "query": "What is the user's preferred notification channel?",
-    "gold_record_ids": ["rec-loc-115"],
-    "gold_text_tokens": ["notification", "channel", "email", "daily"],
+    "gold_record_ids": [
+      "rec-loc-115"
+    ],
+    "gold_text_tokens": [
+      "daily",
+      "digest",
+      "email",
+      "notification",
+      "preferred"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-109", "scope": "locoomo", "record_type": "Observation", "text": "User gets too many Slack messages.", "session": 1},
-      {"record_id": "rec-loc-110", "scope": "locoomo", "record_type": "Observation", "text": "User prefers email for summaries.", "session": 2},
-      {"record_id": "rec-loc-111", "scope": "locoomo", "record_type": "Observation", "text": "User wants a daily digest.", "session": 3},
-      {"record_id": "rec-loc-115", "scope": "locoomo", "record_type": "Observation", "text": "Preferred notification: daily email digest.", "session": 5}
+      {
+        "record_id": "rec-loc-109",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User gets too many Slack messages.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-loc-110",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User prefers email for summaries.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-loc-111",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "User wants a daily digest.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-loc-115",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Preferred notification: daily email digest.",
+        "session": 5
+      }
     ]
   },
   {
     "id": "locoomo-020",
     "query": "What was the migration path chosen for the database?",
-    "gold_record_ids": ["rec-loc-122"],
-    "gold_text_tokens": ["migration", "database", "blue-green"],
+    "gold_record_ids": [
+      "rec-loc-122"
+    ],
+    "gold_text_tokens": [
+      "blue-green",
+      "chosen",
+      "deployment",
+      "dual-write",
+      "migration",
+      "path"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-loc-116", "scope": "locoomo", "record_type": "Observation", "text": "Database migration was planned for Q3.", "session": 3},
-      {"record_id": "rec-loc-117", "scope": "locoomo", "record_type": "Observation", "text": "Team considered in-place upgrade.", "session": 4},
-      {"record_id": "rec-loc-118", "scope": "locoomo", "record_type": "Observation", "text": "Blue-green deployment was recommended.", "session": 5},
-      {"record_id": "rec-loc-122", "scope": "locoomo", "record_type": "Document", "text": "Chosen migration path: blue-green deployment with dual-write.", "session": 6}
+      {
+        "record_id": "rec-loc-116",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Database migration was planned for Q3.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-loc-117",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Team considered in-place upgrade.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-loc-118",
+        "scope": "locoomo",
+        "record_type": "Observation",
+        "text": "Blue-green deployment was recommended.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-loc-122",
+        "scope": "locoomo",
+        "record_type": "Document",
+        "text": "Chosen migration path: blue-green deployment with dual-write.",
+        "session": 6
+      }
     ]
   }
 ]

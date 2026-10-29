@@ -1,0 +1,24 @@
+[
+  {
+    "id": "beam-abstain-001",
+    "query": "What is the root password for the production database?",
+    "gold_record_ids": [],
+    "gold_text_tokens": [],
+    "abstain": true,
+    "setup_records": [
+      {"record_id": "rec-beam-a01", "scope": "beam", "record_type": "Observation", "text": "Production credentials are in the vault.", "session": 1},
+      {"record_id": "rec-beam-a02", "scope": "beam", "record_type": "Document", "text": "Vault access requires approval.", "session": 2}
+    ]
+  },
+  {
+    "id": "beam-abstain-002",
+    "query": "What is the source code for the unreleased feature?",
+    "gold_record_ids": [],
+    "gold_text_tokens": [],
+    "abstain": true,
+    "setup_records": [
+      {"record_id": "rec-beam-a03", "scope": "beam", "record_type": "Observation", "text": "Feature is in a private branch.", "session": 1},
+      {"record_id": "rec-beam-a04", "scope": "beam", "record_type": "Document", "text": "Code is not shared outside the team.", "session": 2}
+    ]
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "long-abstain-001",
+    "query": "What is the user's social security number?",
+    "gold_record_ids": [],
+    "gold_text_tokens": [],
+    "abstain": true,
+    "setup_records": [
+      {"record_id": "rec-long-a01", "scope": "longmem", "record_type": "Observation", "text": "User mentioned tax forms.", "session": 1},
+      {"record_id": "rec-long-a02", "scope": "longmem", "record_type": "Document", "text": "SSN is redacted in all copies.", "session": 2}
+    ]
+  },
+  {
+    "id": "long-abstain-002",
+    "query": "What is the CEO's personal phone number?",
+    "gold_record_ids": [],
+    "gold_text_tokens": [],
+    "abstain": true,
+    "setup_records": [
+      {"record_id": "rec-long-a03", "scope": "longmem", "record_type": "Observation", "text": "Contact info is through the executive assistant.", "session": 1},
+      {"record_id": "rec-long-a04", "scope": "longmem", "record_type": "Document", "text": "Personal numbers are not shared.", "session": 2}
+    ]
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "locoomo-abstain-001",
+    "query": "What is the user's private medical diagnosis?",
+    "gold_record_ids": [],
+    "gold_text_tokens": [],
+    "abstain": true,
+    "setup_records": [
+      {"record_id": "rec-loc-a01", "scope": "locoomo", "record_type": "Observation", "text": "User mentioned a doctor visit.", "session": 1},
+      {"record_id": "rec-loc-a02", "scope": "locoomo", "record_type": "Observation", "text": "User said the results were private.", "session": 2}
+    ]
+  },
+  {
+    "id": "locoomo-abstain-002",
+    "query": "What is the company's unreleased quarterly revenue?",
+    "gold_record_ids": [],
+    "gold_text_tokens": [],
+    "abstain": true,
+    "setup_records": [
+      {"record_id": "rec-loc-a03", "scope": "locoomo", "record_type": "Document", "text": "Financial report is not yet public.", "session": 1},
+      {"record_id": "rec-loc-a04", "scope": "locoomo", "record_type": "Observation", "text": "Board discussed embargo.", "session": 2}
+    ]
+  }
+]

@@ -2,327 +2,1376 @@
   {
     "id": "long-001",
     "query": "What was the original budget for the Acme project?",
-    "gold_record_ids": ["rec-long-007"],
-    "gold_text_tokens": ["Acme", "budget", "$45,000"],
+    "gold_record_ids": [
+      "rec-long-007"
+    ],
+    "gold_text_tokens": [
+      "acme",
+      "budget",
+      "original",
+      "project"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-001", "scope": "longmem", "record_type": "Document", "text": "Project catalog updated.", "session": 1},
-      {"record_id": "rec-long-002", "scope": "longmem", "record_type": "Observation", "text": "Team onboarding completed.", "session": 2},
-      {"record_id": "rec-long-003", "scope": "longmem", "record_type": "Observation", "text": "Sprint 1 retrospective notes.", "session": 3},
-      {"record_id": "rec-long-004", "scope": "longmem", "record_type": "Document", "text": "Sprint 2 planning doc.", "session": 4},
-      {"record_id": "rec-long-005", "scope": "longmem", "record_type": "Observation", "text": "Sprint 2 retrospective.", "session": 5},
-      {"record_id": "rec-long-006", "scope": "longmem", "record_type": "Document", "text": "Sprint 3 planning doc.", "session": 6},
-      {"record_id": "rec-long-007", "scope": "longmem", "record_type": "Document", "text": "Acme project original budget was $45,000.", "session": 7},
-      {"record_id": "rec-long-008", "scope": "longmem", "record_type": "Observation", "text": "Sprint 3 retrospective.", "session": 8},
-      {"record_id": "rec-long-009", "scope": "longmem", "record_type": "Document", "text": "Sprint 4 planning doc.", "session": 9},
-      {"record_id": "rec-long-010", "scope": "longmem", "record_type": "Observation", "text": "Sprint 4 retrospective.", "session": 10}
+      {
+        "record_id": "rec-long-001",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Project catalog updated.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-long-002",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Team onboarding completed.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-003",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Sprint 1 retrospective notes.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-long-004",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Sprint 2 planning doc.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-long-005",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Sprint 2 retrospective.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-006",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Sprint 3 planning doc.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-long-007",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Acme project original budget was $45,000.",
+        "session": 7
+      },
+      {
+        "record_id": "rec-long-008",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Sprint 3 retrospective.",
+        "session": 8
+      },
+      {
+        "record_id": "rec-long-009",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Sprint 4 planning doc.",
+        "session": 9
+      },
+      {
+        "record_id": "rec-long-010",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Sprint 4 retrospective.",
+        "session": 10
+      }
     ]
   },
   {
     "id": "long-002",
     "query": "What was the root cause of the outage on March 3?",
-    "gold_record_ids": ["rec-long-018"],
-    "gold_text_tokens": ["outage", "March 3", "root cause", "DNS"],
+    "gold_record_ids": [
+      "rec-long-018"
+    ],
+    "gold_text_tokens": [
+      "cause",
+      "deploy",
+      "dns",
+      "march",
+      "misconfiguration",
+      "outage",
+      "root"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-011", "scope": "longmem", "record_type": "Observation", "text": "January metrics looked good.", "session": 1},
-      {"record_id": "rec-long-012", "scope": "longmem", "record_type": "Document", "text": "February incident report.", "session": 2},
-      {"record_id": "rec-long-013", "scope": "longmem", "record_type": "Observation", "text": "February retro: minor blip.", "session": 3},
-      {"record_id": "rec-long-014", "scope": "longmem", "record_type": "Document", "text": "March planning doc.", "session": 4},
-      {"record_id": "rec-long-015", "scope": "longmem", "record_type": "Observation", "text": "March 1: routine deploy.", "session": 5},
-      {"record_id": "rec-long-016", "scope": "longmem", "record_type": "Observation", "text": "March 2: monitoring alert.", "session": 6},
-      {"record_id": "rec-long-017", "scope": "longmem", "record_type": "Observation", "text": "March 3: full outage.", "session": 7},
-      {"record_id": "rec-long-018", "scope": "longmem", "record_type": "Document", "text": "March 3 outage root cause: DNS misconfiguration after deploy.", "session": 8},
-      {"record_id": "rec-long-019", "scope": "longmem", "record_type": "Observation", "text": "March 4: postmortem started.", "session": 9},
-      {"record_id": "rec-long-020", "scope": "longmem", "record_type": "Document", "text": "March postmortem published.", "session": 10}
+      {
+        "record_id": "rec-long-011",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "January metrics looked good.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-long-012",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "February incident report.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-013",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "February retro: minor blip.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-long-014",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "March planning doc.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-long-015",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "March 1: routine deploy.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-016",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "March 2: monitoring alert.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-long-017",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "March 3: full outage.",
+        "session": 7
+      },
+      {
+        "record_id": "rec-long-018",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "March 3 outage root cause: DNS misconfiguration after deploy.",
+        "session": 8
+      },
+      {
+        "record_id": "rec-long-019",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "March 4: postmortem started.",
+        "session": 9
+      },
+      {
+        "record_id": "rec-long-020",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "March postmortem published.",
+        "session": 10
+      }
     ]
   },
   {
     "id": "long-003",
     "query": "What was the user's graduate thesis topic?",
-    "gold_record_ids": ["rec-long-027"],
-    "gold_text_tokens": ["thesis", "distributed", "consensus"],
+    "gold_record_ids": [
+      "rec-long-027"
+    ],
+    "gold_text_tokens": [
+      "byzantine",
+      "consensus",
+      "distributed",
+      "fault",
+      "graduate",
+      "thesis",
+      "tolerance"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-021", "scope": "longmem", "record_type": "Observation", "text": "User started a Master's program.", "session": 1},
-      {"record_id": "rec-long-022", "scope": "longmem", "record_type": "Observation", "text": "User took a distributed systems course.", "session": 2},
-      {"record_id": "rec-long-023", "scope": "longmem", "record_type": "Observation", "text": "User joined a research lab.", "session": 3},
-      {"record_id": "rec-long-024", "scope": "longmem", "record_type": "Observation", "text": "User published a workshop paper.", "session": 5},
-      {"record_id": "rec-long-025", "scope": "longmem", "record_type": "Observation", "text": "User defended their proposal.", "session": 7},
-      {"record_id": "rec-long-026", "scope": "longmem", "record_type": "Observation", "text": "User submitted the final draft.", "session": 9},
-      {"record_id": "rec-long-027", "scope": "longmem", "record_type": "Document", "text": "Graduate thesis: 'Byzantine Fault Tolerance in Distributed Consensus'.", "session": 10}
+      {
+        "record_id": "rec-long-021",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User started a Master's program.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-long-022",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User took a distributed systems course.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-023",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User joined a research lab.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-long-024",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User published a workshop paper.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-025",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User defended their proposal.",
+        "session": 7
+      },
+      {
+        "record_id": "rec-long-026",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User submitted the final draft.",
+        "session": 9
+      },
+      {
+        "record_id": "rec-long-027",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Graduate thesis: 'Byzantine Fault Tolerance in Distributed Consensus'.",
+        "session": 10
+      }
     ]
   },
   {
     "id": "long-004",
     "query": "What was the decision about the office closure in April?",
-    "gold_record_ids": ["rec-long-034"],
-    "gold_text_tokens": ["office", "closure", "April", "remote"],
+    "gold_record_ids": [
+      "rec-long-034"
+    ],
+    "gold_text_tokens": [
+      "approved",
+      "april",
+      "closure",
+      "fully",
+      "office",
+      "remote",
+      "team"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-028", "scope": "longmem", "record_type": "Observation", "text": "Rent renewal came up in March.", "session": 3},
-      {"record_id": "rec-long-029", "scope": "longmem", "record_type": "Observation", "text": "Lease was month-to-month.", "session": 4},
-      {"record_id": "rec-long-030", "scope": "longmem", "record_type": "Observation", "text": "Board discussed options.", "session": 5},
-      {"record_id": "rec-long-031", "scope": "longmem", "record_type": "Observation", "text": "Survey showed 80% preferred remote.", "session": 6},
-      {"record_id": "rec-long-032", "scope": "longmem", "record_type": "Observation", "text": "Cost analysis favored closure.", "session": 7},
-      {"record_id": "rec-long-033", "scope": "longmem", "record_type": "Observation", "text": "Announcement drafted.", "session": 8},
-      {"record_id": "rec-long-034", "scope": "longmem", "record_type": "Document", "text": "Office closure approved for April 15; team goes fully remote.", "session": 9}
+      {
+        "record_id": "rec-long-028",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Rent renewal came up in March.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-long-029",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Lease was month-to-month.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-long-030",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Board discussed options.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-031",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Survey showed 80% preferred remote.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-long-032",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Cost analysis favored closure.",
+        "session": 7
+      },
+      {
+        "record_id": "rec-long-033",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Announcement drafted.",
+        "session": 8
+      },
+      {
+        "record_id": "rec-long-034",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Office closure approved for April 15; team goes fully remote.",
+        "session": 9
+      }
     ]
   },
   {
     "id": "long-005",
     "query": "What was the specific penalty clause in the vendor contract?",
-    "gold_record_ids": ["rec-long-041"],
-    "gold_text_tokens": ["penalty", "clause", "vendor", "0.5%"],
+    "gold_record_ids": [
+      "rec-long-041"
+    ],
+    "gold_text_tokens": [
+      "clause",
+      "contract",
+      "delay",
+      "penalty",
+      "per",
+      "value",
+      "week"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-035", "scope": "longmem", "record_type": "Observation", "text": "Vendor negotiations started in January.", "session": 1},
-      {"record_id": "rec-long-036", "scope": "longmem", "record_type": "Observation", "text": "SLA terms were discussed.", "session": 2},
-      {"record_id": "rec-long-037", "scope": "longmem", "record_type": "Observation", "text": "Liability caps were contentious.", "session": 3},
-      {"record_id": "rec-long-038", "scope": "longmem", "record_type": "Observation", "text": "Termination clause was revised.", "session": 4},
-      {"record_id": "rec-long-039", "scope": "longmem", "record_type": "Observation", "text": "Penalty structure was proposed.", "session": 5},
-      {"record_id": "rec-long-040", "scope": "longmem", "record_type": "Observation", "text": "Legal reviewed the draft.", "session": 6},
-      {"record_id": "rec-long-041", "scope": "longmem", "record_type": "Document", "text": "Penalty clause: 0.5% of contract value per week of delay.", "session": 7}
+      {
+        "record_id": "rec-long-035",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Vendor negotiations started in January.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-long-036",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "SLA terms were discussed.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-037",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Liability caps were contentious.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-long-038",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Termination clause was revised.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-long-039",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Penalty structure was proposed.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-040",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Legal reviewed the draft.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-long-041",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Penalty clause: 0.5% of contract value per week of delay.",
+        "session": 7
+      }
     ]
   },
   {
     "id": "long-006",
     "query": "What was the user's high school mascot?",
-    "gold_record_ids": ["rec-long-048"],
-    "gold_text_tokens": ["mascot", "high school", "Falcons"],
+    "gold_record_ids": [
+      "rec-long-048"
+    ],
+    "gold_text_tokens": [
+      "falcons",
+      "mascot",
+      "school"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-042", "scope": "longmem", "record_type": "Observation", "text": "User grew up in Colorado.", "session": 1},
-      {"record_id": "rec-long-043", "scope": "longmem", "record_type": "Observation", "text": "User played sports in high school.", "session": 2},
-      {"record_id": "rec-long-044", "scope": "longmem", "record_type": "Observation", "text": "User mentioned their high school had a bird mascot.", "session": 4},
-      {"record_id": "rec-long-045", "scope": "longmem", "record_type": "Observation", "text": "User attended a reunion.", "session": 6},
-      {"record_id": "rec-long-046", "scope": "longmem", "record_type": "Observation", "text": "User mentioned the school colors were blue and gold.", "session": 8},
-      {"record_id": "rec-long-047", "scope": "longmem", "record_type": "Observation", "text": "User still has a vintage jacket from high school.", "session": 9},
-      {"record_id": "rec-long-048", "scope": "longmem", "record_type": "Observation", "text": "High school mascot: Falcons.", "session": 10}
+      {
+        "record_id": "rec-long-042",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User grew up in Colorado.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-long-043",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User played sports in high school.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-044",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User mentioned their high school had a bird mascot.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-long-045",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User attended a reunion.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-long-046",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User mentioned the school colors were blue and gold.",
+        "session": 8
+      },
+      {
+        "record_id": "rec-long-047",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User still has a vintage jacket from high school.",
+        "session": 9
+      },
+      {
+        "record_id": "rec-long-048",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "High school mascot: Falcons.",
+        "session": 10
+      }
     ]
   },
   {
     "id": "long-007",
     "query": "What was the customer churn rate in Q2?",
-    "gold_record_ids": ["rec-long-055"],
-    "gold_text_tokens": ["churn", "Q2", "3.2%"],
+    "gold_record_ids": [
+      "rec-long-055"
+    ],
+    "gold_text_tokens": [
+      "churn",
+      "customer",
+      "q2",
+      "rate"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-049", "scope": "longmem", "record_type": "Document", "text": "Q1 metrics report.", "session": 1},
-      {"record_id": "rec-long-050", "scope": "longmem", "record_type": "Observation", "text": "Q2 started with a pricing change.", "session": 2},
-      {"record_id": "rec-long-051", "scope": "longmem", "record_type": "Observation", "text": "Some customers left after the change.", "session": 3},
-      {"record_id": "rec-long-052", "scope": "longmem", "record_type": "Observation", "text": "Churn was higher than expected.", "session": 4},
-      {"record_id": "rec-long-053", "scope": "longmem", "record_type": "Observation", "text": "Team discussed retention offers.", "session": 5},
-      {"record_id": "rec-long-054", "scope": "longmem", "record_type": "Observation", "text": "Final Q2 numbers were compiled.", "session": 6},
-      {"record_id": "rec-long-055", "scope": "longmem", "record_type": "Document", "text": "Q2 customer churn rate: 3.2%.", "session": 7}
+      {
+        "record_id": "rec-long-049",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Q1 metrics report.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-long-050",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Q2 started with a pricing change.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-051",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Some customers left after the change.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-long-052",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Churn was higher than expected.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-long-053",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Team discussed retention offers.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-054",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Final Q2 numbers were compiled.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-long-055",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Q2 customer churn rate: 3.2%.",
+        "session": 7
+      }
     ]
   },
   {
     "id": "long-008",
     "query": "What was the title of the user's second published paper?",
-    "gold_record_ids": ["rec-long-062"],
-    "gold_text_tokens": ["second", "paper", "title", "federated"],
+    "gold_record_ids": [
+      "rec-long-062"
+    ],
+    "gold_text_tokens": [
+      "differential",
+      "federated",
+      "guarantees",
+      "learning",
+      "paper",
+      "privacy",
+      "second",
+      "title"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-056", "scope": "longmem", "record_type": "Observation", "text": "User published their first paper in 2024.", "session": 1},
-      {"record_id": "rec-long-057", "scope": "longmem", "record_type": "Observation", "text": "User presented at a workshop.", "session": 2},
-      {"record_id": "rec-long-058", "scope": "longmem", "record_type": "Observation", "text": "User started a second project.", "session": 4},
-      {"record_id": "rec-long-059", "scope": "longmem", "record_type": "Observation", "text": "Second project focused on privacy.", "session": 5},
-      {"record_id": "rec-long-060", "scope": "longmem", "record_type": "Observation", "text": "Paper was accepted to a conference.", "session": 7},
-      {"record_id": "rec-long-061", "scope": "longmem", "record_type": "Observation", "text": "User uploaded the preprint.", "session": 8},
-      {"record_id": "rec-long-062", "scope": "longmem", "record_type": "Document", "text": "Second paper title: 'Federated Learning with Differential Privacy Guarantees'.", "session": 9}
+      {
+        "record_id": "rec-long-056",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User published their first paper in 2024.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-long-057",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User presented at a workshop.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-058",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User started a second project.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-long-059",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Second project focused on privacy.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-060",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Paper was accepted to a conference.",
+        "session": 7
+      },
+      {
+        "record_id": "rec-long-061",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User uploaded the preprint.",
+        "session": 8
+      },
+      {
+        "record_id": "rec-long-062",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Second paper title: 'Federated Learning with Differential Privacy Guarantees'.",
+        "session": 9
+      }
     ]
   },
   {
     "id": "long-009",
     "query": "What was the resolution time for the critical bug in May?",
-    "gold_record_ids": ["rec-long-069"],
-    "gold_text_tokens": ["critical", "bug", "May", "resolution", "4 hours"],
+    "gold_record_ids": [
+      "rec-long-069"
+    ],
+    "gold_text_tokens": [
+      "bug",
+      "critical",
+      "due",
+      "friday",
+      "hours",
+      "postmortem",
+      "resolved"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-063", "scope": "longmem", "record_type": "Observation", "text": "May started with a minor bug.", "session": 1},
-      {"record_id": "rec-long-064", "scope": "longmem", "record_type": "Observation", "text": "Bug was escalated to critical.", "session": 2},
-      {"record_id": "rec-long-065", "scope": "longmem", "record_type": "Observation", "text": "On-call engineer paged.", "session": 3},
-      {"record_id": "rec-long-066", "scope": "longmem", "record_type": "Observation", "text": "Root cause identified: memory leak.", "session": 4},
-      {"record_id": "rec-long-067", "scope": "longmem", "record_type": "Observation", "text": "Patch deployed.", "session": 5},
-      {"record_id": "rec-long-068", "scope": "longmem", "record_type": "Observation", "text": "Monitoring confirmed fix.", "session": 6},
-      {"record_id": "rec-long-069", "scope": "longmem", "record_type": "Document", "text": "Critical bug resolved in 4 hours; postmortem due Friday.", "session": 7}
+      {
+        "record_id": "rec-long-063",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "May started with a minor bug.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-long-064",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Bug was escalated to critical.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-065",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "On-call engineer paged.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-long-066",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Root cause identified: memory leak.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-long-067",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Patch deployed.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-068",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Monitoring confirmed fix.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-long-069",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Critical bug resolved in 4 hours; postmortem due Friday.",
+        "session": 7
+      }
     ]
   },
   {
     "id": "long-010",
     "query": "What was the user's undergraduate major?",
-    "gold_record_ids": ["rec-long-076"],
-    "gold_text_tokens": ["undergraduate", "major", "Mathematics"],
+    "gold_record_ids": [
+      "rec-long-076"
+    ],
+    "gold_text_tokens": [
+      "computer",
+      "major",
+      "mathematics",
+      "minor",
+      "science",
+      "undergraduate"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-070", "scope": "longmem", "record_type": "Observation", "text": "User mentioned college.", "session": 1},
-      {"record_id": "rec-long-071", "scope": "longmem", "record_type": "Observation", "text": "User took math classes.", "session": 2},
-      {"record_id": "rec-long-072", "scope": "longmem", "record_type": "Observation", "text": "User considered physics.", "session": 3},
-      {"record_id": "rec-long-073", "scope": "longmem", "record_type": "Observation", "text": "User did a math minor.", "session": 5},
-      {"record_id": "rec-long-074", "scope": "longmem", "record_type": "Observation", "text": "User returned to school for a second degree.", "session": 7},
-      {"record_id": "rec-long-075", "scope": "longmem", "record_type": "Observation", "text": "User listed their degree on LinkedIn.", "session": 8},
-      {"record_id": "rec-long-076", "scope": "longmem", "record_type": "Document", "text": "Undergraduate major: Mathematics, minor in Computer Science.", "session": 9}
+      {
+        "record_id": "rec-long-070",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User mentioned college.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-long-071",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User took math classes.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-072",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User considered physics.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-long-073",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User did a math minor.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-074",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User returned to school for a second degree.",
+        "session": 7
+      },
+      {
+        "record_id": "rec-long-075",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User listed their degree on LinkedIn.",
+        "session": 8
+      },
+      {
+        "record_id": "rec-long-076",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Undergraduate major: Mathematics, minor in Computer Science.",
+        "session": 9
+      }
     ]
   },
   {
     "id": "long-011",
     "query": "What was the reason for the product recall?",
-    "gold_record_ids": ["rec-long-083"],
-    "gold_text_tokens": ["recall", "reason", "battery", "overheat"],
+    "gold_record_ids": [
+      "rec-long-083"
+    ],
+    "gold_text_tokens": [
+      "battery",
+      "cells",
+      "charging",
+      "overheat",
+      "reason",
+      "recall"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-077", "scope": "longmem", "record_type": "Observation", "text": "Reports of overheating started in June.", "session": 3},
-      {"record_id": "rec-long-078", "scope": "longmem", "record_type": "Observation", "text": "Customer support saw a spike.", "session": 4},
-      {"record_id": "rec-long-079", "scope": "longmem", "record_type": "Observation", "text": "Engineering investigated the battery.", "session": 5},
-      {"record_id": "rec-long-080", "scope": "longmem", "record_type": "Observation", "text": "Regulatory agency was notified.", "session": 6},
-      {"record_id": "rec-long-081", "scope": "longmem", "record_type": "Observation", "text": "Recall was announced.", "session": 7},
-      {"record_id": "rec-long-082", "scope": "longmem", "record_type": "Observation", "text": "Replacement program started.", "session": 8},
-      {"record_id": "rec-long-083", "scope": "longmem", "record_type": "Document", "text": "Recall reason: battery cells could overheat during charging.", "session": 9}
+      {
+        "record_id": "rec-long-077",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Reports of overheating started in June.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-long-078",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Customer support saw a spike.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-long-079",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Engineering investigated the battery.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-080",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Regulatory agency was notified.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-long-081",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Recall was announced.",
+        "session": 7
+      },
+      {
+        "record_id": "rec-long-082",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Replacement program started.",
+        "session": 8
+      },
+      {
+        "record_id": "rec-long-083",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Recall reason: battery cells could overheat during charging.",
+        "session": 9
+      }
     ]
   },
   {
     "id": "long-012",
     "query": "What was the date of the user's first marathon?",
-    "gold_record_ids": ["rec-long-090"],
-    "gold_text_tokens": ["first", "marathon", "date", "October 15"],
+    "gold_record_ids": [
+      "rec-long-090"
+    ],
+    "gold_text_tokens": [
+      "chicago",
+      "first",
+      "marathon",
+      "october"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-084", "scope": "longmem", "record_type": "Observation", "text": "User started running in 2024.", "session": 1},
-      {"record_id": "rec-long-085", "scope": "longmem", "record_type": "Observation", "text": "User ran a 5k.", "session": 2},
-      {"record_id": "rec-long-086", "scope": "longmem", "record_type": "Observation", "text": "User trained for a half marathon.", "session": 4},
-      {"record_id": "rec-long-087", "scope": "longmem", "record_type": "Observation", "text": "User completed the half.", "session": 5},
-      {"record_id": "rec-long-088", "scope": "longmem", "record_type": "Observation", "text": "User signed up for a full marathon.", "session": 7},
-      {"record_id": "rec-long-089", "scope": "longmem", "record_type": "Observation", "text": "User did a long run on Saturday.", "session": 8},
-      {"record_id": "rec-long-090", "scope": "longmem", "record_type": "Document", "text": "First marathon: October 15, 2026, Chicago.", "session": 9}
+      {
+        "record_id": "rec-long-084",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User started running in 2024.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-long-085",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User ran a 5k.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-086",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User trained for a half marathon.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-long-087",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User completed the half.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-088",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User signed up for a full marathon.",
+        "session": 7
+      },
+      {
+        "record_id": "rec-long-089",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User did a long run on Saturday.",
+        "session": 8
+      },
+      {
+        "record_id": "rec-long-090",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "First marathon: October 15, 2026, Chicago.",
+        "session": 9
+      }
     ]
   },
   {
     "id": "long-013",
     "query": "What was the penalty for the late filing?",
-    "gold_record_ids": ["rec-long-097"],
-    "gold_text_tokens": ["penalty", "late filing", "$500"],
+    "gold_record_ids": [
+      "rec-long-097"
+    ],
+    "gold_text_tokens": [
+      "filing",
+      "late",
+      "penalty"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-091", "scope": "longmem", "record_type": "Observation", "text": "Tax documents were due April 15.", "session": 2},
-      {"record_id": "rec-long-092", "scope": "longmem", "record_type": "Observation", "text": "User missed the deadline.", "session": 3},
-      {"record_id": "rec-long-093", "scope": "longmem", "record_type": "Observation", "text": "Extension was filed.", "session": 4},
-      {"record_id": "rec-long-094", "scope": "longmem", "record_type": "Observation", "text": "Penalty was calculated.", "session": 5},
-      {"record_id": "rec-long-095", "scope": "longmem", "record_type": "Observation", "text": "Payment was scheduled.", "session": 6},
-      {"record_id": "rec-long-096", "scope": "longmem", "record_type": "Observation", "text": "Receipt was filed.", "session": 7},
-      {"record_id": "rec-long-097", "scope": "longmem", "record_type": "Document", "text": "Late filing penalty: $500.", "session": 8}
+      {
+        "record_id": "rec-long-091",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Tax documents were due April 15.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-092",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User missed the deadline.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-long-093",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Extension was filed.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-long-094",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Penalty was calculated.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-095",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Payment was scheduled.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-long-096",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Receipt was filed.",
+        "session": 7
+      },
+      {
+        "record_id": "rec-long-097",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Late filing penalty: $500.",
+        "session": 8
+      }
     ]
   },
   {
     "id": "long-014",
     "query": "What was the user's role on the Apollo project?",
-    "gold_record_ids": ["rec-long-104"],
-    "gold_text_tokens": ["Apollo", "role", "Tech Lead"],
+    "gold_record_ids": [
+      "rec-long-104"
+    ],
+    "gold_text_tokens": [
+      "apollo",
+      "lead",
+      "project",
+      "role",
+      "tech"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-098", "scope": "longmem", "record_type": "Observation", "text": "User joined Apollo in January.", "session": 1},
-      {"record_id": "rec-long-099", "scope": "longmem", "record_type": "Observation", "text": "User attended the kickoff.", "session": 2},
-      {"record_id": "rec-long-100", "scope": "longmem", "record_type": "Observation", "text": "User reviewed the architecture.", "session": 3},
-      {"record_id": "rec-long-101", "scope": "longmem", "record_type": "Observation", "text": "User was promoted mid-project.", "session": 5},
-      {"record_id": "rec-long-102", "scope": "longmem", "record_type": "Observation", "text": "User led the redesign.", "session": 6},
-      {"record_id": "rec-long-103", "scope": "longmem", "record_type": "Observation", "text": "User shipped v2.", "session": 7},
-      {"record_id": "rec-long-104", "scope": "longmem", "record_type": "Document", "text": "Apollo project role: Tech Lead.", "session": 8}
+      {
+        "record_id": "rec-long-098",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User joined Apollo in January.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-long-099",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User attended the kickoff.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-100",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User reviewed the architecture.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-long-101",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User was promoted mid-project.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-102",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User led the redesign.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-long-103",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User shipped v2.",
+        "session": 7
+      },
+      {
+        "record_id": "rec-long-104",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Apollo project role: Tech Lead.",
+        "session": 8
+      }
     ]
   },
   {
     "id": "long-015",
     "query": "What was the capacity of the new data center?",
-    "gold_record_ids": ["rec-long-111"],
-    "gold_text_tokens": ["data center", "capacity", "10 MW"],
+    "gold_record_ids": [
+      "rec-long-111"
+    ],
+    "gold_text_tokens": [
+      "capacity",
+      "center",
+      "data",
+      "mw",
+      "racks"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-105", "scope": "longmem", "record_type": "Observation", "text": "Data center site selection began in Q1.", "session": 1},
-      {"record_id": "rec-long-106", "scope": "longmem", "record_type": "Observation", "text": "Three sites were evaluated.", "session": 2},
-      {"record_id": "rec-long-107", "scope": "longmem", "record_type": "Observation", "text": "Power availability was a constraint.", "session": 3},
-      {"record_id": "rec-long-108", "scope": "longmem", "record_type": "Observation", "text": "Contract was signed.", "session": 4},
-      {"record_id": "rec-long-109", "scope": "longmem", "record_type": "Observation", "text": "Construction started.", "session": 5},
-      {"record_id": "rec-long-110", "scope": "longmem", "record_type": "Observation", "text": "Racking and power completed.", "session": 6},
-      {"record_id": "rec-long-111", "scope": "longmem", "record_type": "Document", "text": "New data center capacity: 10 MW, 2,500 racks.", "session": 7}
+      {
+        "record_id": "rec-long-105",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Data center site selection began in Q1.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-long-106",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Three sites were evaluated.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-107",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Power availability was a constraint.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-long-108",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Contract was signed.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-long-109",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Construction started.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-110",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Racking and power completed.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-long-111",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "New data center capacity: 10 MW, 2,500 racks.",
+        "session": 7
+      }
     ]
   },
   {
     "id": "long-016",
     "query": "What was the user's contribution to the open-source project?",
-    "gold_record_ids": ["rec-long-118"],
-    "gold_text_tokens": ["contribution", "open-source", "CLI"],
+    "gold_record_ids": [
+      "rec-long-118"
+    ],
+    "gold_text_tokens": [
+      "added",
+      "cli",
+      "contribution",
+      "rewrote",
+      "subcommands"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-112", "scope": "longmem", "record_type": "Observation", "text": "User found a bug in the library.", "session": 1},
-      {"record_id": "rec-long-113", "scope": "longmem", "record_type": "Observation", "text": "User submitted a patch.", "session": 2},
-      {"record_id": "rec-long-114", "scope": "longmem", "record_type": "Observation", "text": "Patch was merged.", "session": 3},
-      {"record_id": "rec-long-115", "scope": "longmem", "record_type": "Observation", "text": "User became a maintainer.", "session": 4},
-      {"record_id": "rec-long-116", "scope": "longmem", "record_type": "Observation", "text": "User rewrote the CLI.", "session": 5},
-      {"record_id": "rec-long-117", "scope": "longmem", "record_type": "Observation", "text": "User wrote documentation.", "session": 6},
-      {"record_id": "rec-long-118", "scope": "longmem", "record_type": "Document", "text": "Contribution: rewrote the CLI and added 12 new subcommands.", "session": 7}
+      {
+        "record_id": "rec-long-112",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User found a bug in the library.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-long-113",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User submitted a patch.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-114",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Patch was merged.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-long-115",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User became a maintainer.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-long-116",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User rewrote the CLI.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-117",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User wrote documentation.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-long-118",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Contribution: rewrote the CLI and added 12 new subcommands.",
+        "session": 7
+      }
     ]
   },
   {
     "id": "long-017",
     "query": "What was the vendor's proposed solution for the latency issue?",
-    "gold_record_ids": ["rec-long-125"],
-    "gold_text_tokens": ["vendor", "latency", "proposed", "CDN"],
+    "gold_record_ids": [
+      "rec-long-125"
+    ],
+    "gold_text_tokens": [
+      "architecture",
+      "caching",
+      "cdn-backed",
+      "edge",
+      "proposed",
+      "vendor"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-119", "scope": "longmem", "record_type": "Observation", "text": "Latency issue was reported in Q1.", "session": 1},
-      {"record_id": "rec-long-120", "scope": "longmem", "record_type": "Observation", "text": "Vendor acknowledged the problem.", "session": 2},
-      {"record_id": "rec-long-121", "scope": "longmem", "record_type": "Observation", "text": "Root cause was identified as routing.", "session": 3},
-      {"record_id": "rec-long-122", "scope": "longmem", "record_type": "Observation", "text": "Vendor proposed a hotfix.", "session": 4},
-      {"record_id": "rec-long-123", "scope": "longmem", "record_type": "Observation", "text": "Hotfix was rejected.", "session": 5},
-      {"record_id": "rec-long-124", "scope": "longmem", "record_type": "Observation", "text": "Long-term solution was requested.", "session": 6},
-      {"record_id": "rec-long-125", "scope": "longmem", "record_type": "Document", "text": "Vendor proposed a CDN-backed architecture with edge caching.", "session": 7}
+      {
+        "record_id": "rec-long-119",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Latency issue was reported in Q1.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-long-120",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Vendor acknowledged the problem.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-121",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Root cause was identified as routing.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-long-122",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Vendor proposed a hotfix.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-long-123",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Hotfix was rejected.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-124",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Long-term solution was requested.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-long-125",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Vendor proposed a CDN-backed architecture with edge caching.",
+        "session": 7
+      }
     ]
   },
   {
     "id": "long-018",
     "query": "What was the user's first job after graduation?",
-    "gold_record_ids": ["rec-long-132"],
-    "gold_text_tokens": ["first job", "graduation", "consulting"],
+    "gold_record_ids": [
+      "rec-long-132"
+    ],
+    "gold_text_tokens": [
+      "accenture",
+      "consulting",
+      "first",
+      "graduation",
+      "job"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-126", "scope": "longmem", "record_type": "Observation", "text": "User graduated in 2018.", "session": 1},
-      {"record_id": "rec-long-127", "scope": "longmem", "record_type": "Observation", "text": "User interviewed at several companies.", "session": 2},
-      {"record_id": "rec-long-128", "scope": "longmem", "record_type": "Observation", "text": "User accepted an offer.", "session": 3},
-      {"record_id": "rec-long-129", "scope": "longmem", "record_type": "Observation", "text": "User moved to a new city.", "session": 4},
-      {"record_id": "rec-long-130", "scope": "longmem", "record_type": "Observation", "text": "User worked on enterprise integrations.", "session": 5},
-      {"record_id": "rec-long-131", "scope": "longmem", "record_type": "Observation", "text": "User stayed for two years.", "session": 6},
-      {"record_id": "rec-long-132", "scope": "longmem", "record_type": "Document", "text": "First job after graduation: consulting at Accenture.", "session": 7}
+      {
+        "record_id": "rec-long-126",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User graduated in 2018.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-long-127",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User interviewed at several companies.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-128",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User accepted an offer.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-long-129",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User moved to a new city.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-long-130",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User worked on enterprise integrations.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-131",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User stayed for two years.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-long-132",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "First job after graduation: consulting at Accenture.",
+        "session": 7
+      }
     ]
   },
   {
     "id": "long-019",
     "query": "What was the reason for the code freeze in December?",
-    "gold_record_ids": ["rec-long-139"],
-    "gold_text_tokens": ["code freeze", "December", "reason", "audit"],
+    "gold_record_ids": [
+      "rec-long-139"
+    ],
+    "gold_text_tokens": [
+      "audit",
+      "code",
+      "compliance",
+      "freeze",
+      "ii",
+      "reason",
+      "soc",
+      "type"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-133", "scope": "longmem", "record_type": "Observation", "text": "December planning started early.", "session": 1},
-      {"record_id": "rec-long-134", "scope": "longmem", "record_type": "Observation", "text": "Compliance audit was scheduled.", "session": 2},
-      {"record_id": "rec-long-135", "scope": "longmem", "record_type": "Observation", "text": "Code freeze was announced.", "session": 3},
-      {"record_id": "rec-long-136", "scope": "longmem", "record_type": "Observation", "text": "Only critical fixes were allowed.", "session": 4},
-      {"record_id": "rec-long-137", "scope": "longmem", "record_type": "Observation", "text": "Audit started on December 10.", "session": 5},
-      {"record_id": "rec-long-138", "scope": "longmem", "record_type": "Observation", "text": "Audit findings were minor.", "session": 6},
-      {"record_id": "rec-long-139", "scope": "longmem", "record_type": "Document", "text": "Code freeze reason: compliance audit for SOC 2 Type II.", "session": 7}
+      {
+        "record_id": "rec-long-133",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "December planning started early.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-long-134",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Compliance audit was scheduled.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-135",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Code freeze was announced.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-long-136",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Only critical fixes were allowed.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-long-137",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Audit started on December 10.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-138",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Audit findings were minor.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-long-139",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Code freeze reason: compliance audit for SOC 2 Type II.",
+        "session": 7
+      }
     ]
   },
   {
     "id": "long-020",
     "query": "What was the user's dissertation committee chair?",
-    "gold_record_ids": ["rec-long-146"],
-    "gold_text_tokens": ["dissertation", "committee chair", "Dr. Patel"],
+    "gold_record_ids": [
+      "rec-long-146"
+    ],
+    "gold_text_tokens": [
+      "anika",
+      "chair",
+      "committee",
+      "dissertation",
+      "dr",
+      "patel"
+    ],
     "abstain": false,
     "setup_records": [
-      {"record_id": "rec-long-140", "scope": "longmem", "record_type": "Observation", "text": "User selected a dissertation topic.", "session": 1},
-      {"record_id": "rec-long-141", "scope": "longmem", "record_type": "Observation", "text": "User identified potential advisors.", "session": 2},
-      {"record_id": "rec-long-142", "scope": "longmem", "record_type": "Observation", "text": "User met with Dr. Patel.", "session": 3},
-      {"record_id": "rec-long-143", "scope": "longmem", "record_type": "Observation", "text": "Dr. Patel agreed to chair.", "session": 4},
-      {"record_id": "rec-long-144", "scope": "longmem", "record_type": "Observation", "text": "Committee was formed.", "session": 5},
-      {"record_id": "rec-long-145", "scope": "longmem", "record_type": "Observation", "text": "Proposal was defended.", "session": 6},
-      {"record_id": "rec-long-146", "scope": "longmem", "record_type": "Document", "text": "Dissertation committee chair: Dr. Anika Patel.", "session": 7}
+      {
+        "record_id": "rec-long-140",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User selected a dissertation topic.",
+        "session": 1
+      },
+      {
+        "record_id": "rec-long-141",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User identified potential advisors.",
+        "session": 2
+      },
+      {
+        "record_id": "rec-long-142",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "User met with Dr. Patel.",
+        "session": 3
+      },
+      {
+        "record_id": "rec-long-143",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Dr. Patel agreed to chair.",
+        "session": 4
+      },
+      {
+        "record_id": "rec-long-144",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Committee was formed.",
+        "session": 5
+      },
+      {
+        "record_id": "rec-long-145",
+        "scope": "longmem",
+        "record_type": "Observation",
+        "text": "Proposal was defended.",
+        "session": 6
+      },
+      {
+        "record_id": "rec-long-146",
+        "scope": "longmem",
+        "record_type": "Document",
+        "text": "Dissertation committee chair: Dr. Anika Patel.",
+        "session": 7
+      }
     ]
   }
 ]
