@@ -21,6 +21,17 @@ def sub(tmp_path):
         sub.close()
 
 
+@pytest.fixture
+def sub_with_other(tmp_path):
+    engine = ScopeEngine(known_scopes={"s", "other"})
+    ctx = ScopeContext(granted_scopes=frozenset({"s"}), user_authored=True, actor="local-user")
+    sub = Substrate(tmp_path / "db", engine)
+    try:
+        yield sub, ctx
+    finally:
+        sub.close()
+
+
 def test_extract_observations_returns_observation_records(sub):
     class FakeModel:
         def __call__(self, prompt):
@@ -137,7 +148,7 @@ def test_synthesize_abstains_without_citations(sub):
     sub_obj, ctx = sub
     sub_obj.put(Record(record_id="r1", record_type="Source", scope="s", payload={"text": "lighthouse evidence"}, attribution="document", source_ids=[]), ctx)
     sub_obj.rebuild_fts("s", ctx)
-    with pytest.raises(Abstention, match="no citations"):
+    with pytest.raises(Abstention, match="no valid citations"):
         synthesize(sub_obj, ctx, "lighthouse", layer)
 
 
@@ -177,3 +188,80 @@ def test_model_layer_records_failed_local_call():
         layer.run("m", "p", "task")
     assert len(layer.calls) == 1
     assert layer.calls[0].error is not None
+
+
+# --- Regression tests for adversarial review findings on 1d0cc0e ---
+
+def test_extract_observations_rejects_unreadable_source(sub_with_other):
+    class FakeModel:
+        def __call__(self, prompt):
+            return json.dumps([{"text": "obs", "location": "loc", "confidence": 0.5}])
+    layer = ModelLayer(local_factory=lambda _: FakeModel())
+    sub_obj, read_ctx = sub_with_other
+    # Write the source using a context that grants both scopes, then try to
+    # read it with a context that only grants "s".
+    write_ctx = ScopeContext(granted_scopes=frozenset({"s", "other"}), user_authored=True, actor="local-user")
+    src = Record(record_id="src-other", record_type="Source", scope="other", payload={"text": "secret"}, attribution="document", source_ids=[])
+    sub_obj.put(src, write_ctx)
+    with pytest.raises(ReasoningError, match="not found or not readable"):
+        extract_observations(sub_obj, read_ctx, "src-other", "arbitrary text", layer)
+
+
+def test_hypothesize_rejects_unreadable_evidence(sub_with_other):
+    class FakeModel:
+        def __call__(self, prompt):
+            return json.dumps({"hypothesis": "test"})
+    layer = ModelLayer(local_factory=lambda _: FakeModel())
+    sub_obj, read_ctx = sub_with_other
+    bad_evidence = [Record(record_id="x", record_type="Source", scope="other", payload={"text": "p"}, attribution="document", source_ids=[])]
+    with pytest.raises(ReasoningError, match="evidence record .* not readable"):
+        hypothesize(sub_obj, read_ctx, "q", layer, evidence=bad_evidence)
+
+
+def test_contradict_rejects_unreadable_claim(sub_with_other):
+    class FakeModel:
+        def __call__(self, prompt):
+            return json.dumps([])
+    layer = ModelLayer(local_factory=lambda _: FakeModel())
+    sub_obj, read_ctx = sub_with_other
+    write_ctx = ScopeContext(granted_scopes=frozenset({"s", "other"}), user_authored=True, actor="local-user")
+    claim = Record(record_id="c1", record_type="Claim", scope="other", payload={"text": "x"}, attribution="agent", source_ids=[], epistemic_status="derived")
+    sub_obj.put(claim, write_ctx)
+    with pytest.raises(ReasoningError, match="claim .* not readable"):
+        contradict(sub_obj, read_ctx, claim, layer)
+
+
+def test_contradict_raises_abstention_on_malformed_json(sub):
+    class FakeModel:
+        def __call__(self, prompt):
+            return "not json at all"
+    layer = ModelLayer(local_factory=lambda _: FakeModel())
+    sub_obj, ctx = sub
+    claim = Record(record_id="c1", record_type="Claim", scope="s", payload={"text": "x"}, attribution="agent", source_ids=["r1"], epistemic_status="derived")
+    sub_obj.put(claim, ctx)
+    with pytest.raises(Abstention, match="invalid JSON"):
+        contradict(sub_obj, ctx, claim, layer)
+
+
+def test_synthesize_rejects_fabricated_citations(sub):
+    class FakeModel:
+        def __call__(self, prompt):
+            return "Answer [nonexistent-id] because evidence."
+    layer = ModelLayer(local_factory=lambda _: FakeModel())
+    sub_obj, ctx = sub
+    sub_obj.put(Record(record_id="r1", record_type="Source", scope="s", payload={"text": "lighthouse evidence"}, attribution="document", source_ids=[]), ctx)
+    sub_obj.rebuild_fts("s", ctx)
+    with pytest.raises(Abstention, match="no valid citations"):
+        synthesize(sub_obj, ctx, "lighthouse", layer)
+
+
+def test_model_layer_records_failed_external_call():
+    def bad(prompt, api_key):
+        raise RuntimeError("external down")
+    layer = ModelLayer(external_factory=lambda m, u: bad, egress_allowed=True)
+    with pytest.raises(ModelLayerError, match="external model failed"):
+        layer.run("m", "p", "task", base_url="http://x", api_key="k")
+    assert len(layer.calls) == 1
+    assert layer.calls[0].error is not None
+    assert layer.calls[0].provider == "external"
+    assert layer.calls[0].egress is True

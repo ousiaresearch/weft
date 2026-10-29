@@ -76,14 +76,15 @@ class ModelLayer:
         if self.external_factory is None:
             raise ModelUnavailable(f"no external factory configured for {task}")
         model = self.external_factory(model_id, base_url)
+        call = ModelCall(model_id=model_id, provider="external", task=task,
+                         input_chars=len(prompt), egress=True)
         try:
             text = model(prompt, api_key=api_key)
         except Exception as exc:
-            call = ModelCall(model_id=model_id, provider="external", task=task,
-                             input_chars=len(prompt), egress=True, error=str(exc))
+            call.error = str(exc)
+            self.calls.append(call)
             raise ModelLayerError(f"external model failed: {exc}") from exc
-        call = ModelCall(model_id=model_id, provider="external", task=task,
-                         input_chars=len(prompt), output_chars=len(text), egress=True)
+        call.output_chars = len(text)
         return self._record(call, text)
 
     def run(self, model_id: str, prompt: str, task: str, *,
