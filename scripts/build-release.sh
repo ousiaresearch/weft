@@ -21,6 +21,7 @@ echo "==> Verifying wheel"
 ls -lh dist/*.whl
 
 echo "==> Installing wheel in fresh venv"
+rm -rf /tmp/weft-alpha-verify
 python3 -m venv /tmp/weft-alpha-verify
 /tmp/weft-alpha-verify/bin/python -m pip install --quiet dist/*.whl
 
