@@ -159,9 +159,10 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
 
         items: list[Item] = []
         seen_documents: set = set()  # one result per document: a note is not five paragraphs
-        read_limit = pool if rerank else limit
         for rid in candidate_ids:
-            if len(items) >= read_limit:
+            if len(items) >= limit and not rerank:
+                break
+            if len(items) >= pool:
                 break
             rec = sub.get(rid, ctx)  # gated again: defence in depth
             if rec is None:
