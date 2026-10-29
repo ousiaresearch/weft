@@ -164,11 +164,13 @@ def run(embedder=None) -> dict:
         try:
             for qa in qa_pairs:
                 lex_res = run_recall(sub, qa.question, embedder=None)
-                lex_score = score_answer(qa.question_id, "lexical", qa.gold_answer, lex_res, qa.abstain)
+                lex_score = score_answer(qa.question_id, "lexical", qa.gold_answer, lex_res, qa.abstain,
+                                         gold_record_ids=qa.evidence_ids)
                 all_lex.append(lex_score)
                 if embedder is not None:
                     hyb_res = run_recall(sub, qa.question, embedder=embedder)
-                    hyb_score = score_answer(qa.question_id, "hybrid", qa.gold_answer, hyb_res, qa.abstain)
+                    hyb_score = score_answer(qa.question_id, "hybrid", qa.gold_answer, hyb_res, qa.abstain,
+                                             gold_record_ids=qa.evidence_ids)
                     all_hyb.append(hyb_score)
         finally:
             sub.close()
@@ -184,6 +186,7 @@ def _aggregate(scores: list[ScoreResult]) -> dict:
     total = len(scores)
     exact = sum(1 for s in scores if s.exact)
     substring = sum(1 for s in scores if s.substring)
+    f1_sum = sum(s.f1 for s in scores)
     latencies = [s.latency_ms for s in scores]
     latencies_sorted = sorted(latencies)
     p50 = latencies_sorted[len(latencies_sorted) // 2] if latencies_sorted else 0.0
@@ -194,6 +197,7 @@ def _aggregate(scores: list[ScoreResult]) -> dict:
         "substring": substring,
         "exact_rate": exact / total if total else 0.0,
         "substring_rate": substring / total if total else 0.0,
+        "f1_mean": f1_sum / total if total else 0.0,
         "p50_ms": p50,
         "p95_ms": p95,
     }

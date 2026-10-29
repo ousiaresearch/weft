@@ -79,8 +79,36 @@ def _fuse(ranked_lists: list, limit: int) -> list:
     return [rid for rid, _ in order[:limit]]
 
 
+def _cosine(a, b):
+    import math
+    dot = sum(x * y for x, y in zip(a, b))
+    na = math.sqrt(sum(x * x for x in a))
+    nb = math.sqrt(sum(y * y for y in b))
+    if na == 0 or nb == 0:
+        return 0.0
+    return dot / (na * nb)
+
+
+def _rerank(query: str, items, embedder, top_k: int):
+    """Re-score fused candidates by query–candidate cosine similarity."""
+    if embedder is None or not items:
+        return items[:top_k]
+    try:
+        q_emb = embedder.embed_query(query)
+        texts = [it.text for it in items]
+        try:
+            cand_embs = embedder.embed_documents(texts)
+        except AttributeError:
+            cand_embs = [embedder.embed_document(t) for t in texts]
+        scored = [(_cosine(q_emb, emb), it) for it, emb in zip(items, cand_embs)]
+        scored.sort(key=lambda x: (-x[0], x[1].record_id))
+        return [it for _, it in scored[:top_k]]
+    except Exception:
+        return items[:top_k]
+
+
 def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
-           mode: str = "hybrid", embedder=None):
+           mode: str = "hybrid", embedder=None, rerank: bool = False):
     """Recall over the caller's readable scopes. Returns (items, receipt)."""
     if mode not in MODES:
         raise ValueError(f"unknown recall mode: {mode!r}")
@@ -130,7 +158,7 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
         items: list[Item] = []
         seen_documents: set = set()  # one result per document: a note is not five paragraphs
         for rid in candidate_ids:
-            if len(items) >= limit:
+            if len(items) >= pool:
                 break
             rec = sub.get(rid, ctx)  # gated again: defence in depth
             if rec is None:
@@ -152,7 +180,14 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
             if _TIER_ORDER[tier] > _TIER_ORDER[receipt.tier]:
                 receipt.tier = tier
 
+        # Optional reranking over the full pool before truncation to limit.
+        if rerank and len(items) > limit:
+            items = _rerank(query, items, embedder, limit)
+
+    # Final truncation + receipt recording happens outside the read transaction.
+    selected = items[:limit]
+    receipt.selected = [it.record_id for it in selected]
     if ctx is not None:
         sub.record_receipt("recall", readable,
-                           {"selected": len(items), "excluded": len(receipt.exclusions)}, ctx)
-    return items, receipt
+                           {"selected": len(selected), "excluded": len(receipt.exclusions)}, ctx)
+    return selected, receipt

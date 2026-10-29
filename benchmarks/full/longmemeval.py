@@ -121,6 +121,7 @@ def _aggregate(scores: list[ScoreResult]) -> dict:
     total = len(scores)
     exact = sum(1 for s in scores if s.exact)
     substring = sum(1 for s in scores if s.substring)
+    f1_sum = sum(s.f1 for s in scores)
     abstentions = [s for s in scores if s.abstention_correct is not None]
     abstent_correct = sum(1 for s in abstentions if s.abstention_correct)
     latencies = [s.latency_ms for s in scores]
@@ -133,6 +134,7 @@ def _aggregate(scores: list[ScoreResult]) -> dict:
         "substring": substring,
         "exact_rate": exact / total if total else 0.0,
         "substring_rate": substring / total if total else 0.0,
+        "f1_mean": f1_sum / total if total else 0.0,
         "abstention_count": len(abstentions),
         "abstention_accuracy": abstent_correct / len(abstentions) if abstentions else None,
         "p50_ms": p50,

@@ -54,8 +54,9 @@ class ScoreResult:
     mode: str
     exact: bool
     substring: bool
-    abstention_correct: bool | None
-    latency_ms: float
+    f1: float = 0.0
+    abstention_correct: bool | None = None
+    latency_ms: float = 0.0
 
 
 def make_engine() -> ScopeEngine:
@@ -104,6 +105,7 @@ def run_recall(
         limit=limit,
         mode="hybrid" if embedder is not None else "lexical",
         embedder=embedder,
+        rerank=False,
     )
     latency_ms = (time.perf_counter() - start) * 1000.0
     selected_ids = [item.record_id for item in items]
@@ -128,6 +130,7 @@ def score_answer(
     gold_answer: str,
     result: RecallResult,
     abstain: bool,
+    gold_record_ids: list[str] | None = None,
 ) -> ScoreResult:
     gold_answer = str(gold_answer or "")
     if abstain:
@@ -136,18 +139,57 @@ def score_answer(
             mode=mode,
             exact=False,
             substring=False,
+            f1=0.0,
             abstention_correct=result.abstained,
             latency_ms=result.latency_ms,
         )
+
+    # Retrieval-based scoring when evidence IDs are available.
+    if gold_record_ids:
+        gold_set = set(gold_record_ids)
+        selected_set = set(result.selected_ids)
+        hit = bool(gold_set & selected_set)
+        # MRR: 1/rank of first gold hit
+        mrr = 0.0
+        for rank, rid in enumerate(result.selected_ids, start=1):
+            if rid in gold_set:
+                mrr = 1.0 / rank
+                break
+        return ScoreResult(
+            question_id=question_id,
+            mode=mode,
+            exact=hit,
+            substring=hit,
+            f1=mrr,  # store MRR in f1 field when evidence_ids provided
+            abstention_correct=None,
+            latency_ms=result.latency_ms,
+        )
+
+    # Fallback: text-based scoring for datasets without evidence IDs.
     gold_lower = gold_answer.lower()
     combined = " ".join(result.selected_texts)
     exact = gold_lower in combined
     substring = any(gold_lower in t for t in result.selected_texts)
+    f1 = _token_f1(gold_answer, combined)
     return ScoreResult(
         question_id=question_id,
         mode=mode,
         exact=exact,
         substring=substring,
+        f1=f1,
         abstention_correct=None,
         latency_ms=result.latency_ms,
     )
+
+
+def _token_f1(gold: str, predicted: str) -> float:
+    """Token-level F1 between gold and predicted text."""
+    from collections import Counter
+    g = Counter(gold.lower().split())
+    p = Counter(predicted.lower().split())
+    common = sum(min(g[k], p[k]) for k in g.keys() & p.keys())
+    if not common:
+        return 0.0
+    precision = common / max(sum(p.values()), 1)
+    recall = common / max(sum(g.values()), 1)
+    return 2 * precision * recall / (precision + recall)
