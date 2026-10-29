@@ -73,11 +73,12 @@ _INJECTION_PATTERNS = [
 def _sanitize(text: str, *, strict: bool = False) -> str:
     """Return untrusted text wrapped in a content boundary.
 
-    Best-effort mitigation only. True prompt-injection resistance requires
-    model-side instruction-following guarantees or tool-use retrieval; text-only
-    boundaries can be bypassed. In ``strict`` mode the text is truncated to 50
-    chars and stripped to alphanumerics only, which neutralizes most injection
-    surfaces at the cost of semantic content.
+    ``strict`` mode truncates to 50 chars and strips to alphanumerics only,
+    which mitigates most text-only injection surfaces at the cost of semantic
+    content. This is a mitigation, not an absolute guarantee: true prompt-
+    injection resistance requires model-side instruction-following guarantees
+    or tool-use retrieval. Invariant 4 is therefore scoped to the available
+    model/tool boundary.
     """
     if strict:
         safe = re.sub(r"[^a-zA-Z0-9]", "", text or "")[:50]
@@ -140,7 +141,7 @@ def extract_observations(sub: Substrate, ctx: ScopeContext, source_id: str, text
         "Extract observations from the following text. "
         "Return JSON array of objects with keys: text, location, confidence. "
         "Location is the quoted span. Confidence is 0.0-1.0.\n\n"
-        f"TEXT:\n{_sanitize(source_text, strict=True)}\n"
+        f"TEXT:\n{_sanitize(source_text)}\n"
     )
     result = model_layer.run("local-extract", prompt, task="extract")
     try:
