@@ -7,7 +7,6 @@
 **Scope:**
 - Artifact verification (wheel + metadata)
 - Security audit of entrypoints, temp files, and egress surfaces
-- Hardened installer docs (pipx, venv, systemd)
 - Regression test for install/uninstall cycle
 - PyPI publishing runbook (token creation, twine upload)
 
