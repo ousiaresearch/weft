@@ -19,7 +19,9 @@
 1. `docs/design/phase8-beta-readiness.md` (this doc)
 2. `docs/pypi-publishing.md` — step-by-step token creation and upload
 3. `scripts/verify-install.sh` — fresh-venv install + uninstall + smoke test
-4. `tests/test_install.py` — install/uninstall regression
+4. `scripts/build-release.sh` — wheel build with interpreter selection and umask 0077
+5. `tests/test_install.py` — install/uninstall regression with umask 0077
+6. `docs/security-audit-alpha.md` — alpha security audit
 
 **Gates:**
 - G1: Wheel metadata valid and installs cleanly in fresh venv.

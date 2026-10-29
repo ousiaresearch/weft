@@ -37,11 +37,10 @@ def test_install_uninstall_cycle():
     old_umask = os.umask(0o077)
     try:
         subprocess.run([python, "-m", "venv", VENV], check=True)
+        pip = os.path.join(VENV, "bin", "python")
+        subprocess.run([pip, "-m", "pip", "install", "--quiet", wheel], check=True)
     finally:
         os.umask(old_umask)
-    subprocess.run([python, "-m", "venv", VENV], check=True)
-    pip = os.path.join(VENV, "bin", "python")
-    subprocess.run([pip, "-m", "pip", "install", "--quiet", wheel], check=True)
     weft = os.path.join(VENV, "bin", "weft")
     subprocess.run([weft, "--help"], check=True, stdout=subprocess.DEVNULL)
     db = "/tmp/weft-install-pytest.db"

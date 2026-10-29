@@ -18,7 +18,7 @@
 - `tests/test_install.py` creates temp venv at `/tmp/weft-install-test-pytest` with umask 0077 and temp db `/tmp/weft-install-pytest.db`.
 - `weft/adapters.py:67,95,100` uses `tempfile.mkstemp` for adapter scratch files in the Hermes scratch dir.
 - `weft/substrate.py:1554` creates sibling `.tmp-*.part` files during writes; `weft/substrate.py:207-240` sets umask 0o077 and chmod 0o600 on the database and sidecars.
-- Temp file permissions are explicit in substrate.py and release/verification scripts.
+- Temp file permissions are enforced via umask 0077 in substrate.py and release/verification scripts.
 
 ## Egress surfaces
 
