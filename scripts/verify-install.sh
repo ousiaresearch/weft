@@ -14,23 +14,10 @@ if [ ! -d "dist" ] || [ -z "$(ls dist/*.whl 2>/dev/null)" ]; then
 fi
 
 WHEEL="$(ls dist/*.whl | head -n 1)"
-VENV="/tmp/weft-install-verify"
-
-# Prefer an explicit Python >= 3.11.
-if [ -n "${WEFT_PYTHON:-}" ]; then
-  PYTHON_BIN="${WEFT_PYTHON}"
-else
-  for candidate in python3.11 python3.12 python3.13 python3; do
-    if command -v "${candidate}" >/dev/null 2>&1; then
-      PYTHON_BIN="${candidate}"
-      break
-    fi
-  done
-fi
-
-if [ -z "${PYTHON_BIN:-}" ]; then
-  echo "Error: no Python interpreter found" >&2
-  exit 1
+VENV="$(mktemp -d -t weft-install-verify-XXXXXXXXXX)"
+PYTHON_BIN="${WEFT_PYTHON:-python3.11}"
+if ! command -v "${PYTHON_BIN}" >/dev/null 2>&1; then
+  PYTHON_BIN="python3"
 fi
 
 rm -rf "${VENV}"

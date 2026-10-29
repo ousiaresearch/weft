@@ -53,13 +53,13 @@ echo "==> Verifying wheel"
 ls -lh dist/*.whl
 
 echo "==> Installing wheel in fresh venv"
-rm -rf /tmp/weft-alpha-verify
+VERIFY_VENV="$(mktemp -d -t weft-alpha-verify-XXXXXXXXXX)"
 umask 0077
-"${PYTHON_BIN}" -m venv /tmp/weft-alpha-verify
-/tmp/weft-alpha-verify/bin/python -m pip install --quiet dist/*.whl
+"${PYTHON_BIN}" -m venv "${VERIFY_VENV}"
+"${VERIFY_VENV}/bin/python" -m pip install --quiet dist/*.whl
 
 echo "==> Checking entrypoint"
-/tmp/weft-alpha-verify/bin/weft --help >/dev/null
-/tmp/weft-alpha-verify/bin/weft --db /tmp/weft-alpha-test.db serve --help >/dev/null
+"${VERIFY_VENV}/bin/weft" --help >/dev/null
+"${VERIFY_VENV}/bin/weft" --db /tmp/weft-alpha-test.db serve --help >/dev/null
 
 echo "==> Done. Artifacts in dist/"

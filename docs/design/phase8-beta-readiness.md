@@ -25,9 +25,8 @@
 **Gates:**
 - G1: Wheel metadata valid and installs cleanly in fresh venv.
 - G2: Security audit cleared (entrypoints, temp files, egress, injection).
-- G3: Install docs verified on clean macOS/Linux.
+- G3: PyPI runbook reviewed.
 - G4: Install/uninstall regression passing.
-- G5: PyPI runbook reviewed.
 
 **Risks:**
 - PyPI token not yet available; publishing blocked until token is provided
