@@ -75,6 +75,7 @@ def test_abstention_classification_uses_abstain_flag():
         assert agg["answerable"] == 1, f"expected 1 answerable, got {agg['answerable']}"
         assert agg["abstentions"] == 1, f"expected 1 abstention, got {agg['abstentions']}"
         assert agg["recall_at_5_rate"] == 1.0, f"answerable R@5 should be 1.0, got {agg['recall_at_5_rate']}"
+        assert agg["mrr"] == 1.0, f"answerable MRR should be 1.0, got {agg['mrr']}"
         assert agg["abstention_accuracy"] == 1.0, f"abstention accuracy should be 1.0, got {agg['abstention_accuracy']}"
     finally:
         if dataset_path.exists():
