@@ -17,11 +17,10 @@ Current `Substrate.get(record_id, ctx)` returns the latest version of a record. 
 
 Corrections are immutable — the original record is preserved with its original `effective_time`. The correction record has a later `effective_time` and a `supersedes` source_id pointing to the original. Querying the original ID at a timestamp before the correction returns the original; querying at a timestamp after the correction returns the correction via `superseded_by` chain.
 
-### 5.4 Export / Import
-
-- Export: serialize all records (including superseded versions) in scope to a portable format (JSON with schema version).
-- Import: validate schema version, scope, and integrity; create new records with original effective_time preserved.
-- Round-trip: export then import must produce identical record content and lineage.
+### 5.4 Export / Import (Closed)
+- Export: `Substrate.export_scope(scope, ctx)` serializes readable records in scope to a portable dict with schema version.
+- Import: `Substrate.import_scope(data, ctx)` validates schema version, scope, and write auth; inserts with INSERT OR REPLACE.
+- Round-trip: export then import preserves record content and lineage.
 
 ### 5.5 Backup / Retention / Purge
 

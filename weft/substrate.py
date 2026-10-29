@@ -1364,6 +1364,39 @@ class Substrate:
                         "detail": detail, "recorded_at": ts})
         return out
 
+    def prune_derived(self, scope: str, older_than: float, ctx: ScopeContext | None = None) -> int:
+        """Delete derived records (Claim, Hypothesis, Summary, Reasoning) in ``scope``
+        created before ``older_than`` whose source records still exist.
+
+        Returns the number of records pruned. No context -> 0.
+        """
+        if ctx is None:
+            return 0
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT record_id, scope, source_ids FROM records "
+                "WHERE scope = ? AND record_type IN ('Claim', 'Hypothesis', 'Summary', 'Reasoning') "
+                "AND created_at < ?",
+                (scope, older_than),
+            ).fetchall()
+            prunable = []
+            for rid, rscope, src_json in rows:
+                if not self.scope_engine.authorize_delete(rscope, ctx).allowed:
+                    continue
+                src_ids = json.loads(src_json)
+                if not src_ids:
+                    continue
+                if all(self._lookup_record(sid) is not None for sid in src_ids):
+                    prunable.append(rid)
+            for rid in prunable:
+                self._conn.execute("DELETE FROM records WHERE record_id = ?", (rid,))
+                self._fts_remove(rid)
+                self._vec_remove(rid, scope)
+                self._journal("prune_derived", rid, scope, "retention TTL exceeded")
+            if prunable:
+                self._bump_version()
+            return len(prunable)
+
     # ---- projections --------------------------------------------------
 
     @staticmethod
