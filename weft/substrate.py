@@ -1166,6 +1166,84 @@ class Substrate:
         readable, _ = self.query(ctx)
         return readable
 
+    def get_at(self, record_id: str, timestamp: float, ctx: ScopeContext | None = None) -> Record | None:
+        """Fetch the effective version of a record at ``timestamp``.
+
+        Walks the ``supersedes`` chain to find the latest supersession whose
+        ``effective_at`` is at or before ``timestamp``. Returns ``None`` if the
+        record does not exist or the caller lacks read access.
+        """
+        if ctx is None:
+            return None
+        with self._lock:
+            # Start with the requested record.
+            row = self._conn.execute(
+                "SELECT * FROM records WHERE record_id = ?", (record_id,)
+            ).fetchone()
+            if row is None:
+                return None
+            rec = Record.from_row(row)
+            decision = self.scope_engine.authorize_read(rec.scope, ctx, self.scope_engine._payload_text(rec))
+            if not decision.allowed:
+                self._journal_standalone("read_denied", None, None, "read not permitted")
+                return None
+            # Walk supersedes chain to find latest supersession at or before timestamp.
+            current = rec
+            while True:
+                child = self._conn.execute(
+                    "SELECT * FROM records WHERE supersedes = ? AND effective_at <= ? ORDER BY effective_at DESC LIMIT 1",
+                    (current.record_id, timestamp),
+                ).fetchone()
+                if child is None:
+                    break
+                child_rec = Record.from_row(child)
+                child_decision = self.scope_engine.authorize_read(child_rec.scope, ctx, self.scope_engine._payload_text(child_rec))
+                if not child_decision.allowed:
+                    self._journal_standalone("read_denied", None, None, "read not permitted for supersession")
+                    break
+                current = child_rec
+            return current
+
+    def query_as_of(
+        self,
+        timestamp: float,
+        ctx: ScopeContext | None = None,
+        *,
+        record_type: str | None = None,
+        scope: str | None = None,
+    ) -> list[Record]:
+        """Return all records visible at ``timestamp`` in the authorized scopes.
+
+        A record is visible if its ``effective_at`` is at or before ``timestamp``
+        and no superseding record with a later ``effective_at`` (also <= timestamp)
+        exists. No context -> empty list.
+        """
+        if ctx is None:
+            return []
+        with self._lock:
+            sql = (
+                "SELECT * FROM records r "
+                "WHERE r.effective_at <= ? "
+                "AND NOT EXISTS ("
+                "  SELECT 1 FROM records s "
+                "  WHERE s.scope = r.scope "
+                "  AND s.supersedes = r.record_id "
+                "  AND s.effective_at <= ? "
+                "  AND s.effective_at > r.effective_at"
+                ")"
+            )
+            params: list[Any] = [timestamp, timestamp]
+            if record_type is not None:
+                sql += " AND r.record_type = ?"
+                params.append(record_type)
+            if scope is not None:
+                sql += " AND r.scope = ?"
+                params.append(scope)
+            sql += " ORDER BY r.created_at"
+            rows = self._conn.execute(sql, params).fetchall()
+            records = [Record.from_row(r) for r in rows]
+            return self.scope_engine.filter_readable(records, ctx)
+
     def journal_entries(self, ctx: ScopeContext | None = None) -> list[dict]:
         """Journal entries the caller may see (review fix F12). No context -> nothing.
 
