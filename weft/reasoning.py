@@ -71,12 +71,13 @@ _INJECTION_PATTERNS = [
 
 
 def _sanitize(text: str) -> str:
-    # Redact known instruction patterns before stripping punctuation.
     cleaned = text or ""
+    # Normalize obfuscated instructions before pattern matching.
+    normalized = re.sub(r"(?<=\w)[^\w\s]+(?=\w)", "", cleaned)
     for pat in _INJECTION_PATTERNS:
-        cleaned = pat.sub("[REDACTED INJECTION]", cleaned)
+        normalized = pat.sub("[REDACTED INJECTION]", normalized)
     # Strip punctuation, flatten whitespace, and truncate.
-    safe = re.sub(r"[^\w\s\[\]]", "", cleaned)[:200]
+    safe = re.sub(r"[^\w\s\[\]]", "", normalized)[:200]
     safe = re.sub(r"\s+", " ", safe).strip()
     return (
         "<UNTRUSTED_DOCUMENT>\n"
