@@ -18,7 +18,7 @@ This produces `dist/weft_memory-0.1.0a0-py3-none-any.whl` and verifies install +
 
 ```bash
 python3 -m pip install twine
-twine upload dist/*
+python3 -m twine upload dist/*
 ```
 
 Enter the API token when prompted.
