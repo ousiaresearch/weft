@@ -33,7 +33,7 @@ This set exercises the Weft reasoning loop against a closed, deterministic groun
 **Input:** Scope `s`. No records about lighthouse height.
 **Scope:** s
 **Query:** "How tall is the lighthouse?"
-**Gold answer:** "insufficient evidence"
+**Gold answer:** "no scoped evidence available for synthesis"
 **Gold citations:** `[]`
 **Abstain:** Yes
 
@@ -60,7 +60,7 @@ This set exercises the Weft reasoning loop against a closed, deterministic groun
 **Scope:** s
 **Input:** Record `doc-1` is filed in scope `s` but contains a marker registered to scope `t` ("project Alpha").
 **Query:** "What does Phase 6 include?"
-**Gold answer:** "insufficient evidence"
+**Gold answer:** "content is bound to a different scope"
 **Gold citations:** `[]`
 **Abstain:** Yes
 

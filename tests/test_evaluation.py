@@ -285,7 +285,7 @@ class TestPhase7Evaluation:
                     f"{case['case_id']}: denial reason '{decision.reason}' does not match content_conflict '{conflict_reason}'"
                 )
 
-                # Synthesis must abstain.
+                # Synthesis must abstain because the content-conflicted record is excluded.
                 with pytest.raises(Abstention):
                     synthesize(sub, ctx, case["query"], layer)
 
