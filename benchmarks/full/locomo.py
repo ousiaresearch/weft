@@ -71,25 +71,25 @@ def convert_sample(sample: dict) -> tuple[str, list[Record], list[QAPair]]:
                     if isinstance(item, list) and len(item) >= 2:
                         text, ev = item[0], item[1]
                         ev_ids = _parse_evidence_id(ev)
-                        ev_id = ev_ids[0]
                     elif isinstance(item, str):
                         text = item
-                        ev_id = f"obs-{len(seen_ids)}"
+                        ev_ids = [f"obs-{len(seen_ids)}"]
                     else:
                         continue
                     if not text:
                         continue
-                    _add_record(
-                        Record(
-                            record_id=f"{conv_id}-{ev_id}",
-                            record_type="Source",
-                            scope="benchmark",
-                            payload={"text": text},
-                            epistemic_status="stated",
-                            attribution="document",
-                            provenance={"session": session_key, "speaker": speaker},
+                    for ev_id in ev_ids:
+                        _add_record(
+                            Record(
+                                record_id=f"{conv_id}-{ev_id}",
+                                record_type="Source",
+                                scope="benchmark",
+                                payload={"text": text},
+                                epistemic_status="stated",
+                                attribution="document",
+                                provenance={"session": session_key, "speaker": speaker},
+                            )
                         )
-                    )
 
     # Event summaries -> Source records
     event_data = json.loads(sample.get("event_summary", "{}") or "{}")
