@@ -1,7 +1,7 @@
 # Phase 7 — Gated Cutover Checklist
 
 **Plan:** `~/.hermes/plans/2026-10-24_weft-memory-system-full-plan.md`
-**Current HEAD:** `440309a` (Phase 7 checklist updated; provenance completed; build verification added)
+**Current HEAD:** `e88dff4` (Phase 7 checklist updated; provenance completed; build verification added)
 
 ## Gates
 
