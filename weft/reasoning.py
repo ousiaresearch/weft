@@ -61,7 +61,11 @@ def _safe_text(rec: Record) -> str:
 
 
 _INJECTION_PATTERNS = [
+    # Line-start instruction patterns.
     re.compile(r"(?i)^\s*(ignore|you are|your task|answer:|abstain:|system:|user:|assistant:).*$", re.MULTILINE),
+    # Mid-line instruction keywords.
+    re.compile(r"(?i)\b(ignore all|you are a|your task is|system:|user:|assistant:|answer:)\b.*", re.MULTILINE),
+    # XML delimiter tags (with optional whitespace before >).
     re.compile(r"</?UNTRUSTED_DOCUMENT\s*>", re.IGNORECASE),
 ]
 
