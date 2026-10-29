@@ -23,7 +23,7 @@
 **Gates:**
 - G1: Wheel builds, metadata valid, and installs cleanly in fresh venv.
 - G2: Security audit APPROVED (independent adversarial review, 2026-10-29, 0 findings).
-- G3: PyPI runbook reviewed.
+- G3: PyPI runbook reviewed and executed; `weft-memory==0.1.0a0` published to https://pypi.org/project/weft-memory/0.1.0a0/.
 - G4: Install/uninstall regression passing.
 
 **Risks:**
