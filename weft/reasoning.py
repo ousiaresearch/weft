@@ -71,7 +71,12 @@ _INJECTION_PATTERNS = [
 
 
 def _sanitize(text: str) -> str:
-    cleaned = text
+    # Flatten whitespace and truncate to limit injection surface.
+    flat = re.sub(r"\s+", " ", text or "")[:400]
+    # Escape delimiter characters.
+    flat = flat.replace("<", "&lt;").replace(">", "&gt;")
+    # Redact known instruction patterns.
+    cleaned = flat
     for pat in _INJECTION_PATTERNS:
         cleaned = pat.sub("[REDACTED INJECTION]", cleaned)
     return (
