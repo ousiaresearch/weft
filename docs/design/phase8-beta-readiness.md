@@ -1,0 +1,34 @@
+# Phase 8 — Beta-Readiness
+
+**Prereq:** Alpha release `v0.1.0a0` published and approved.
+
+**Goal:** Prepare Weft for beta distribution with hardened packaging, security review, and installation verification.
+
+**Scope:**
+- Artifact verification (wheel + metadata)
+- Security audit of entrypoints, temp files, and egress surfaces
+- Hardened installer docs (pipx, venv, systemd)
+- Regression test for install/uninstall cycle
+- PyPI publishing runbook (token creation, twine upload)
+
+**Out of scope:** Wheel signing (deferred to Phase 9+), new memory features, model additions, server hardening beyond installer.
+
+**Out of scope:** New memory features, model additions, server hardening beyond installer.
+
+**Deliverables:**
+1. `docs/design/phase8-beta-readiness.md` (this doc)
+2. `docs/pypi-publishing.md` — step-by-step token creation and upload
+3. `scripts/verify-install.sh` — fresh-venv install + uninstall + smoke test
+4. `tests/test_install.py` — install/uninstall regression
+5. Updated `CHANGELOG.md` template with release date and SHA
+
+**Gates:**
+- G1: Signed artifacts verified
+- G2: Security audit cleared (temp files, egress, injection)
+- G3: Install docs verified on clean macOS/Linux
+- G4: Install/uninstall regression passing
+- G5: PyPI runbook reviewed
+
+**Risks:**
+- PyPI token not yet available; publishing blocked until token is provided
+- Apple Silicon-only local-embedding extra may confuse pip on x86; document platform markers
