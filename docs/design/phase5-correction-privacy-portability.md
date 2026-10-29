@@ -22,11 +22,10 @@ Corrections are immutable — the original record is preserved with its original
 - Import: `Substrate.import_scope(data, ctx)` validates schema version, scope, and write auth; inserts with INSERT OR REPLACE.
 - Round-trip: export then import preserves record content and lineage.
 
-### 5.5 Backup / Retention / Purge
-
-- Backup: periodic export of all records.
-- Retention: `derived` records (Reasoning, Summary, Claim) may be pruned after a configurable retention period if their source records are still present.
-- Purge: deletion of a source record must cascade to derived artifacts that depend solely on it.
+### 5.5 Backup / Retention / Purge (Closed)
+- Backup: periodic export via `export_scope` (caller schedules).
+- Retention: `Substrate.prune_derived(scope, older_than, ctx)` deletes derived records with intact sources.
+- Purge: existing `delete` cascades to dependent summaries and unlinks supersedes.
 
 ## Exit Criteria
 

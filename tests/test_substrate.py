@@ -389,3 +389,5 @@ def test_constructor_closes_connection_when_database_is_malformed(tmp_path, monk
     assert len(connections) == 1
     with pytest.raises(sqlite3.ProgrammingError, match="closed database"):
         connections[0].execute("SELECT 1")
+
+
