@@ -70,14 +70,20 @@ with zipfile.ZipFile(p) as z:
     for n in z.namelist():
         if n.endswith('METADATA'):
             data = z.read(n).decode()
-            required = ['Name:', 'Version:', 'Summary:', 'License:', 'Author:']
-            missing = [r for r in required if r not in data]
+            required = ['Name', 'Version', 'Summary', 'License', 'Author']
+            missing = []
+            for r in required:
+                m = re.search(r'^' + r + r':\s*(.+)', data, re.MULTILINE)
+                if not m or not m.group(1).strip():
+                    missing.append(r)
             if missing:
-                print('Error: missing required fields:', ', '.join(missing), file=sys.stderr)
+                print('Error: missing or empty required fields:', ', '.join(missing), file=sys.stderr)
                 sys.exit(1)
             print('METADATA present:', n)
             for r in required:
-                print(r.replace(':',''), data.split(r)[1].split('\n')[0])
+                m = re.search(r'^' + r + r':\s*(.+)', data, re.MULTILINE)
+                if m:
+                    print(r + ':', m.group(1).strip())
             sys.exit(0)
     print('Error: no METADATA in wheel', file=sys.stderr)
     sys.exit(1)
