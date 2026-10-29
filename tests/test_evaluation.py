@@ -228,8 +228,11 @@ class TestPhase7Evaluation:
 
             elif case["case_id"] == "E2":
                 assert case["abstain"] is True
+                # Synthesize raises Abstention before any model call when no evidence exists.
                 with pytest.raises(Abstention, match="no scoped evidence"):
                     synthesize(sub, ctx, case["query"], layer)
+                # The abstention reason matches the gold answer field.
+                assert "no scoped evidence" in case["gold_answer"]
 
             elif case["case_id"] == "E3":
                 rec = sub.get("obs-1", ctx)
@@ -289,6 +292,9 @@ class TestPhase7Evaluation:
                 with pytest.raises(Abstention):
                     synthesize(sub, ctx, case["query"], layer)
 
+                # E5 gold answer is the content_conflict reason; synthesis abstains
+                # because that record is excluded from evidence.
+                assert case["gold_answer"] == conflict_reason
                 assert case["abstain"] is True
 
             elif case["case_id"] == "E6":
