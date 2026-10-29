@@ -33,6 +33,7 @@ class Case:
 
 @dataclass(frozen=True)
 class Result:
+    case: Case
     case_id: str
     passed: bool
     recall_at_5: bool
@@ -177,6 +178,7 @@ def _run_case(case: Case, embedder=None) -> Result:
                     failure = (failure + "; " if failure else "") + "gold text tokens missing from selected text"
 
             return Result(
+                case=case,
                 case_id=case.case_id,
                 passed=passed,
                 recall_at_5=hit_5,
@@ -197,8 +199,8 @@ def run_dataset(name: str, embedder=None) -> tuple[list[Result], dict]:
     for case in cases:
         results.append(_run_case(case, embedder=embedder))
 
-    answerable = [r for r in results if not r.case_id.endswith("-abstain-001") and not r.case_id.endswith("-abstain-002")]
-    abstentions = [r for r in results if r.case_id.endswith("-abstain-001") or r.case_id.endswith("-abstain-002")]
+    answerable = [r for r in results if not r.case.abstain]
+    abstentions = [r for r in results if r.case.abstain]
 
     passed = sum(1 for r in results if r.passed)
     recall5 = sum(1 for r in answerable if r.recall_at_5)

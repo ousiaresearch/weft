@@ -10,8 +10,8 @@ Pass: 22/22  R@5: 1.000  R@10: 1.000  MRR: 0.850  Abstain: 100%  p50: 0.3ms  p95
 
 | Case | R@5 | R@10 | MRR | Latency | Status |
 |------|-----|------|-----|---------|--------|
-| locoomo-001 | y | y | 1.00 | 0.3ms | PASS |
-| locoomo-002 | y | y | 1.00 | 0.4ms | PASS |
+| locoomo-001 | y | y | 1.00 | 0.4ms | PASS |
+| locoomo-002 | y | y | 1.00 | 0.3ms | PASS |
 | locoomo-003 | y | y | 0.50 | 0.3ms | PASS |
 | locoomo-004 | y | y | 1.00 | 0.3ms | PASS |
 | locoomo-005 | y | y | 1.00 | 0.3ms | PASS |
@@ -19,17 +19,17 @@ Pass: 22/22  R@5: 1.000  R@10: 1.000  MRR: 0.850  Abstain: 100%  p50: 0.3ms  p95
 | locoomo-007 | y | y | 1.00 | 0.3ms | PASS |
 | locoomo-008 | y | y | 1.00 | 0.3ms | PASS |
 | locoomo-009 | y | y | 1.00 | 0.3ms | PASS |
-| locoomo-010 | y | y | 1.00 | 0.2ms | PASS |
+| locoomo-010 | y | y | 1.00 | 0.3ms | PASS |
 | locoomo-011 | y | y | 1.00 | 0.3ms | PASS |
 | locoomo-012 | y | y | 0.50 | 0.2ms | PASS |
 | locoomo-013 | y | y | 0.25 | 0.3ms | PASS |
 | locoomo-014 | y | y | 1.00 | 0.3ms | PASS |
 | locoomo-015 | y | y | 0.50 | 0.2ms | PASS |
-| locoomo-016 | y | y | 0.25 | 0.2ms | PASS |
+| locoomo-016 | y | y | 0.25 | 0.3ms | PASS |
 | locoomo-017 | y | y | 1.00 | 0.2ms | PASS |
 | locoomo-018 | y | y | 1.00 | 0.2ms | PASS |
 | locoomo-019 | y | y | 1.00 | 0.3ms | PASS |
-| locoomo-020 | y | y | 1.00 | 0.3ms | PASS |
+| locoomo-020 | y | y | 1.00 | 0.2ms | PASS |
 | locoomo-abstain-001 | n | n | 0.00 | 0.1ms | PASS |
 | locoomo-abstain-002 | n | n | 0.00 | 0.1ms | PASS |
 
@@ -60,7 +60,7 @@ Pass: 22/22  R@5: 1.000  R@10: 1.000  MRR: 0.929  Abstain: 100%  p50: 0.3ms  p95
 | long-017 | y | y | 0.25 | 0.3ms | PASS |
 | long-018 | y | y | 1.00 | 0.4ms | PASS |
 | long-019 | y | y | 1.00 | 0.3ms | PASS |
-| long-020 | y | y | 1.00 | 0.4ms | PASS |
+| long-020 | y | y | 1.00 | 0.3ms | PASS |
 | longmemeval-s-abstain-001 | n | n | 0.00 | 0.1ms | PASS |
 | longmemeval-s-abstain-002 | n | n | 0.00 | 0.1ms | PASS |
 
