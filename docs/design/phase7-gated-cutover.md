@@ -1,7 +1,7 @@
 # Phase 7 — Gated Cutover Checklist
 
 **Plan:** `~/.hermes/plans/2026-10-24_weft-memory-system-full-plan.md`
-**Current HEAD:** `d08ebe4` (Phase 7 crash recovery raw tables + checklist update)
+**Current HEAD:** `d6f9268` (Phase 7 evaluation runner strengthen + raw tables)
 
 ## Gates
 

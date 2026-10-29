@@ -421,6 +421,8 @@ def test_crash_mid_write_leaves_no_partial_record_in_raw_tables(tmp_path):
         assert len(rows) == 0, f"doomed record leaked into raw records table: {rows}"
         journal_rows = conn.execute("SELECT record_id FROM journal WHERE record_id = 'doomed'").fetchall()
         assert len(journal_rows) == 0, f"doomed journal entry leaked: {journal_rows}"
+        fts_rows = conn.execute("SELECT record_id FROM fts WHERE record_id = 'doomed'").fetchall()
+        assert len(fts_rows) == 0, f"doomed FTS entry leaked: {fts_rows}"
         committed_rows = conn.execute("SELECT record_id FROM records WHERE record_id = 'committed'").fetchall()
         assert len(committed_rows) == 1, "committed record missing from raw records table"
     finally:
