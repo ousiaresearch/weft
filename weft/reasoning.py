@@ -72,7 +72,15 @@ _INJECTION_PATTERNS = [
 
 def _sanitize(text: str) -> str:
     cleaned = text or ""
-    # Normalize obfuscated instructions before pattern matching.
+    # Remove invisible/zero-width characters.
+    cleaned = re.sub(r"[\u200b-\u200f\u2028\u2029]", "", cleaned)
+    # Collapse spaced single-letter obfuscation (e.g., "i g n o r e" -> "ignore").
+    cleaned = re.sub(
+        r"\b([a-zA-Z])(?:\s+[a-zA-Z]){2,}\b",
+        lambda m: m.group(0).replace(" ", ""),
+        cleaned,
+    )
+    # Normalize inter-character punctuation before pattern matching.
     normalized = re.sub(r"(?<=\w)[^\w\s]+(?=\w)", "", cleaned)
     for pat in _INJECTION_PATTERNS:
         normalized = pat.sub("[REDACTED INJECTION]", normalized)
