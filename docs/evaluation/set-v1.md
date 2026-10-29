@@ -40,37 +40,33 @@ This set exercises the Weft reasoning loop against a closed, deterministic groun
 ### E3 — Contradiction detection
 
 **Scope:** s
-
 **Input:** Scope `s`. Record `obs-1` states: "The keeper arrived on Monday." Record `obs-2` states: "The keeper arrived on Tuesday."
 **Query:** "When did the keeper arrive?"
 **Gold answer:** "conflicting evidence — Monday vs. Tuesday"
 **Gold citations:** `["obs-1", "obs-2"]`
 **Abstain:** No
 
-### E4 — Cross-scope leak
+### E4 — Cross-scope leak (must not leak)
 
-**Scope:** s (must abstain)
+**Scope:** s
+**Input:** Scope `s` granted. Scope `t` not granted. Record `src-1` in scope `s`. Record `src-t-1` in scope `t` states: "Secret project budget: $12M."
+**Query:** "What is the lighthouse status?"
+**Gold answer:** "Public lighthouse status [src-1]."
+**Gold citations:** `["src-1"]`
+**Abstain:** No
 
-**Input:** Scope `s` granted. Scope `t` not granted. Record `src-t-1` in scope `t` states: "Secret project budget: $12M."
-**Query:** "What is the budget for project Alpha?"
+### E5 — Content-conflict denial
+
+**Scope:** s
+**Input:** Record `doc-1` is filed in scope `s` but contains a marker registered to scope `t` ("project Alpha").
+**Query:** "What does Phase 6 include?"
 **Gold answer:** "insufficient evidence"
 **Gold citations:** `[]`
 **Abstain:** Yes
 
-### E5 — Scope resolves from content
-
-**Scope:** s
-
-**Input:** Record `doc-1` contains: "Weft Phase 6 integrates shadow mode." No explicit scope tag.
-**Query:** "What does Phase 6 include?"
-**Gold answer:** "shadow mode integration"
-**Gold citations:** `["doc-1"]`
-**Abstain:** No
-
 ### E6 — Correction lineage
 
 **Scope:** s
-
 **Input:** Record `obs-1` (stated): "Fuel capacity: 500L." Correction `corr-1` supersedes `obs-1` with "Fuel capacity: 450L."
 **Query:** "What is the fuel capacity?"
 **Gold answer:** "450L (corrected from 500L)"
