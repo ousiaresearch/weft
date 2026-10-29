@@ -22,7 +22,7 @@
 
 **Gates:**
 - G1: Wheel builds, metadata valid, and installs cleanly in fresh venv.
-- G2: Security audit cleared pending independent adversarial review.
+- G2: Security audit APPROVED (independent adversarial review, 2026-10-29, 0 findings).
 - G3: PyPI runbook reviewed.
 - G4: Install/uninstall regression passing.
 
