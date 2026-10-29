@@ -11,16 +11,18 @@ def _find_wheel():
     global WHEEL
     if WHEEL and os.path.exists(WHEEL):
         return WHEEL
-    dist = os.path.join(os.path.dirname(__file__), "..", "dist")
-    for name in os.listdir(dist):
+    dist_dir = os.path.join(os.path.dirname(__file__), "..", "dist")
+    for name in os.listdir(dist_dir):
         if name.endswith(".whl"):
-            WHEEL = os.path.join(dist, name)
+            WHEEL = os.path.join(dist_dir, name)
             return WHEEL
     raise FileNotFoundError("no wheel in dist/")
 
 
 def _python():
-    # Match build-release.sh selection logic.
+    # Match build-release.sh / verify-install.sh selection logic.
+    if os.environ.get("WEFT_PYTHON"):
+        return os.environ["WEFT_PYTHON"]
     for candidate in ("python3.11", "python3.12", "python3.13", "python3"):
         if shutil.which(candidate):
             return candidate
@@ -32,6 +34,11 @@ def test_install_uninstall_cycle():
     python = _python()
     if os.path.exists(VENV):
         shutil.rmtree(VENV)
+    old_umask = os.umask(0o077)
+    try:
+        subprocess.run([python, "-m", "venv", VENV], check=True)
+    finally:
+        os.umask(old_umask)
     subprocess.run([python, "-m", "venv", VENV], check=True)
     pip = os.path.join(VENV, "bin", "python")
     subprocess.run([pip, "-m", "pip", "install", "--quiet", wheel], check=True)

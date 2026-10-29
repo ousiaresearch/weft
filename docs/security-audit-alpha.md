@@ -14,11 +14,11 @@
 
 ## Temp files
 
-- Release/verification scripts create temp dirs under `/tmp/weft-install-verify`, `/tmp/weft-alpha-verify`, `/tmp/weft-install-test.db` (no explicit permissions).
-- `tests/test_install.py` creates temp venv at `/tmp/weft-install-test-pytest` and temp db `/tmp/weft-install-pytest.db`.
+- Release/verification scripts create temp dirs under `/tmp/weft-install-verify`, `/tmp/weft-alpha-verify`, `/tmp/weft-install-test.db` with umask 0077.
+- `tests/test_install.py` creates temp venv at `/tmp/weft-install-test-pytest` with umask 0077 and temp db `/tmp/weft-install-pytest.db`.
 - `weft/adapters.py:67,95,100` uses `tempfile.mkstemp` for adapter scratch files in the Hermes scratch dir.
 - `weft/substrate.py:1554` creates sibling `.tmp-*.part` files during writes; `weft/substrate.py:207-240` sets umask 0o077 and chmod 0o600 on the database and sidecars.
-- Temp file permissions are explicit in substrate.py; release/verification scripts rely on umask.
+- Temp file permissions are explicit in substrate.py and release/verification scripts.
 
 ## Egress surfaces
 
@@ -37,9 +37,8 @@
 
 - ML model adapters fetched from Hugging Face without integrity check (SHA-256 not pinned for all models).
 - `weft serve` does not implement authentication; localhost only.
-- Release/verification temp files rely on umask; not explicitly restricted.
 
 ## Status
 
-Cleared for beta-readiness pending explicit temp-file permissions in release/verification scripts. Independent adversarial review recommended before beta tag.
+Cleared for beta-readiness. Independent adversarial review recommended before beta tag.
 
