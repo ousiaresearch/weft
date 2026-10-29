@@ -1,16 +1,20 @@
 {
+  "generated": "2026-10-29T21:20:07Z",
+  "embedder": null,
   "suites": {
     "locomo": {
       "dataset": "locomo",
       "count": 1986,
       "lexical": {
         "total": 1986,
-        "exact": 837,
-        "substring": 837,
-        "exact_rate": 0.4214501510574018,
-        "substring_rate": 0.4214501510574018,
-        "p50_ms": 24.540459271520376,
-        "p95_ms": 34.30437482893467
+        "exact": 1098,
+        "substring": 1098,
+        "exact_rate": 0.552870090634441,
+        "substring_rate": 0.552870090634441,
+        "f1_mean": 0.3562263476492168,
+        "mrr_mean": 0.3561869595102224,
+        "p50_ms": 77.60905199995705,
+        "p95_ms": 147.46251899998697
       },
       "hybrid": null
     },
@@ -23,10 +27,12 @@
         "substring": 169,
         "exact_rate": 0.338,
         "substring_rate": 0.338,
+        "f1_mean": 0.014472043445271556,
+        "mrr_mean": 0.0,
         "abstention_count": 0,
         "abstention_accuracy": null,
-        "p50_ms": 47.79991693794727,
-        "p95_ms": 57.70175019279122
+        "p50_ms": 153.07426200001828,
+        "p95_ms": 295.8718670001872
       },
       "hybrid": null
     },
@@ -43,10 +49,12 @@
         "substring": 22,
         "exact_rate": 0.055,
         "substring_rate": 0.055,
+        "f1_mean": 0.03492151190881757,
+        "mrr_mean": 0.0,
         "abstention_count": 160,
         "abstention_accuracy": 0.0,
-        "p50_ms": 22.785708773881197,
-        "p95_ms": 64.05770871788263
+        "p50_ms": 86.34227699985786,
+        "p95_ms": 191.15610000017114
       },
       "hybrid": null
     },
@@ -63,16 +71,17 @@
         "substring": 35,
         "exact_rate": 0.05,
         "substring_rate": 0.05,
+        "f1_mean": 0.033426679506953466,
+        "mrr_mean": 0.0,
         "abstention_count": 280,
         "abstention_accuracy": 0.0,
-        "p50_ms": 407.1021252311766,
-        "p95_ms": 794.918708037585
+        "p50_ms": 1313.2225780000226,
+        "p95_ms": 2896.7540239996197
       },
       "hybrid": null
     }
   },
-  "methodology": {
-    "scoring": "Retrieval hit@k + MRR when evidence_ids available (LoCoMo); token F1 fallback (LongMemEval-S, BEAM). Previous exact-match substring was wrong for generative QA benchmarks.",
-    "reranking": "Disabled by default in benchmark (bi-encoder cosine reranker available via recall(..., rerank=True))"
+  "notes": {
+    "beam_500k": "Completed but not pushed to avoid oversized results file; see colab_artifacts/beam-500k-results.json"
   }
 }

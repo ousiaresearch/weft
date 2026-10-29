@@ -1,0 +1,84 @@
+{
+  "generated": "2026-10-29T21:20:07Z",
+  "embedder": null,
+  "suites": {
+    "locomo": {
+      "dataset": "locomo",
+      "count": 1986,
+      "lexical": {
+        "total": 1986,
+        "exact": 1098,
+        "substring": 1098,
+        "exact_rate": 0.552870090634441,
+        "substring_rate": 0.552870090634441,
+        "f1_mean": 0.3562263476492168,
+        "mrr_mean": 0.3561869595102224,
+        "p50_ms": 77.60905199995705,
+        "p95_ms": 147.46251899998697
+      },
+      "hybrid": null
+    },
+    "longmemeval-s": {
+      "dataset": "longmemeval-s",
+      "count": 500,
+      "lexical": {
+        "total": 500,
+        "exact": 169,
+        "substring": 169,
+        "exact_rate": 0.338,
+        "substring_rate": 0.338,
+        "f1_mean": 0.014472043445271556,
+        "mrr_mean": 0.0,
+        "abstention_count": 0,
+        "abstention_accuracy": null,
+        "p50_ms": 153.07426200001828,
+        "p95_ms": 295.8718670001872
+      },
+      "hybrid": null
+    },
+    "beam-100k": {
+      "dataset": "beam",
+      "splits": [
+        "100K"
+      ],
+      "conversations": 20,
+      "count": 400,
+      "lexical": {
+        "total": 400,
+        "exact": 22,
+        "substring": 22,
+        "exact_rate": 0.055,
+        "substring_rate": 0.055,
+        "f1_mean": 0.03492151190881757,
+        "mrr_mean": 0.0,
+        "abstention_count": 160,
+        "abstention_accuracy": 0.0,
+        "p50_ms": 86.34227699985786,
+        "p95_ms": 191.15610000017114
+      },
+      "hybrid": null
+    },
+    "beam-500k": {
+      "dataset": "beam",
+      "splits": [
+        "500K"
+      ],
+      "conversations": 35,
+      "count": 700,
+      "lexical": {
+        "total": 700,
+        "exact": 35,
+        "substring": 35,
+        "exact_rate": 0.05,
+        "substring_rate": 0.05,
+        "f1_mean": 0.033426679506953466,
+        "mrr_mean": 0.0,
+        "abstention_count": 280,
+        "abstention_accuracy": 0.0,
+        "p50_ms": 1313.2225780000226,
+        "p95_ms": 2896.7540239996197
+      },
+      "hybrid": null
+    }
+  }
+}

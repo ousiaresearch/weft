@@ -1,0 +1,22 @@
+{
+  "dataset": "beam",
+  "splits": [
+    "500K"
+  ],
+  "conversations": 35,
+  "count": 700,
+  "lexical": {
+    "total": 700,
+    "exact": 35,
+    "substring": 35,
+    "exact_rate": 0.05,
+    "substring_rate": 0.05,
+    "f1_mean": 0.033426679506953466,
+    "mrr_mean": 0.0,
+    "abstention_count": 280,
+    "abstention_accuracy": 0.0,
+    "p50_ms": 1296.3853649998782,
+    "p95_ms": 2749.9716690008427
+  },
+  "hybrid": null
+}
