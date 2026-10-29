@@ -125,3 +125,25 @@ def test_import_scope_rejects_unverified_claim_without_verification(tmp_path):
         assert sub.get("c1", ctx) is None
     finally:
         sub.close()
+
+
+def test_deleted_records_absent_from_export(tmp_path):
+    sub = Substrate(tmp_path / "a.db", ScopeEngine(known_scopes=KNOWN))
+    try:
+        ctx = ScopeContext(granted_scopes=frozenset({"s"}), user_authored=True)
+        _seed_source(sub, "s")
+        sub._write(Record(record_id="r1", record_type="Observation", scope="s", attribution="document",
+                           source_ids=["src-1-s"], payload={"text": "keep"}, effective_at=100.0),
+                    ctx, validate_schema=True, overwrite=False)
+        sub._write(Record(record_id="r2", record_type="Observation", scope="s", attribution="document",
+                           source_ids=["src-1-s"], payload={"text": "delete me"}, effective_at=100.0),
+                    ctx, validate_schema=True, overwrite=False)
+        sub._conn.commit()
+        exported = sub.export_scope("s", ctx)
+        assert len(exported["records"]) == 3
+        sub.delete("r2", ctx, reason="test purge")
+        exported_after = sub.export_scope("s", ctx)
+        assert len(exported_after["records"]) == 2
+        assert {r["record_id"] for r in exported_after["records"]} == {"src-1-s", "r1"}
+    finally:
+        sub.close()

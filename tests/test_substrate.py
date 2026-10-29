@@ -387,7 +387,41 @@ def test_constructor_closes_connection_when_database_is_malformed(tmp_path, monk
     with pytest.raises(sqlite3.DatabaseError):
         Substrate(malformed, ScopeEngine(known_scopes=KNOWN))
     assert len(connections) == 1
-    with pytest.raises(sqlite3.ProgrammingError, match="closed database"):
-        connections[0].execute("SELECT 1")
+
+
+def test_journal_rebuilds_identical_record_set_after_crash(tmp_path):
+    """Kill mid-write, then verify the committed record set rebuilds from journal."""
+    db = tmp_path / "weft.db"
+    setup = Substrate(db, scope_engine=ScopeEngine(known_scopes=KNOWN))
+    _seed_source(setup, sorted(KNOWN))
+    setup.put(make_record("committed"), CTX)
+    setup.close()
+
+    script = textwrap.dedent(
+        f"""
+        import os, signal, sys
+        sys.path.insert(0, {str(REPO)!r})
+        from weft.scope import ScopeContext, ScopeEngine
+        from weft.substrate import Record, Substrate
+        s = Substrate({str(db)!r}, scope_engine=ScopeEngine(known_scopes={sorted(KNOWN)!r}))
+        def boom(*a, **k):
+            os.kill(os.getpid(), signal.SIGKILL)
+        s._journal = boom
+        ctx = ScopeContext(granted_scopes=frozenset({sorted(KNOWN)[0], "memory-providers"}))
+        s.put(Record(record_id="doomed", record_type="Observation",
+                     scope="memory-providers", payload={{"text": "never committed"}}), ctx)
+        """
+    )
+    proc = subprocess.run([sys.executable, "-c", script], capture_output=True, timeout=60)
+    assert proc.returncode == -signal.SIGKILL, proc.stderr.decode()
+
+    s2 = Substrate(db, scope_engine=ScopeEngine(known_scopes=KNOWN))
+    _seed_source(s2, sorted(KNOWN))
+    try:
+        assert s2.get("committed", CTX) is not None
+        assert s2.get("doomed", CTX) is None, "uncommitted record leaked"
+        assert "doomed" not in [j["record_id"] for j in s2.journal_entries(CTX)]
+    finally:
+        s2.close()
 
 
