@@ -1,0 +1,309 @@
+[
+  {
+    "id": "beam-001",
+    "query": "What was the cause of the production incident on September 12?",
+    "gold_record_ids": ["rec-beam-045"],
+    "gold_text_tokens": ["production incident", "September 12", "memory leak"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-001", "scope": "beam", "record_type": "Observation", "text": "January: server inventory updated.", "session": 1},
+      {"record_id": "rec-beam-002", "scope": "beam", "record_type": "Document", "text": "February: access control policy revised.", "session": 2},
+      {"record_id": "rec-beam-003", "scope": "beam", "record_type": "Observation", "text": "March: quarterly review completed.", "session": 3},
+      {"record_id": "rec-beam-004", "scope": "beam", "record_type": "Observation", "text": "April: new hire onboarding.", "session": 4},
+      {"record_id": "rec-beam-005", "scope": "beam", "record_type": "Document", "text": "May: security audit findings.", "session": 5},
+      {"record_id": "rec-beam-006", "scope": "beam", "record_type": "Observation", "text": "June: incident response drill.", "session": 6},
+      {"record_id": "rec-beam-007", "scope": "beam", "record_type": "Observation", "text": "July: capacity planning review.", "session": 7},
+      {"record_id": "rec-beam-008", "scope": "beam", "record_type": "Document", "text": "August: cost optimization report.", "session": 8},
+      {"record_id": "rec-beam-009", "scope": "beam", "record_type": "Observation", "text": "September 10: monitoring alert.", "session": 9},
+      {"record_id": "rec-beam-010", "scope": "beam", "record_type": "Observation", "text": "September 11: page received.", "session": 10},
+      {"record_id": "rec-beam-011", "scope": "beam", "record_type": "Observation", "text": "September 12: production incident declared.", "session": 11},
+      {"record_id": "rec-beam-045", "scope": "beam", "record_type": "Document", "text": "September 12 incident cause: memory leak in the cache layer after config change.", "session": 12}
+    ]
+  },
+  {
+    "id": "beam-002",
+    "query": "What was the total headcount at the end of Q2?",
+    "gold_record_ids": ["rec-beam-052"],
+    "gold_text_tokens": ["headcount", "Q2", "147"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-012", "scope": "beam", "record_type": "Document", "text": "Q1 headcount: 132.", "session": 1},
+      {"record_id": "rec-beam-013", "scope": "beam", "record_type": "Observation", "text": "April: 5 new hires.", "session": 2},
+      {"record_id": "rec-beam-014", "scope": "beam", "record_type": "Observation", "text": "May: 2 departures.", "session": 3},
+      {"record_id": "rec-beam-015", "scope": "beam", "record_type": "Observation", "text": "May: 3 new hires.", "session": 4},
+      {"record_id": "rec-beam-016", "scope": "beam", "record_type": "Observation", "text": "June: 1 departure.", "session": 5},
+      {"record_id": "rec-beam-017", "scope": "beam", "record_type": "Observation", "text": "June: 4 new hires.", "session": 6},
+      {"record_id": "rec-beam-052", "scope": "beam", "record_type": "Document", "text": "Q2 end headcount: 147.", "session": 7}
+    ]
+  },
+  {
+    "id": "beam-003",
+    "query": "What was the duration of the maintenance window on August 5?",
+    "gold_record_ids": ["rec-beam-059"],
+    "gold_text_tokens": ["maintenance", "August 5", "4 hours"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-018", "scope": "beam", "record_type": "Observation", "text": "Maintenance was scheduled for August.", "session": 1},
+      {"record_id": "rec-beam-019", "scope": "beam", "record_type": "Observation", "text": "Date was chosen for low traffic.", "session": 2},
+      {"record_id": "rec-beam-020", "scope": "beam", "record_type": "Observation", "text": "Duration was estimated at 4 hours.", "session": 3},
+      {"record_id": "rec-beam-021", "scope": "beam", "record_type": "Observation", "text": "Runbook was published.", "session": 4},
+      {"record_id": "rec-beam-022", "scope": "beam", "record_type": "Observation", "text": "Rollback plan was reviewed.", "session": 5},
+      {"record_id": "rec-beam-059", "scope": "beam", "record_type": "Document", "text": "August 5 maintenance window: 4 hours starting at 02:00 UTC.", "session": 6}
+    ]
+  },
+  {
+    "id": "beam-004",
+    "query": "What was the primary cause of the data loss event?",
+    "gold_record_ids": ["rec-beam-066"],
+    "gold_text_tokens": ["data loss", "cause", "backup", "corruption"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-023", "scope": "beam", "record_type": "Observation", "text": "Backup job ran on schedule.", "session": 1},
+      {"record_id": "rec-beam-024", "scope": "beam", "record_type": "Observation", "text": "Backup logs showed checksum mismatch.", "session": 2},
+      {"record_id": "rec-beam-025", "scope": "beam", "record_type": "Observation", "text": "Restore test failed.", "session": 3},
+      {"record_id": "rec-beam-026", "scope": "beam", "record_type": "Observation", "text": "Full recovery was attempted.", "session": 4},
+      {"record_id": "rec-beam-027", "scope": "beam", "record_type": "Observation", "text": "Data loss event declared.", "session": 5},
+      {"record_id": "rec-beam-066", "scope": "beam", "record_type": "Document", "text": "Data loss cause: backup corruption due to faulty disk during snapshot.", "session": 6}
+    ]
+  },
+  {
+    "id": "beam-005",
+    "query": "What was the user's contribution to the kernel patch?",
+    "gold_record_ids": ["rec-beam-073"],
+    "gold_text_tokens": ["kernel", "patch", "scheduler", "contribution"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-028", "scope": "beam", "record_type": "Observation", "text": "Kernel performance issue was reported.", "session": 1},
+      {"record_id": "rec-beam-029", "scope": "beam", "record_type": "Observation", "text": "User analyzed the scheduler.", "session": 2},
+      {"record_id": "rec-beam-030", "scope": "beam", "record_type": "Observation", "text": "User proposed a patch.", "session": 3},
+      {"record_id": "rec-beam-031", "scope": "beam", "record_type": "Observation", "text": "Patch was reviewed.", "session": 4},
+      {"record_id": "rec-beam-032", "scope": "beam", "record_type": "Observation", "text": "Patch was accepted.", "session": 5},
+      {"record_id": "rec-beam-073", "scope": "beam", "record_type": "Document", "text": "Contribution: CFS scheduler patch reducing tail latency by 18%.", "session": 6}
+    ]
+  },
+  {
+    "id": "beam-006",
+    "query": "What was the SLA credit issued to the customer?",
+    "gold_record_ids": ["rec-beam-080"],
+    "gold_text_tokens": ["SLA", "credit", "customer", "$2,400"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-033", "scope": "beam", "record_type": "Observation", "text": "Customer reported downtime.", "session": 1},
+      {"record_id": "rec-beam-034", "scope": "beam", "record_type": "Observation", "text": "Downtime was measured at 4 hours.", "session": 2},
+      {"record_id": "rec-beam-035", "scope": "beam", "record_type": "Observation", "text": "SLA terms were checked.", "session": 3},
+      {"record_id": "rec-beam-036", "scope": "beam", "record_type": "Observation", "text": "Credit was calculated.", "session": 4},
+      {"record_id": "rec-beam-037", "scope": "beam", "record_type": "Observation", "text": "Credit was approved.", "session": 5},
+      {"record_id": "rec-beam-080", "scope": "beam", "record_type": "Document", "text": "SLA credit issued: $2,400.", "session": 6}
+    ]
+  },
+  {
+    "id": "beam-007",
+    "query": "What was the recommended database migration strategy?",
+    "gold_record_ids": ["rec-beam-087"],
+    "gold_text_tokens": ["migration", "strategy", "blue-green", "dual-write"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-038", "scope": "beam", "record_type": "Observation", "text": "Database version upgrade was needed.", "session": 1},
+      {"record_id": "rec-beam-039", "scope": "beam", "record_type": "Observation", "text": "In-place upgrade was considered.", "session": 2},
+      {"record_id": "rec-beam-040", "scope": "beam", "record_type": "Observation", "text": "Blue-green was recommended.", "session": 3},
+      {"record_id": "rec-beam-041", "scope": "beam", "record_type": "Observation", "text": "Dual-write period was proposed.", "session": 4},
+      {"record_id": "rec-beam-042", "scope": "beam", "record_type": "Observation", "text": "Rollback plan was drafted.", "session": 5},
+      {"record_id": "rec-beam-087", "scope": "beam", "record_type": "Document", "text": "Recommended migration: blue-green with 2-week dual-write.", "session": 6}
+    ]
+  },
+  {
+    "id": "beam-008",
+    "query": "What was the penalty for missing the compliance deadline?",
+    "gold_record_ids": ["rec-beam-094"],
+    "gold_text_tokens": ["penalty", "compliance", "deadline", "$10,000"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-043", "scope": "beam", "record_type": "Observation", "text": "Compliance deadline was June 30.", "session": 1},
+      {"record_id": "rec-beam-044", "scope": "beam", "record_type": "Observation", "text": "Team missed the deadline.", "session": 2},
+      {"record_id": "rec-beam-046", "scope": "beam", "record_type": "Observation", "text": "Regulator sent a notice.", "session": 3},
+      {"record_id": "rec-beam-047", "scope": "beam", "record_type": "Observation", "text": "Penalty was calculated.", "session": 4},
+      {"record_id": "rec-beam-048", "scope": "beam", "record_type": "Observation", "text": "Appeal was filed.", "session": 5},
+      {"record_id": "rec-beam-094", "scope": "beam", "record_type": "Document", "text": "Penalty for missed deadline: $10,000.", "session": 6}
+    ]
+  },
+  {
+    "id": "beam-009",
+    "query": "What was the user's role in the security review?",
+    "gold_record_ids": ["rec-beam-101"],
+    "gold_text_tokens": ["security review", "role", "Reviewer"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-049", "scope": "beam", "record_type": "Observation", "text": "Security review was announced.", "session": 1},
+      {"record_id": "rec-beam-050", "scope": "beam", "record_type": "Observation", "text": "Participants were selected.", "session": 2},
+      {"record_id": "rec-beam-051", "scope": "beam", "record_type": "Observation", "text": "User was invited.", "session": 3},
+      {"record_id": "rec-beam-052", "scope": "beam", "record_type": "Observation", "text": "User reviewed the network config.", "session": 4},
+      {"record_id": "rec-beam-053", "scope": "beam", "record_type": "Observation", "text": "User found two issues.", "session": 5},
+      {"record_id": "rec-beam-101", "scope": "beam", "record_type": "Document", "text": "Security review role: Reviewer (network and access control).", "session": 6}
+    ]
+  },
+  {
+    "id": "beam-010",
+    "query": "What was the throughput target for the new pipeline?",
+    "gold_record_ids": ["rec-beam-108"],
+    "gold_text_tokens": ["throughput", "pipeline", "10,000"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-054", "scope": "beam", "record_type": "Observation", "text": "Pipeline requirements were gathered.", "session": 1},
+      {"record_id": "rec-beam-055", "scope": "beam", "record_type": "Observation", "text": "Current throughput was measured.", "session": 2},
+      {"record_id": "rec-beam-056", "scope": "beam", "record_type": "Observation", "text": "Target was set at 2x improvement.", "session": 3},
+      {"record_id": "rec-beam-057", "scope": "beam", "record_type": "Observation", "text": "Architecture was designed.", "session": 4},
+      {"record_id": "rec-beam-058", "scope": "beam", "record_type": "Observation", "text": "Benchmarks were run.", "session": 5},
+      {"record_id": "rec-beam-108", "scope": "beam", "record_type": "Document", "text": "Throughput target: 10,000 events/sec with p99 < 100ms.", "session": 6}
+    ]
+  },
+  {
+    "id": "beam-011",
+    "query": "What was the user's score on the certification exam?",
+    "gold_record_ids": ["rec-beam-115"],
+    "gold_text_tokens": ["certification", "exam", "score", "92%"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-059", "scope": "beam", "record_type": "Observation", "text": "User registered for the exam.", "session": 1},
+      {"record_id": "rec-beam-060", "scope": "beam", "record_type": "Observation", "text": "User studied for 6 weeks.", "session": 2},
+      {"record_id": "rec-beam-061", "scope": "beam", "record_type": "Observation", "text": "User took the exam.", "session": 3},
+      {"record_id": "rec-beam-062", "scope": "beam", "record_type": "Observation", "text": "Results were released.", "session": 4},
+      {"record_id": "rec-beam-063", "scope": "beam", "record_type": "Observation", "text": "User passed.", "session": 5},
+      {"record_id": "rec-beam-115", "scope": "beam", "record_type": "Document", "text": "Certification exam score: 92%.", "session": 6}
+    ]
+  },
+  {
+    "id": "beam-012",
+    "query": "What was the refund policy for the annual plan?",
+    "gold_record_ids": ["rec-beam-122"],
+    "gold_text_tokens": ["refund", "annual plan", "30 days"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-064", "scope": "beam", "record_type": "Observation", "text": "Pricing page was updated.", "session": 1},
+      {"record_id": "rec-beam-065", "scope": "beam", "record_type": "Observation", "text": "Support asked about refunds.", "session": 2},
+      {"record_id": "rec-beam-066", "scope": "beam", "record_type": "Observation", "text": "Legal reviewed the policy.", "session": 3},
+      {"record_id": "rec-beam-067", "scope": "beam", "record_type": "Observation", "text": "Policy was published.", "session": 4},
+      {"record_id": "rec-beam-068", "scope": "beam", "record_type": "Observation", "text": "Customer requested a refund.", "session": 5},
+      {"record_id": "rec-beam-122", "scope": "beam", "record_type": "Document", "text": "Refund policy: 30-day money-back for annual plans.", "session": 6}
+    ]
+  },
+  {
+    "id": "beam-013",
+    "query": "What was the user's patent about?",
+    "gold_record_ids": ["rec-beam-129"],
+    "gold_text_tokens": ["patent", "invention", "compression"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-069", "scope": "beam", "record_type": "Observation", "text": "User disclosed an invention.", "session": 1},
+      {"record_id": "rec-beam-070", "scope": "beam", "record_type": "Observation", "text": "IP review was scheduled.", "session": 2},
+      {"record_id": "rec-beam-071", "scope": "beam", "record_type": "Observation", "text": "Prior art search was done.", "session": 3},
+      {"record_id": "rec-beam-072", "scope": "beam", "record_type": "Observation", "text": "Application was drafted.", "session": 4},
+      {"record_id": "rec-beam-073", "scope": "beam", "record_type": "Observation", "text": "Application was filed.", "session": 5},
+      {"record_id": "rec-beam-129", "scope": "beam", "record_type": "Document", "text": "Patent: lossless compression for streaming telemetry.", "session": 6}
+    ]
+  },
+  {
+    "id": "beam-014",
+    "query": "What was the downtime during the upgrade window?",
+    "gold_record_ids": ["rec-beam-136"],
+    "gold_text_tokens": ["downtime", "upgrade", "18 minutes"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-074", "scope": "beam", "record_type": "Observation", "text": "Upgrade was planned for Saturday.", "session": 1},
+      {"record_id": "rec-beam-075", "scope": "beam", "record_type": "Observation", "text": "Pre-checks passed.", "session": 2},
+      {"record_id": "rec-beam-076", "scope": "beam", "record_type": "Observation", "text": "Upgrade started.", "session": 3},
+      {"record_id": "rec-beam-077", "scope": "beam", "record_type": "Observation", "text": "Rollback was triggered.", "session": 4},
+      {"record_id": "rec-beam-078", "scope": "beam", "record_type": "Observation", "text": "Second attempt succeeded.", "session": 5},
+      {"record_id": "rec-beam-136", "scope": "beam", "record_type": "Document", "text": "Total downtime during upgrade: 18 minutes.", "session": 6}
+    ]
+  },
+  {
+    "id": "beam-015",
+    "query": "What was the user's final ranking in the hackathon?",
+    "gold_record_ids": ["rec-beam-143"],
+    "gold_text_tokens": ["hackathon", "ranking", "second"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-079", "scope": "beam", "record_type": "Observation", "text": "User registered for the hackathon.", "session": 1},
+      {"record_id": "rec-beam-080", "scope": "beam", "record_type": "Observation", "text": "User formed a team.", "session": 2},
+      {"record_id": "rec-beam-081", "scope": "beam", "record_type": "Observation", "text": "Team built a demo.", "session": 3},
+      {"record_id": "rec-beam-082", "scope": "beam", "record_type": "Observation", "text": "Demo was presented.", "session": 4},
+      {"record_id": "rec-beam-083", "scope": "beam", "record_type": "Observation", "text": "Judges asked questions.", "session": 5},
+      {"record_id": "rec-beam-143", "scope": "beam", "record_type": "Document", "text": "Hackathon final ranking: 2nd place.", "session": 6}
+    ]
+  },
+  {
+    "id": "beam-016",
+    "query": "What was the lead time for the custom part?",
+    "gold_record_ids": ["rec-beam-150"],
+    "gold_text_tokens": ["lead time", "custom part", "6 weeks"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-084", "scope": "beam", "record_type": "Observation", "text": "Custom part was requested.", "session": 1},
+      {"record_id": "rec-beam-085", "scope": "beam", "record_type": "Observation", "text": "Vendor provided a quote.", "session": 2},
+      {"record_id": "rec-beam-086", "scope": "beam", "record_type": "Observation", "text": "Quote was approved.", "session": 3},
+      {"record_id": "rec-beam-087", "scope": "beam", "record_type": "Observation", "text": "Manufacturing started.", "session": 4},
+      {"record_id": "rec-beam-088", "scope": "beam", "record_type": "Observation", "text": "Shipping was arranged.", "session": 5},
+      {"record_id": "rec-beam-150", "scope": "beam", "record_type": "Document", "text": "Custom part lead time: 6 weeks.", "session": 6}
+    ]
+  },
+  {
+    "id": "beam-017",
+    "query": "What was the user's patent about?",
+    "gold_record_ids": ["rec-beam-157"],
+    "gold_text_tokens": ["patent", "invention", "compression"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-089", "scope": "beam", "record_type": "Observation", "text": "User disclosed an invention.", "session": 1},
+      {"record_id": "rec-beam-090", "scope": "beam", "record_type": "Observation", "text": "IP review was scheduled.", "session": 2},
+      {"record_id": "rec-beam-091", "scope": "beam", "record_type": "Observation", "text": "Prior art search was done.", "session": 3},
+      {"record_id": "rec-beam-092", "scope": "beam", "record_type": "Observation", "text": "Application was drafted.", "session": 4},
+      {"record_id": "rec-beam-093", "scope": "beam", "record_type": "Observation", "text": "Application was filed.", "session": 5},
+      {"record_id": "rec-beam-157", "scope": "beam", "record_type": "Document", "text": "Patent: lossless compression for streaming telemetry.", "session": 6}
+    ]
+  },
+  {
+    "id": "beam-018",
+    "query": "What was the root cause of the payment gateway timeout?",
+    "gold_record_ids": ["rec-beam-164"],
+    "gold_text_tokens": ["payment gateway", "timeout", "root cause", "certificate"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-095", "scope": "beam", "record_type": "Observation", "text": "Timeouts started on Thursday.", "session": 1},
+      {"record_id": "rec-beam-096", "scope": "beam", "record_type": "Observation", "text": "Error rate spiked.", "session": 2},
+      {"record_id": "rec-beam-097", "scope": "beam", "record_type": "Observation", "text": "Certificate was expiring.", "session": 3},
+      {"record_id": "rec-beam-098", "scope": "beam", "record_type": "Observation", "text": "Renewal was missed.", "session": 4},
+      {"record_id": "rec-beam-099", "scope": "beam", "record_type": "Observation", "text": "Handshake failed.", "session": 5},
+      {"record_id": "rec-beam-164", "scope": "beam", "record_type": "Document", "text": "Root cause: TLS certificate expired; renewal job failed silently.", "session": 6}
+    ]
+  },
+  {
+    "id": "beam-019",
+    "query": "What was the capacity of the new data center?",
+    "gold_record_ids": ["rec-beam-171"],
+    "gold_text_tokens": ["data center", "capacity", "10 MW"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-100", "scope": "beam", "record_type": "Observation", "text": "Data center site selection began.", "session": 1},
+      {"record_id": "rec-beam-101", "scope": "beam", "record_type": "Observation", "text": "Three sites were evaluated.", "session": 2},
+      {"record_id": "rec-beam-102", "scope": "beam", "record_type": "Observation", "text": "Power availability was a constraint.", "session": 3},
+      {"record_id": "rec-beam-103", "scope": "beam", "record_type": "Observation", "text": "Contract was signed.", "session": 4},
+      {"record_id": "rec-beam-104", "scope": "beam", "record_type": "Observation", "text": "Construction started.", "session": 5},
+      {"record_id": "rec-beam-171", "scope": "beam", "record_type": "Document", "text": "New data center capacity: 10 MW, 2,500 racks.", "session": 6}
+    ]
+  },
+  {
+    "id": "beam-020",
+    "query": "What was the resolution for the billing discrepancy?",
+    "gold_record_ids": ["rec-beam-178"],
+    "gold_text_tokens": ["billing", "discrepancy", "resolution", "credit"],
+    "abstain": false,
+    "setup_records": [
+      {"record_id": "rec-beam-105", "scope": "beam", "record_type": "Observation", "text": "Customer noticed a charge.", "session": 1},
+      {"record_id": "rec-beam-106", "scope": "beam", "record_type": "Observation", "text": "Support investigated.", "session": 2},
+      {"record_id": "rec-beam-107", "scope": "beam", "record_type": "Observation", "text": "Bug was found in the proration logic.", "session": 3},
+      {"record_id": "rec-beam-108", "scope": "beam", "record_type": "Observation", "text": "Fix was deployed.", "session": 4},
+      {"record_id": "rec-beam-109", "scope": "beam", "record_type": "Observation", "text": "Credit was issued.", "session": 5},
+      {"record_id": "rec-beam-178", "scope": "beam", "record_type": "Document", "text": "Resolution: $1,200 credit plus proration fix.", "session": 6}
+    ]
+  }
+]
