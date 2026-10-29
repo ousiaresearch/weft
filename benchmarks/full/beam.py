@@ -140,6 +140,7 @@ def _aggregate(scores: list[ScoreResult]) -> dict:
         "exact_rate": exact / total if total else 0.0,
         "substring_rate": substring / total if total else 0.0,
         "f1_mean": f1_sum / total if total else 0.0,
+        "mrr_mean": sum(s.mrr for s in scores) / total if total else 0.0,
         "abstention_count": len(abstentions),
         "abstention_accuracy": abstent_correct / len(abstentions) if abstentions else None,
         "p50_ms": p50,

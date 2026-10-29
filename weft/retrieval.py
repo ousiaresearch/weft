@@ -100,6 +100,8 @@ def _rerank(query: str, items, embedder, top_k: int):
             cand_embs = embedder.embed_documents(texts)
         except AttributeError:
             cand_embs = [embedder.embed_document(t) for t in texts]
+        if len(cand_embs) != len(items):
+            return items[:top_k]
         scored = [(_cosine(q_emb, emb), it) for it, emb in zip(items, cand_embs)]
         scored.sort(key=lambda x: (-x[0], x[1].record_id))
         return [it for _, it in scored[:top_k]]
@@ -157,8 +159,9 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
 
         items: list[Item] = []
         seen_documents: set = set()  # one result per document: a note is not five paragraphs
+        read_limit = pool if rerank else limit
         for rid in candidate_ids:
-            if len(items) >= pool:
+            if len(items) >= read_limit:
                 break
             rec = sub.get(rid, ctx)  # gated again: defence in depth
             if rec is None:

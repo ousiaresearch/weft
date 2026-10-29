@@ -55,6 +55,7 @@ class ScoreResult:
     exact: bool
     substring: bool
     f1: float = 0.0
+    mrr: float = 0.0
     abstention_correct: bool | None = None
     latency_ms: float = 0.0
 
@@ -140,6 +141,7 @@ def score_answer(
             exact=False,
             substring=False,
             f1=0.0,
+            mrr=0.0,
             abstention_correct=result.abstained,
             latency_ms=result.latency_ms,
         )
@@ -160,7 +162,8 @@ def score_answer(
             mode=mode,
             exact=hit,
             substring=hit,
-            f1=mrr,  # store MRR in f1 field when evidence_ids provided
+            f1=mrr,
+            mrr=mrr,
             abstention_correct=None,
             latency_ms=result.latency_ms,
         )
@@ -177,6 +180,7 @@ def score_answer(
         exact=exact,
         substring=substring,
         f1=f1,
+        mrr=0.0,
         abstention_correct=None,
         latency_ms=result.latency_ms,
     )

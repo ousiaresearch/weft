@@ -28,7 +28,7 @@ def _load_dataset():
     return load_dataset("CodyTonn/LoCoMo", split="train")
 
 
-def _parse_evidence_id(raw: str) -> str:
+def _parse_evidence_id(raw: str) -> list[str]:
     """Normalise LoCoMo evidence references like D1:3 or D1:3; D9:17."""
     if isinstance(raw, list):
         raw = " ".join(str(x) for x in raw)
@@ -38,12 +38,11 @@ def _parse_evidence_id(raw: str) -> str:
     for part in parts:
         if not part:
             continue
-        # Ensure ID starts with alphanumeric
         part = part.strip("-_")
         if not part:
             continue
         ids.append(part.lower())
-    return ids[0] if ids else "rec"
+    return ids if ids else ["rec"]
 
 
 def convert_sample(sample: dict) -> tuple[str, list[Record], list[QAPair]]:
@@ -71,7 +70,8 @@ def convert_sample(sample: dict) -> tuple[str, list[Record], list[QAPair]]:
                 for item in items:
                     if isinstance(item, list) and len(item) >= 2:
                         text, ev = item[0], item[1]
-                        ev_id = _parse_evidence_id(ev)
+                        ev_ids = _parse_evidence_id(ev)
+                        ev_id = ev_ids[0]
                     elif isinstance(item, str):
                         text = item
                         ev_id = f"obs-{len(seen_ids)}"
@@ -137,6 +137,7 @@ def convert_sample(sample: dict) -> tuple[str, list[Record], list[QAPair]]:
     qa_data = json.loads(sample.get("qa", "[]") or "[]")
     for qa in qa_data:
         gold_ids = [_parse_evidence_id(e) for e in qa.get("evidence", [])]
+        flat_ids = [gid for sublist in gold_ids for gid in sublist]
         qa_pairs.append(
             QAPair(
                 question_id=f"{conv_id}-qa-{qa.get('id', len(qa_pairs))}",
@@ -144,7 +145,7 @@ def convert_sample(sample: dict) -> tuple[str, list[Record], list[QAPair]]:
                 gold_answer=qa.get("answer", ""),
                 abstain=False,
                 category=str(qa.get("category", "")),
-                evidence_ids=[f"{conv_id}-{g}" for g in gold_ids],
+                evidence_ids=[f"{conv_id}-{g}" for g in flat_ids],
             )
         )
 
@@ -198,6 +199,7 @@ def _aggregate(scores: list[ScoreResult]) -> dict:
         "exact_rate": exact / total if total else 0.0,
         "substring_rate": substring / total if total else 0.0,
         "f1_mean": f1_sum / total if total else 0.0,
+        "mrr_mean": sum(s.mrr for s in scores) / total if total else 0.0,
         "p50_ms": p50,
         "p95_ms": p95,
     }
