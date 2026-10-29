@@ -64,15 +64,20 @@ else
   else
     echo "Info: twine unavailable; checking wheel metadata with Python" >&2
     if "${PYTHON_BIN}" -c "
-import zipfile, sys
+import zipfile, sys, re
 p = __import__('glob').glob('dist/*.whl')[0]
 with zipfile.ZipFile(p) as z:
     for n in z.namelist():
         if n.endswith('METADATA'):
             data = z.read(n).decode()
+            required = ['Name:', 'Version:', 'Summary:', 'License:', 'Author:']
+            missing = [r for r in required if r not in data]
+            if missing:
+                print('Error: missing required fields:', ', '.join(missing), file=sys.stderr)
+                sys.exit(1)
             print('METADATA present:', n)
-            print('Name:', data.split('Name: ')[1].split('\n')[0])
-            print('Version:', data.split('Version: ')[1].split('\n')[0])
+            for r in required:
+                print(r.replace(':',''), data.split(r)[1].split('\n')[0])
             sys.exit(0)
     print('Error: no METADATA in wheel', file=sys.stderr)
     sys.exit(1)
