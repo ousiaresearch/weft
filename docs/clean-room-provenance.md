@@ -29,15 +29,15 @@ Licences are read from installed package metadata in `.venv` where possible. Ent
 
 | Dependency | Purpose | Version | Licence (as recorded) | Notes |
 |---|---|---|---|---|
-| pypdf | PDF text extraction | 6.21.2 | BSD-3-Clause (earlier note; metadata empty on PyPI) | verify against the repository |
+| pypdf | PDF text extraction | 6.21.2 | BSD-3-Clause | verified via PyPI/project page |
 | python-docx | DOCX text extraction | 1.2.0 | MIT | metadata |
 | sqlite-vec | Vector index in SQLite | 0.1.9 | MIT and Apache-2.0 (dual) | metadata |
 | mlx-embeddings | Loads embedding models on Apple MLX | 0.1.0 | GPL-3.0 | compatible with Weft's AGPL-3.0; needs user review |
 | mlx-vlm | Runs the Qwen3.5-2B vision-language adapter | 0.7.10 | MIT | metadata |
 | pywhispercpp | whisper.cpp binding for transcription | 1.5.1 | MIT | metadata |
 | mlx | Apple MLX runtime | 0.32.4 | MIT | metadata |
-| numpy | Numerical arrays | 2.5.4 | BSD-3-Clause (verify) | metadata licence field empty |
-| pytest | Test runner (dev only) | 9.1.1 | MIT (verify) | dev dependency |
+| numpy | Numerical arrays | 2.5.4 | BSD-3-Clause | verified via PyPI |
+| pytest | Test runner (dev only) | 9.1.1 | MIT | verified via PyPI |
 
 ## 4. Model weights (not shipped with Weft)
 
