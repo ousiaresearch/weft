@@ -1,0 +1,81 @@
+import json
+import pytest
+from weft.substrate import Substrate, Record
+from weft.scope import ScopeContext, ScopeEngine
+
+KNOWN = {"s"}
+
+
+def _seed_source(sub, scope):
+    sub._conn.execute(
+        "INSERT OR IGNORE INTO records (record_id, record_type, scope, epistemic_status, payload, "
+        "created_at, effective_at, supersedes, source_ids, provenance, attribution) "
+        "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+        ("src-1-s", "Source", scope, "stated", '{"text": "seed"}', 0.0, None, None, "[]", "{}", "document"),
+    )
+    sub._conn.commit()
+
+
+def test_export_scope_returns_portable_dict(tmp_path):
+    sub = Substrate(tmp_path / "a.db", ScopeEngine(known_scopes=KNOWN))
+    try:
+        _seed_source(sub, "s")
+        ctx = ScopeContext(granted_scopes=frozenset({"s"}), user_authored=True)
+        sub._write(Record(record_id="r1", record_type="Observation", scope="s", attribution="document",
+                          source_ids=["src-1-s"], payload={"text": "v1"}, effective_at=100.0),
+                    ctx, validate_schema=True, overwrite=False)
+        data = sub.export_scope("s", ctx)
+        assert data["schema_version"] == 4
+        assert data["scope"] == "s"
+        assert len(data["records"]) == 2  # Source + Observation
+        texts = {r["payload"]["text"] for r in data["records"]}
+        assert texts == {"seed", "v1"}
+    finally:
+        sub.close()
+
+
+def test_import_scope_round_trip_preserves_content(tmp_path):
+    sub1 = Substrate(tmp_path / "src.db", ScopeEngine(known_scopes=KNOWN))
+    sub2 = Substrate(tmp_path / "dst.db", ScopeEngine(known_scopes=KNOWN))
+    try:
+        _seed_source(sub1, "s")
+        ctx = ScopeContext(granted_scopes=frozenset({"s"}), user_authored=True)
+        sub1._write(Record(record_id="r1", record_type="Observation", scope="s", attribution="document",
+                           source_ids=["src-1-s"], payload={"text": "v1"}, effective_at=100.0),
+                    ctx, validate_schema=True, overwrite=False)
+        data = sub1.export_scope("s", ctx)
+        imported = sub2.import_scope(data, ctx)
+        assert imported == 2
+        rows = sub2._conn.execute("SELECT record_id, payload FROM records ORDER BY record_id").fetchall()
+        assert rows[0][0] == "r1"
+        assert json.loads(rows[0][1])["text"] == "v1"
+    finally:
+        sub1.close()
+        sub2.close()
+
+
+def test_import_scope_rejects_bad_schema_version(tmp_path):
+    sub = Substrate(tmp_path / "a.db", ScopeEngine(known_scopes=KNOWN))
+    try:
+        ctx = ScopeContext(granted_scopes=frozenset({"s"}), user_authored=True)
+        with pytest.raises(ValueError, match="schema version mismatch"):
+            sub.import_scope({"schema_version": 999, "scope": "s", "records": []}, ctx)
+    finally:
+        sub.close()
+
+
+def test_export_scope_requires_context(tmp_path):
+    sub = Substrate(tmp_path / "a.db", ScopeEngine(known_scopes=KNOWN))
+    try:
+        assert sub.export_scope("s", None) == {}
+    finally:
+        sub.close()
+
+
+def test_import_scope_requires_context(tmp_path):
+    sub = Substrate(tmp_path / "a.db", ScopeEngine(known_scopes=KNOWN))
+    try:
+        with pytest.raises(ValueError, match="context required"):
+            sub.import_scope({"schema_version": 4, "scope": "s", "records": []}, None)
+    finally:
+        sub.close()

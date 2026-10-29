@@ -1244,6 +1244,103 @@ class Substrate:
             records = [Record.from_row(r) for r in rows]
             return self.scope_engine.filter_readable(records, ctx)
 
+    def export_scope(self, scope: str, ctx: ScopeContext | None = None) -> dict[str, Any]:
+        """Export all records in ``scope`` readable by ``ctx`` as a portable dict.
+
+        The payload includes a schema version and a list of record dicts with
+        all fields preserved. Returns an empty dict if ``ctx`` is ``None`` or
+        the scope is not readable.
+        """
+        if ctx is None:
+            return {}
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT * FROM records WHERE scope = ?", (scope,)
+            ).fetchall()
+            records = [Record.from_row(r) for r in rows]
+            readable = self.scope_engine.filter_readable(records, ctx)
+            return {
+                "schema_version": SCHEMA_VERSION,
+                "scope": scope,
+                "exported_at": time.time(),
+                "records": [self._record_to_export(r) for r in readable],
+            }
+
+    def import_scope(self, data: dict[str, Any], ctx: ScopeContext | None = None) -> int:
+        """Import records from an export dict into the substrate.
+
+        The caller must have a granted write scope for the exported scope.
+        Returns the number of records imported. Raises ``ValueError`` if the
+        schema version does not match or the scope is missing.
+        """
+        if ctx is None:
+            raise ValueError("context required for import")
+        scope = data.get("scope")
+        if not scope:
+            raise ValueError("export payload missing scope")
+        if data.get("schema_version") != SCHEMA_VERSION:
+            raise ValueError(f"schema version mismatch: {data.get('schema_version')} != {SCHEMA_VERSION}")
+        records = []
+        for rec_dict in data.get("records", []):
+            records.append(self._record_from_export(rec_dict))
+        imported = 0
+        with self._lock:
+            for rec in records:
+                decision = self.scope_engine.authorize_write(rec, ctx)
+                if not decision.allowed:
+                    continue
+                own = False
+                try:
+                    own = self._begin_write("weft_write")
+                    self._conn.execute(
+                        "INSERT OR REPLACE INTO records "
+                        "(record_id, record_type, scope, epistemic_status, payload, "
+                        "created_at, effective_at, supersedes, source_ids, provenance, attribution) "
+                        "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                        rec.to_row(),
+                    )
+                    self._fts_index(rec)
+                    self._journal("import", rec.record_id, rec.scope, f"type={rec.record_type}")
+                    self._bump_version()
+                    self._finish_write("weft_write", own)
+                    imported += 1
+                except Exception:
+                    self._abort_write("weft_write", own)
+                    raise
+        return imported
+
+    @staticmethod
+    def _record_to_export(rec: Record) -> dict[str, Any]:
+        return {
+            "record_id": rec.record_id,
+            "record_type": rec.record_type,
+            "scope": rec.scope,
+            "epistemic_status": rec.epistemic_status,
+            "payload": rec.payload,
+            "created_at": rec.created_at,
+            "effective_at": rec.effective_at,
+            "supersedes": rec.supersedes,
+            "source_ids": rec.source_ids,
+            "provenance": rec.provenance,
+            "attribution": rec.attribution,
+        }
+
+    @staticmethod
+    def _record_from_export(d: dict[str, Any]) -> Record:
+        return Record(
+            record_id=d["record_id"],
+            record_type=d["record_type"],
+            scope=d["scope"],
+            epistemic_status=d["epistemic_status"],
+            payload=d.get("payload", {}),
+            created_at=d.get("created_at", 0.0),
+            effective_at=d.get("effective_at"),
+            supersedes=d.get("supersedes"),
+            source_ids=d.get("source_ids", []),
+            provenance=d.get("provenance", {}),
+            attribution=d.get("attribution"),
+        )
+
     def journal_entries(self, ctx: ScopeContext | None = None) -> list[dict]:
         """Journal entries the caller may see (review fix F12). No context -> nothing.
 
