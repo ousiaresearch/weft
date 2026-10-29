@@ -13,6 +13,7 @@ from pydantic import BaseModel
 
 from weft.substrate import Substrate, Record
 from weft.scope import ScopeEngine, ScopeContext
+from weft.shadow import _append as _append_shadow
 
 logger = logging.getLogger("weft.server")
 
@@ -98,3 +99,6 @@ def get_record(record_id: str, scope: str, actor: str = "local-user") -> JSONRes
         })
     finally:
         sub.close()
+
+
+_append_shadow(app)

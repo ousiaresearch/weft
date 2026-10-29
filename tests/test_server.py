@@ -106,3 +106,77 @@ def test_export_endpoint_returns_payload(tmp_path, monkeypatch):
     data = resp.json()
     assert data["scope"] == "s"
     assert len(data["records"]) == 2
+
+
+def test_shadow_recall_returns_matches(tmp_path, monkeypatch):
+    db_path = tmp_path / "weft.db"
+    engine = ScopeEngine(known_scopes=KNOWN)
+    sub = Substrate(db_path, engine)
+    try:
+        _seed(sub, "s")
+        ctx = ScopeContext(granted_scopes=frozenset({"s"}), user_authored=True)
+        sub._write(Record(record_id="r1", record_type="Observation", scope="s", attribution="document",
+                           source_ids=["src-1-s"], payload={"text": "hello world"}, effective_at=100.0),
+                    ctx, validate_schema=True, overwrite=False)
+    finally:
+        sub.close()
+    monkeypatch.setenv("HOME", str(tmp_path))
+    os.makedirs(tmp_path / ".weft", exist_ok=True)
+    os.replace(db_path, tmp_path / ".weft" / "weft.sqlite3")
+    client = TestClient(app)
+    resp = client.post("/shadow/recall", json={"scope": "s", "query": "hello"})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["actor"] == "shadow"
+    assert data["user_authored"] is False
+    assert len(data["matches"]) == 1
+    assert data["matches"][0]["record_id"] == "r1"
+
+
+def test_shadow_reason_returns_evidence(tmp_path, monkeypatch):
+    db_path = tmp_path / "weft.db"
+    engine = ScopeEngine(known_scopes=KNOWN)
+    sub = Substrate(db_path, engine)
+    try:
+        _seed(sub, "s")
+        ctx = ScopeContext(granted_scopes=frozenset({"s"}), user_authored=True)
+        sub._write(Record(record_id="r1", record_type="Observation", scope="s", attribution="document",
+                           source_ids=["src-1-s"], payload={"text": "lighthouse evidence"}, effective_at=100.0),
+                    ctx, validate_schema=True, overwrite=False)
+    finally:
+        sub.close()
+    monkeypatch.setenv("HOME", str(tmp_path))
+    os.makedirs(tmp_path / ".weft", exist_ok=True)
+    os.replace(db_path, tmp_path / ".weft" / "weft.sqlite3")
+    client = TestClient(app)
+    resp = client.post("/shadow/reason", json={"scope": "s", "query": "lighthouse"})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["actor"] == "shadow"
+    assert len(data["evidence"]) == 1
+    assert data["evidence"][0]["record_id"] == "r1"
+
+
+def test_shadow_compare_diffs_active_and_shadow(tmp_path, monkeypatch):
+    db_path = tmp_path / "weft.db"
+    engine = ScopeEngine(known_scopes=KNOWN)
+    sub = Substrate(db_path, engine)
+    try:
+        _seed(sub, "s")
+        ctx = ScopeContext(granted_scopes=frozenset({"s"}), user_authored=True)
+        sub._write(Record(record_id="r1", record_type="Observation", scope="s", attribution="document",
+                           source_ids=["src-1-s"], payload={"text": "visible"}, effective_at=100.0),
+                    ctx, validate_schema=True, overwrite=False)
+    finally:
+        sub.close()
+    monkeypatch.setenv("HOME", str(tmp_path))
+    os.makedirs(tmp_path / ".weft", exist_ok=True)
+    os.replace(db_path, tmp_path / ".weft" / "weft.sqlite3")
+    client = TestClient(app)
+    resp = client.post("/shadow/compare", json={"scope": "s", "query": "visible"})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "diff" in data
+    assert data["diff"]["common"] == ["r1"]
+    assert data["diff"]["added"] == []
+    assert data["diff"]["removed"] == []
