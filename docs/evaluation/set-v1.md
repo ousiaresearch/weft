@@ -42,7 +42,7 @@ This set exercises the Weft reasoning loop against a closed, deterministic groun
 **Scope:** s
 **Input:** Scope `s`. Record `obs-1` states: "The keeper arrived on Monday." Record `obs-2` states: "The keeper arrived on Tuesday."
 **Query:** "When did the keeper arrive?"
-**Gold answer:** "conflicting evidence — Monday vs. Tuesday"
+**Gold answer:** N/A (contradict returns conflict IDs, not an answer string)
 **Gold citations:** `["obs-1", "obs-2"]`
 **Abstain:** No
 
