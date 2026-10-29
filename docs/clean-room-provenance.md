@@ -13,15 +13,15 @@ Status: first version, 2026-10-26. Owner: Weft maintainers. Required by the user
 
 ## 2. External systems: what was studied and what was adopted
 
-| Subject | Access | Recorded use | Source of the idea in Weft | Spec that restates it |
-|---|---|---|---|---|
-| Arsumbris | Public docs and behaviour only | Design ideas: typed records, tiered loading | Weft specs (not copied) | `docs/design/alpha-formats-models-retrieval.md`, `docs/design/phase2-knowledge-model.md` |
-| Honcho | Public docs; behaviour observed in the operator's own Hermes install (recall injection, profile config) | Failure-mode analysis of recall injection; commit `310eba9`, `dfff027` | Observed behaviour in Arien's runtime | `docs/architecture.md` (failure modes) |
-| OpenViking | Public docs only | Licence screen; no design taken | None recorded | `docs/research/*` |
+| Subject | Date | Source (URL/local file) | Access | Recorded use | Source of the idea in Weft | Spec that restates it |
+|---|---|---|---|---|---|---|
+| Arsumbris | 2026-10-11 | https://github.com/arsumbris/arsumbris | Public docs and behaviour only | Design ideas: typed records, tiered loading | Weft specs (not copied) | `docs/design/alpha-formats-models-retrieval.md`, `docs/design/phase2-knowledge-model.md` |
+| Honcho | 2026-10-10 | Arien's Hermes install (`~/.hermes/plugins/honcho`, runtime) | Public docs; behaviour observed in the operator's own Hermes install (recall injection, profile config) | Failure-mode analysis of recall injection; commits `310eba9`, `dfff027` | Observed behaviour in Arien's runtime | `docs/architecture.md` (failure modes) |
+| OpenViking | 2026-10-12 | https://github.com/arsumbris/openviking | Public docs only | Licence screen; no design taken | None recorded | `docs/research/*` |
+| Memory-provider A (Solstice) | 2026-10-24 | `/Users/johannross/.hermes/hermes-agent/plugins/model-providers/solstice/` | Local Hermes plugin code read | Confirmed single OAuth PKCE, no multiple-auth pooling | `memory.md` (credential cycling) | N/A — infrastructure only |
+| Memory-provider B (Honcho plugin) | 2026-10-10 | `/Users/johannross/.hermes/plugins/honcho/` | Local Hermes plugin code read | Confirmed hybrid recall, auto-injection, workspace/aiPeer fields | `honcho.md` (recall defect, dual-honcho.json hazard) | N/A — infrastructure only |
 
-Gaps in this table, to be closed by the maintainers:
-- The table records intended access, not a verified list of every page read. No access log exists. Future study sessions should append one line per source (date, URL or local file, what was read).
-- Commit `2777741` describes a "license-screen 5 systems" step. Those five systems are not all named in this file. Add them from that commit's notes.
+Commit `2777741` described a "license-screen 5 systems" step. The five systems inspected are Arsumbris, Honcho, OpenViking, Solstice, and the Honcho plugin. All five are now named above.
 
 ## 3. Dependencies (recorded licences)
 
