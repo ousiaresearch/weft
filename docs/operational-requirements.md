@@ -9,7 +9,7 @@
 ## Network
 
 - External inference is opt-in per query. The user sees an egress preview before any data leaves the machine.
-- Model fetch (`weft models fetch`) downloads from Hugging Face. Confirm licence and size before downloading.
+- Model fetch downloads from Hugging Face. Confirm licence and size before downloading.
 
 ## Model storage
 

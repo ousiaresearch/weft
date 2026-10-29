@@ -7,16 +7,16 @@
 
 Each gate must be verified before the alpha tag is cut.
 
-- [ ] **G1: Tests passing** — Full test suite green on clean checkout. Current: 429 passing.
-- [ ] **G2: Adversarial review current** — No open BLOCK findings on HEAD.
-- [ ] **G3: LICENSE present** — AGPL-3.0 `LICENSE` file at repo root.
-- [ ] **G4: pyproject.toml valid** — `python3 -m build --wheel` succeeds without error.
-- [ ] **G5: README accurate** — Status, install, quick-start, and invariants match current code.
-- [ ] **G6: Docs present** — `docs/operational-requirements.md` includes resource limits and crash recovery.
-- [ ] **G7: Clean-room provenance** — `docs/clean-room-provenance.md` lists all inspected components and reuse decisions.
-- [ ] **G8: No secrets in repo** — `git secret` scan or equivalent returns clean.
-- [ ] **G9: Wheel buildable** — `dist/weft_memory-0.1.0a0-py3-none-any.whl` exists and installs in a fresh venv.
-- [ ] **G10: Entrypoint works** — `weft --help` and `weft --db /tmp/test.db serve --help` succeed.
+- [x] **G1: Tests passing** — Full test suite green on clean checkout. Verified: 429 passing.
+- [x] **G2: Adversarial review current** — No open BLOCK findings on HEAD. Last review: APPROVED with 0 findings on `e22f64b`; subsequent clean-room fixes reviewed and cleared.
+- [x] **G3: LICENSE present** — AGPL-3.0 `LICENSE` file at repo root.
+- [x] **G4: pyproject.toml valid** — `python3 -m build --wheel` succeeds without error. Verified via `scripts/build-release.sh`.
+- [x] **G5: README accurate** — Status, install, quick-start, and invariants match current code.
+- [x] **G6: Docs present** — `docs/operational-requirements.md` includes resource limits and crash recovery.
+- [x] **G7: Clean-room provenance** — `docs/clean-room-provenance.md` lists all inspected components and reuse decisions. All 5 systems named with dates, sources, access modes, recorded use, and Weft spec citations.
+- [x] **G8: No secrets in repo** — `git secret` scan or equivalent returns clean.
+- [x] **G9: Wheel buildable** — `dist/weft_memory-0.1.0a0-py3-none-any.whl` exists and installs in a fresh venv. Verified via `scripts/build-release.sh`.
+- [x] **G10: Entrypoint works** — `weft --help` and `weft --db /tmp/test.db serve --help` succeed.
 
 ## Artifacts
 
