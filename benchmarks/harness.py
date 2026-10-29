@@ -145,28 +145,28 @@ def _run_case(case: Case, embedder=None) -> Result:
             else:
                 abstention_correct = len(selected_ids) > 0
 
+            text_match = True
+            if not case.abstain and gold_set and case.gold_text_tokens:
+                selected_texts = []
+                for rid in selected_ids[:5]:
+                    rec = sub.get(rid, ctx)
+                    if rec:
+                        selected_texts.append(
+                            (rec.payload.get("text", "") if isinstance(rec.payload, dict) else str(rec.payload)).lower()
+                        )
+                combined = " ".join(selected_texts)
+                for token in case.gold_text_tokens:
+                    for word in token.lower().split():
+                        if word not in combined:
+                            text_match = False
+                            break
+                    if not text_match:
+                        break
+
             if case.abstain:
                 passed = bool(abstention_correct)
                 failure = None if abstention_correct else "expected abstention but got results"
             else:
-                text_match = True
-                if gold_set and case.gold_text_tokens:
-                    selected_texts = []
-                    for rid in selected_ids[:5]:
-                        rec = sub.get(rid, ctx)
-                        if rec:
-                            selected_texts.append(
-                                (rec.payload.get("text", "") if isinstance(rec.payload, dict) else str(rec.payload)).lower()
-                            )
-                    combined = " ".join(selected_texts)
-                    for token in case.gold_text_tokens:
-                        for word in token.lower().split():
-                            if word not in combined:
-                                text_match = False
-                                break
-                        if not text_match:
-                            break
-
                 passed = hit_5 and abstention_correct and text_match
                 failure = None
                 if not hit_5:
@@ -197,11 +197,13 @@ def run_dataset(name: str, embedder=None) -> tuple[list[Result], dict]:
     for case in cases:
         results.append(_run_case(case, embedder=embedder))
 
+    answerable = [r for r in results if not r.case_id.endswith("-abstain-001") and not r.case_id.endswith("-abstain-002")]
+    abstentions = [r for r in results if r.case_id.endswith("-abstain-001") or r.case_id.endswith("-abstain-002")]
+
     passed = sum(1 for r in results if r.passed)
-    recall5 = sum(1 for r in results if r.recall_at_5)
-    recall10 = sum(1 for r in results if r.recall_at_10)
-    mrr_sum = sum(r.mrr for r in results)
-    abstentions = [r for r in results if r.abstention_correct is not None]
+    recall5 = sum(1 for r in answerable if r.recall_at_5)
+    recall10 = sum(1 for r in answerable if r.recall_at_10)
+    mrr_sum = sum(r.mrr for r in answerable)
     abstent_correct = sum(1 for r in abstentions if r.abstention_correct)
     latencies = [r.latency_ms for r in results]
     latencies_sorted = sorted(latencies)
@@ -211,10 +213,12 @@ def run_dataset(name: str, embedder=None) -> tuple[list[Result], dict]:
     agg = {
         "dataset": name,
         "cases": len(results),
+        "answerable": len(answerable),
+        "abstentions": len(abstentions),
         "passed": passed,
-        "recall_at_5_rate": recall5 / len(results) if results else 0.0,
-        "recall_at_10_rate": recall10 / len(results) if results else 0.0,
-        "mrr": mrr_sum / len(results) if results else 0.0,
+        "recall_at_5_rate": recall5 / len(answerable) if answerable else 0.0,
+        "recall_at_10_rate": recall10 / len(answerable) if answerable else 0.0,
+        "mrr": mrr_sum / len(answerable) if answerable else 0.0,
         "abstention_accuracy": abstent_correct / len(abstentions) if abstentions else 0.0,
         "latency_p50_ms": p50,
         "latency_p95_ms": p95,
@@ -222,8 +226,10 @@ def run_dataset(name: str, embedder=None) -> tuple[list[Result], dict]:
     return results, agg
 
 
-def fmt_results(results: list[Result], agg: dict) -> str:
-    lines = [f"## {agg['dataset']} — {agg['cases']} cases"]
+def fmt_results_table(results: list[Result], agg: dict) -> str:
+    lines = []
+    lines.append(f"## {agg['dataset']} — {agg['answerable']} answerable + {agg['abstentions']} abstention cases")
+    lines.append("")
     lines.append(
         f"Pass: {agg['passed']}/{agg['cases']}  "
         f"R@5: {agg['recall_at_5_rate']:.3f}  "
@@ -232,12 +238,12 @@ def fmt_results(results: list[Result], agg: dict) -> str:
         f"Abstain: {agg['abstention_accuracy']:.0%}  "
         f"p50: {agg['latency_p50_ms']:.1f}ms  p95: {agg['latency_p95_ms']:.1f}ms"
     )
+    lines.append("")
+    lines.append("| Case | R@5 | R@10 | MRR | Latency | Status |")
+    lines.append("|------|-----|------|-----|---------|--------|")
     for r in results:
         status = "PASS" if r.passed else "FAIL"
         lines.append(
-            f"- {r.case_id}: {status}  R@5={'y' if r.recall_at_5 else 'n'}  "
-            f"MRR={r.mrr:.2f}  latency={r.latency_ms:.1f}ms"
+            f"| {r.case_id} | {'y' if r.recall_at_5 else 'n'} | {'y' if r.recall_at_10 else 'n'} | {r.mrr:.2f} | {r.latency_ms:.1f}ms | {status} |"
         )
-        if r.failure_reason:
-            lines.append(f"  - {r.failure_reason}")
     return "\n".join(lines)
