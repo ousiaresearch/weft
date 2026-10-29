@@ -41,33 +41,12 @@ def test_benchmark_dataset(dataset):
 
 def test_abstention_classification_uses_abstain_flag():
     """Regression: run_dataset must use Case.abstain, not case-ID suffixes."""
-    cases = [
-        Case(
-            case_id="should-answer-001",
-            query="What is 2+2?",
-            gold_record_ids=["g1"],
-            gold_text_tokens=["four"],
-            abstain=False,
-            setup_records=[
-                {"record_id": "g1", "record_type": "Source", "scope": "default", "text": "2+2 is four."}
-            ],
-        ),
-        Case(
-            case_id="should-abstain-002",
-            query="What is the meaning of life?",
-            gold_record_ids=[],
-            gold_text_tokens=[],
-            abstain=True,
-            setup_records=[],
-        ),
-    ]
-
     dataset_path = DATASET_DIR / "_synthetic-abstain-regression-v1.json"
     dataset_path.write_text(
         json.dumps(
             [
                 {
-                    "id": "should-answer-001",
+                    "id": "should-abstain-001",
                     "query": "What is 2+2?",
                     "gold_record_ids": ["g1"],
                     "gold_text_tokens": ["four"],
@@ -77,7 +56,7 @@ def test_abstention_classification_uses_abstain_flag():
                     ],
                 },
                 {
-                    "id": "should-abstain-002",
+                    "id": "should-answer-002",
                     "query": "What is the meaning of life?",
                     "gold_record_ids": [],
                     "gold_text_tokens": [],
