@@ -18,7 +18,7 @@ Each gate must be PASS before the next is attempted.
    - **Evidence:** 7 evaluation tests passing. Runner invokes `synthesize` and `contradict`; validates gold answer tokens, citation presence, retrieval contents, and content_conflict denial.
 
 3. **Crash recovery verified**
-   - **PASS:** Added `test_crash_mid_write_leaves_no_partial_record_in_raw_tables` (kill-mid-write via SIGKILL, verify uncommitted record absent from raw records and journal tables via direct SQL).
+   - **PASS:** Added `test_crash_mid_write_leaves_no_partial_record_in_raw_tables` (kill-mid-write via SIGKILL, verify uncommitted record absent from raw records, journal, and FTS tables via direct SQL).
    - **Artifacts:** `tests/test_substrate.py`
    - **Evidence:** 429 tests passing.
 
