@@ -5,13 +5,24 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "weft-memory"
 version = "0.1.0a0"
-description = "Local evidence-bound memory prototype"
+description = "Evidence-bound scoped memory substrate for people and their agents"
+readme = "README.md"
+license = {text = "AGPL-3.0"}
 requires-python = ">=3.11"
-license = {file = "LICENSE"}
+authors = [
+  {name = "Johann Ross", email = "johann@ousiaresearch.xyz"},
+]
+keywords = ["memory", "scope", "retrieval", "agent", "sqlite", "embeddings"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "License :: OSI Approved :: GNU Affero General Public License v3",
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Database",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: System :: Logging",
 ]
 dependencies = [
   "sqlite-vec>=0.1.9,<0.2",
@@ -29,6 +40,11 @@ server = [
   "uvicorn>=0.29",
   "pydantic>=2",
 ]
+
+[project.urls]
+Homepage = "https://github.com/ousiaresearch/weft"
+Repository = "https://github.com/ousiaresearch/weft"
+Issues = "https://github.com/ousiaresearch/weft/issues"
 
 [project.scripts]
 weft = "weft.cli:entrypoint"
