@@ -79,3 +79,49 @@ def test_import_scope_requires_context(tmp_path):
             sub.import_scope({"schema_version": 4, "scope": "s", "records": []}, None)
     finally:
         sub.close()
+
+
+def test_import_scope_rejects_unverified_claim_without_verification(tmp_path):
+    sub = Substrate(tmp_path / "a.db", ScopeEngine(known_scopes=KNOWN))
+    try:
+        ctx = ScopeContext(granted_scopes=frozenset({"s"}), user_authored=True, actor="verifier")
+        sub._conn.execute("INSERT INTO verifiers (actor_id, registered_at) VALUES (?, ?)", ("verifier", 0.0))
+        sub._conn.commit()
+        data = {
+            "schema_version": 4,
+            "scope": "s",
+            "records": [
+                {
+                    "record_id": "v1",
+                    "record_type": "Verification",
+                    "scope": "s",
+                    "epistemic_status": "stated",
+                    "payload": {"text": "verifier note"},
+                    "created_at": 0.0,
+                    "effective_at": None,
+                    "supersedes": None,
+                    "source_ids": [],
+                    "provenance": {},
+                    "attribution": "verifier",
+                },
+                {
+                    "record_id": "c1",
+                    "record_type": "Claim",
+                    "scope": "s",
+                    "epistemic_status": "verified",
+                    "payload": {"text": "unverified claim"},
+                    "created_at": 0.0,
+                    "effective_at": None,
+                    "supersedes": None,
+                    "source_ids": ["v1"],
+                    "provenance": {},
+                    "attribution": "verifier",
+                },
+            ],
+        }
+        # Without a Verification that names c1, import must refuse the Claim.
+        imported = sub.import_scope(data, ctx)
+        assert imported == 1  # only the Verification imports
+        assert sub.get("c1", ctx) is None
+    finally:
+        sub.close()

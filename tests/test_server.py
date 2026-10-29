@@ -1,6 +1,5 @@
 import json
 import os
-import tempfile
 
 import pytest
 from fastapi.testclient import TestClient
@@ -22,6 +21,12 @@ def _seed(sub, scope):
     sub._conn.commit()
 
 
+def _env_with_known_scopes(monkeypatch, tmp_path):
+    monkeypatch.setenv("WEFT_KNOWN_SCOPES", "s")
+    monkeypatch.setenv("HOME", str(tmp_path))
+    os.makedirs(tmp_path / ".weft", exist_ok=True)
+
+
 def test_health_endpoint():
     client = TestClient(app)
     resp = client.get("/health")
@@ -41,8 +46,7 @@ def test_query_endpoint_returns_matches(tmp_path, monkeypatch):
                     ctx, validate_schema=True, overwrite=False)
     finally:
         sub.close()
-    monkeypatch.setenv("HOME", str(tmp_path))
-    os.makedirs(tmp_path / ".weft", exist_ok=True)
+    _env_with_known_scopes(monkeypatch, tmp_path)
     os.replace(db_path, tmp_path / ".weft" / "weft.sqlite3")
     client = TestClient(app)
     resp = client.post("/query", json={"scope": "s", "query": "hello", "limit": 5})
@@ -50,6 +54,14 @@ def test_query_endpoint_returns_matches(tmp_path, monkeypatch):
     data = resp.json()
     assert len(data["matches"]) == 1
     assert data["matches"][0]["record_id"] == "r1"
+
+
+def test_query_endpoint_rejects_unknown_scope(tmp_path, monkeypatch):
+    _env_with_known_scopes(monkeypatch, tmp_path)
+    client = TestClient(app)
+    resp = client.post("/query", json={"scope": "unknown", "query": "hello"})
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "scope not permitted"
 
 
 def test_get_record_returns_detail(tmp_path, monkeypatch):
@@ -64,8 +76,7 @@ def test_get_record_returns_detail(tmp_path, monkeypatch):
                     ctx, validate_schema=True, overwrite=False)
     finally:
         sub.close()
-    monkeypatch.setenv("HOME", str(tmp_path))
-    os.makedirs(tmp_path / ".weft", exist_ok=True)
+    _env_with_known_scopes(monkeypatch, tmp_path)
     os.replace(db_path, tmp_path / ".weft" / "weft.sqlite3")
     client = TestClient(app)
     resp = client.get("/record/r1", params={"scope": "s"})
@@ -77,8 +88,7 @@ def test_get_record_missing_returns_404(tmp_path, monkeypatch):
     db_path = tmp_path / "weft.db"
     engine = ScopeEngine(known_scopes=KNOWN)
     Substrate(db_path, engine).close()
-    monkeypatch.setenv("HOME", str(tmp_path))
-    os.makedirs(tmp_path / ".weft", exist_ok=True)
+    _env_with_known_scopes(monkeypatch, tmp_path)
     os.replace(db_path, tmp_path / ".weft" / "weft.sqlite3")
     client = TestClient(app)
     resp = client.get("/record/nonexistent", params={"scope": "s"})
@@ -97,8 +107,7 @@ def test_export_endpoint_returns_payload(tmp_path, monkeypatch):
                     ctx, validate_schema=True, overwrite=False)
     finally:
         sub.close()
-    monkeypatch.setenv("HOME", str(tmp_path))
-    os.makedirs(tmp_path / ".weft", exist_ok=True)
+    _env_with_known_scopes(monkeypatch, tmp_path)
     os.replace(db_path, tmp_path / ".weft" / "weft.sqlite3")
     client = TestClient(app)
     resp = client.post("/export", json={"scope": "s"})
@@ -120,8 +129,7 @@ def test_shadow_recall_returns_matches(tmp_path, monkeypatch):
                     ctx, validate_schema=True, overwrite=False)
     finally:
         sub.close()
-    monkeypatch.setenv("HOME", str(tmp_path))
-    os.makedirs(tmp_path / ".weft", exist_ok=True)
+    _env_with_known_scopes(monkeypatch, tmp_path)
     os.replace(db_path, tmp_path / ".weft" / "weft.sqlite3")
     client = TestClient(app)
     resp = client.post("/shadow/recall", json={"scope": "s", "query": "hello"})
@@ -145,8 +153,7 @@ def test_shadow_reason_returns_evidence(tmp_path, monkeypatch):
                     ctx, validate_schema=True, overwrite=False)
     finally:
         sub.close()
-    monkeypatch.setenv("HOME", str(tmp_path))
-    os.makedirs(tmp_path / ".weft", exist_ok=True)
+    _env_with_known_scopes(monkeypatch, tmp_path)
     os.replace(db_path, tmp_path / ".weft" / "weft.sqlite3")
     client = TestClient(app)
     resp = client.post("/shadow/reason", json={"scope": "s", "query": "lighthouse"})
@@ -169,8 +176,7 @@ def test_shadow_compare_diffs_active_and_shadow(tmp_path, monkeypatch):
                     ctx, validate_schema=True, overwrite=False)
     finally:
         sub.close()
-    monkeypatch.setenv("HOME", str(tmp_path))
-    os.makedirs(tmp_path / ".weft", exist_ok=True)
+    _env_with_known_scopes(monkeypatch, tmp_path)
     os.replace(db_path, tmp_path / ".weft" / "weft.sqlite3")
     client = TestClient(app)
     resp = client.post("/shadow/compare", json={"scope": "s", "query": "visible"})

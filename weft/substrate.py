@@ -1183,6 +1183,8 @@ class Substrate:
             if row is None:
                 return None
             rec = Record.from_row(row)
+            if rec.effective_at is not None and rec.effective_at > timestamp:
+                return None
             decision = self.scope_engine.authorize_read(rec.scope, ctx, self.scope_engine._payload_text(rec))
             if not decision.allowed:
                 self._journal_standalone("read_denied", None, None, "read not permitted")
@@ -1288,6 +1290,12 @@ class Substrate:
             for rec in records:
                 decision = self.scope_engine.authorize_write(rec, ctx)
                 if not decision.allowed:
+                    continue
+                self._validate(rec)
+                reason = check_record(
+                    rec, ctx, is_verifier=self._is_verifier, lookup=self._lookup_record
+                )
+                if reason is not None:
                     continue
                 own = False
                 try:

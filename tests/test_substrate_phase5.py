@@ -22,10 +22,23 @@ def test_get_at_returns_original_before_supersession(tmp_path):
         _seed_source(sub, "s")
         ctx = ScopeContext(granted_scopes=frozenset({"s"}), user_authored=True)
         rec = Record(record_id="r1", record_type="Observation", scope="s", attribution="document",
-                     source_ids=["src-1-s"], payload={"text": "v1"}, effective_at=100.0)
+                     source_ids=["src-1-s"], payload={"text": "v1"}, effective_at=0.0)
         sub._write(rec, ctx, validate_schema=True, overwrite=False)
         assert sub.get_at("r1", 50.0, ctx).payload["text"] == "v1"
         assert sub.get_at("r1", 200.0, ctx).payload["text"] == "v1"
+    finally:
+        sub.close()
+
+
+def test_get_at_denies_future_effective_at(tmp_path):
+    sub = Substrate(tmp_path / "f.db", ScopeEngine(known_scopes=KNOWN))
+    try:
+        _seed_source(sub, "s")
+        ctx = ScopeContext(granted_scopes=frozenset({"s"}), user_authored=True)
+        rec = Record(record_id="r1", record_type="Observation", scope="s", attribution="document",
+                     source_ids=["src-1-s"], payload={"text": "v1"}, effective_at=100.0)
+        sub._write(rec, ctx, validate_schema=True, overwrite=False)
+        assert sub.get_at("r1", 50.0, ctx) is None
     finally:
         sub.close()
 
@@ -36,7 +49,7 @@ def test_get_at_follows_supersedes_chain(tmp_path):
         _seed_source(sub, "s")
         ctx = ScopeContext(granted_scopes=frozenset({"s"}), user_authored=True)
         r1 = Record(record_id="r1", record_type="Observation", scope="s", attribution="document",
-                    source_ids=["src-1-s"], payload={"text": "v1"}, effective_at=100.0)
+                    source_ids=["src-1-s"], payload={"text": "v1"}, effective_at=0.0)
         sub._write(r1, ctx, validate_schema=True, overwrite=False)
         r2 = Record(record_id="r2", record_type="Correction", scope="s", attribution="user",
                     source_ids=[], payload={"text": "v2"}, effective_at=200.0, supersedes="r1", epistemic_status="stated")

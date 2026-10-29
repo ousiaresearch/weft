@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import sys
 from datetime import datetime, timezone
 from typing import Any
@@ -12,11 +13,16 @@ from typing import Any
 class RedactingFormatter(logging.Formatter):
     """JSON formatter that redacts untrusted content fields."""
 
+    _PATTERNS = [
+        re.compile(r"<\s*UNTRUSTED_DOCUMENT\s*>", re.IGNORECASE),
+        re.compile(r"<\s*/\s*UNTRUSTED_DOCUMENT\s*>", re.IGNORECASE),
+        re.compile(r"\[\s*REDACTED\s+INJECTION\s*\]", re.IGNORECASE),
+    ]
+
     def format(self, record: logging.LogRecord) -> str:
         message = super().format(record)
-        # Redact obvious injection patterns from log output.
-        for token in ("<UNTRUSTED_DOCUMENT>", "</UNTRUSTED_DOCUMENT>", "[REDACTED INJECTION]"):
-            message = message.replace(token, "[REDACTED]")
+        for pat in self._PATTERNS:
+            message = pat.sub("[REDACTED]", message)
         return message
 
 

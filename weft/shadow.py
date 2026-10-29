@@ -13,6 +13,7 @@ from pydantic import BaseModel
 
 from weft.substrate import Substrate, Record
 from weft.scope import ScopeEngine, ScopeContext
+from weft.server_common import known_scopes as _known_scopes
 
 
 class ShadowRecallRequest(BaseModel):
@@ -29,6 +30,9 @@ class ShadowReasonRequest(BaseModel):
 
 
 def _shadow_ctx(scope: str, actor: str = "shadow") -> tuple[ScopeEngine, ScopeContext]:
+    known = _known_scopes()
+    if known and scope not in known:
+        raise HTTPException(status_code=403, detail="scope not permitted")
     engine = ScopeEngine(known_scopes={scope})
     ctx = ScopeContext(granted_scopes=frozenset({scope}), user_authored=False, actor=actor)
     return engine, ctx
