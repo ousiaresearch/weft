@@ -8,11 +8,32 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${REPO_DIR}"
 
-# Prefer a Python >= 3.11 explicitly; fall back to python3 if only one is installed.
-PYTHON_BIN="${WEFT_PYTHON:-python3.11}"
-if ! command -v "${PYTHON_BIN}" >/dev/null 2>&1; then
-  PYTHON_BIN="python3"
+# Prefer an explicit Python >= 3.11; fail clearly if none is available.
+if [ -n "${WEFT_PYTHON:-}" ]; then
+  PYTHON_BIN="${WEFT_PYTHON}"
+else
+  for candidate in python3.11 python3.12 python3.13 python3; do
+    if command -v "${candidate}" >/dev/null 2>&1; then
+      PYTHON_BIN="${candidate}"
+      break
+    fi
+  done
 fi
+
+if [ -z "${PYTHON_BIN:-}" ]; then
+  echo "Error: no Python interpreter found" >&2
+  exit 1
+fi
+
+PY_VER="$("${PYTHON_BIN}" -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')"
+PY_MAJOR="$("${PYTHON_BIN}" -c 'import sys; print(sys.version_info.major)')"
+PY_MINOR="$("${PYTHON_BIN}" -c 'import sys; print(sys.version_info.minor)')"
+if [ "${PY_MAJOR}" -lt 3 ] || [ "${PY_MAJOR}" -eq 3 -a "${PY_MINOR}" -lt 11 ]; then
+  echo "Error: ${PYTHON_BIN} is ${PY_VER}, but Weft requires Python >= 3.11" >&2
+  exit 1
+fi
+
+echo "==> Using ${PYTHON_BIN} (${PY_VER})"
 
 echo "==> Cleaning previous builds"
 rm -rf build/ dist/ *.egg-info
