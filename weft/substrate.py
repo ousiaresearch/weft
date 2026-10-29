@@ -9,11 +9,15 @@ See docs/adr/0001-phase1-decisions.md for the design rationale.
 
 from __future__ import annotations
 
+from contextlib import contextmanager
+
 import hashlib
 import json
+import math
 import os
 import re
 import sqlite3
+import struct
 import tempfile
 import threading
 import time
@@ -36,11 +40,15 @@ class SubstrateError(Exception):
 
 
 class ScopeViolation(SubstrateError):
-    """A write, delete, or correction was refused by the scope engine. Nothing persisted."""
+    """A scope refusal. audit_recorded is true only for a confirmed durable audit.
 
-    def __init__(self, reason: str, *, audit_recorded: bool = True):
+    False means no audit was confirmed; a deferred audit may still be recorded later.
+    """
+
+    def __init__(self, reason: str, *, audit_recorded: bool = False):
         super().__init__(reason)
         self.audit_recorded = audit_recorded
+        self._audit_index: int | None = None
 
 
 class SchemaViolation(SubstrateError):
@@ -194,6 +202,7 @@ class Substrate:
         # Fail closed: never operate without a gate.
         self.scope_engine = scope_engine if scope_engine is not None else ScopeEngine()
         self._lock = threading.RLock()
+        self._ingestion_audits = None
         self._conn: sqlite3.Connection
         # The store holds plaintext memory. Create new path components owner-only, and
         # keep the restrictive umask active while SQLite creates its sidecar files.
@@ -237,8 +246,73 @@ class Substrate:
         if self._conn.in_transaction:
             self._conn.execute("ROLLBACK")
 
+    def _rollback_savepoint(self, name: str) -> None:
+        # A SQLite RAISE(ROLLBACK) may already have ended the whole transaction.
+        if self._conn.in_transaction:
+            try:
+                self._conn.execute(f"ROLLBACK TO {name}")
+                self._conn.execute(f"RELEASE {name}")
+            except sqlite3.OperationalError as exc:
+                if "no such savepoint" not in str(exc):
+                    raise
+
+    def _begin_write(self, name: str) -> bool:
+        own = not self._conn.in_transaction
+        if own and self._ingestion_audits is not None:
+            raise sqlite3.OperationalError("ingestion transaction was rolled back")
+        if own:
+            self._conn.execute("BEGIN IMMEDIATE")
+        self._conn.execute(f"SAVEPOINT {name}")
+        return own
+
+    def _finish_write(self, name: str, own: bool) -> None:
+        self._conn.execute(f"RELEASE {name}")
+        if own:
+            self._conn.execute("COMMIT")
+
+    def _abort_write(self, name: str, own: bool) -> None:
+        if own:
+            self._rollback_if_open()
+        else:
+            self._rollback_savepoint(name)
+
+    @contextmanager
+    def ingestion_transaction(self):
+        """Atomically publish ingestion records, indexes, and completion marker."""
+        with self._lock:
+            self._conn.execute("BEGIN IMMEDIATE")
+            self._ingestion_audits = []
+            try:
+                yield
+                self._conn.execute("COMMIT")
+            except BaseException as exc:
+                self._rollback_if_open()
+                audits = self._ingestion_audits
+                self._ingestion_audits = None
+                recorded = [self._journal_standalone(*audit) for audit in audits]
+                index = getattr(exc, '_audit_index', None)
+                if isinstance(exc, ScopeViolation) and index is not None:
+                    exc.audit_recorded = recorded[index]
+                raise
+            else:
+                audits = self._ingestion_audits
+                self._ingestion_audits = None
+                for audit in audits:
+                    self._journal_standalone(*audit)
+            finally:
+                self._ingestion_audits = None
+
+    def _audited_violation(self, reason: str, recorded: bool) -> ScopeViolation:
+        exc = ScopeViolation(reason, audit_recorded=recorded)
+        if self._ingestion_audits is not None:
+            exc._audit_index = len(self._ingestion_audits) - 1
+        return exc
+
     def _journal(self, op: str, record_id: str | None, scope: str | None, detail: str) -> None:
         """Append a journal entry. Must run inside an open transaction."""
+        if self._ingestion_audits is not None and op.endswith("_denied"):
+            self._ingestion_audits.append((op, record_id, scope, detail))
+            return
         self._conn.execute(
             "INSERT INTO journal(op, record_id, scope, detail, recorded_at) VALUES (?,?,?,?,?)",
             (op, record_id, scope, detail, time.time()),
@@ -250,13 +324,17 @@ class Substrate:
         Review fix F13: a lock error here must not replace the denial. The caller
         still refuses the operation and reports whether the audit entry landed.
         """
+        if self._ingestion_audits is not None:
+            self._ingestion_audits.append((op, record_id, scope, detail))
+            return False  # The audit is not durable yet.
+        own = False
         try:
-            self._conn.execute("BEGIN IMMEDIATE")
+            own = self._begin_write("weft_journal")
             self._journal(op, record_id, scope, detail)
-            self._conn.execute("COMMIT")
-            return True
-        except sqlite3.OperationalError:
-            self._rollback_if_open()
+            self._finish_write("weft_journal", own)
+            return own  # A savepoint release does not commit the outer transaction.
+        except sqlite3.Error:
+            self._abort_write("weft_journal", own)
             return False
 
     def _store_version(self) -> int:
@@ -364,6 +442,40 @@ class Substrate:
             (record.record_id, record.scope, self._payload_only_text(record)),
         )
 
+    def rebuild_fts(self, scope: str, ctx) -> None:
+        """Rebuild one granted scope's derived index, atomically from records."""
+        with self._lock:
+            own = self._begin_write("weft_fts_rebuild")
+            try:
+                if ctx is None or scope not in ctx.granted_scopes or scope not in self.scope_engine.known_scopes:
+                    raise ScopeViolation("write not permitted")
+                records = [Record.from_row(row) for row in self._conn.execute(
+                    "SELECT * FROM records WHERE scope = ?", (scope,)
+                ).fetchall()]
+                if not records:
+                    raise SubstrateError("no records in requested scope; refusing rebuild")
+                for rec in records:
+                    if (not isinstance(rec.payload, dict) or not isinstance(rec.provenance, dict)
+                            or not isinstance(rec.source_ids, list)
+                            or not all(isinstance(item, str) for item in rec.source_ids)):
+                        raise SchemaViolation("invalid stored record shape; refusing rebuild")
+                    if (not self.scope_engine.authorize_write(rec, ctx).allowed
+                            or not self.scope_engine.authorize_read(
+                                scope, ctx, self.scope_engine._payload_text(rec)).allowed):
+                        raise ScopeViolation("write not permitted")
+                    if self._conn.execute(
+                            "SELECT 1 FROM fts WHERE record_id=? AND scope IS NOT ? LIMIT 1",
+                            (rec.record_id, scope)).fetchone():
+                        raise SubstrateError("conflicting index scope; refusing rebuild")
+                self._conn.execute("DELETE FROM fts WHERE scope=?", (scope,))
+                for rec in records:
+                    self._fts_index(rec)
+                self._journal("fts_rebuilt", None, scope, "scope index rebuilt")
+                self._finish_write("weft_fts_rebuild", own)
+            except BaseException:
+                self._abort_write("weft_fts_rebuild", own)
+                raise
+
     def _fts_remove(self, record_id: str) -> None:
         self._conn.execute("DELETE FROM fts WHERE record_id = ?", (record_id,))
 
@@ -395,16 +507,17 @@ class Substrate:
         with self._lock:
             if ctx is None or not self.scope_engine.authorize_write(stub, ctx).allowed:
                 raise ScopeViolation("write not permitted")
-            self._conn.execute("BEGIN IMMEDIATE")
+            own = self._begin_write("weft_job")
             try:
                 self._conn.execute(
                     "INSERT INTO jobs(scope, source_id, stage, content_hash, state, reason) VALUES (?,?,?,?,?,?) "
-                    "ON CONFLICT(scope, source_id, stage, content_hash) DO UPDATE SET state=excluded.state, reason=excluded.reason",
+                    "ON CONFLICT(scope, source_id, stage, content_hash) DO UPDATE SET state=excluded.state, reason=excluded.reason "
+                    "WHERE jobs.state != 'done' OR excluded.state = 'done'",
                     (scope, source_id, stage, content_hash, state, reason),
                 )
-                self._conn.execute("COMMIT")
+                self._finish_write("weft_job", own)
             except Exception:
-                self._rollback_if_open()
+                self._abort_write("weft_job", own)
                 raise
 
     def _load_vec(self) -> None:
@@ -447,19 +560,46 @@ class Substrate:
         """Return whether a caller-readable record has a vector in its scope/model index."""
         if ctx is None:
             return False
-        rec = self._lookup_record(record_id)
-        if (rec is None or rec.scope != scope
-                or not self.scope_engine.authorize_read(
-                    scope, ctx, self.scope_engine._payload_text(rec)
-                ).allowed):
-            return False
         with self._lock:
+            rec = self._lookup_record(record_id)
+            if (rec is None or rec.scope != scope
+                    or not self.scope_engine.authorize_read(
+                        scope, ctx, self.scope_engine._payload_text(rec)
+                    ).allowed):
+                return False
             if not self._vec_exists(scope, model_id):
                 return False
             return self._conn.execute(
                 f"SELECT 1 FROM {self._vec_table(scope, model_id)} WHERE record_id = ?",
                 (record_id,),
             ).fetchone() is not None
+
+    def fts_index_complete(self, scope: str, ctx) -> bool:
+        """Check readable record projections and stray entries in one scope."""
+        if ctx is None or not self.scope_engine.authorize_read(scope, ctx, "").allowed:
+            raise ScopeViolation("read not permitted")
+        with self._lock:
+            if self._conn.execute(
+                "SELECT 1 FROM fts LEFT JOIN records ON records.record_id=fts.record_id "
+                "WHERE records.record_id IS NULL OR records.scope IS NOT fts.scope LIMIT 1"
+            ).fetchone():
+                return False
+            rows = self._conn.execute("SELECT * FROM records WHERE scope=?", (scope,)).fetchall()
+            for row in rows:
+                rec = Record.from_row(row)
+                if (not isinstance(rec.payload, dict) or not isinstance(rec.provenance, dict)
+                        or not isinstance(rec.source_ids, list)
+                        or not all(isinstance(item, str) for item in rec.source_ids)):
+                    return False
+                if not self.scope_engine.authorize_read(
+                        scope, ctx, self.scope_engine._payload_text(rec)).allowed:
+                    continue
+                indexed = self._conn.execute(
+                    "SELECT scope, text FROM fts WHERE record_id=?", (rec.record_id,)
+                ).fetchall()
+                if [tuple(item) for item in indexed] != [(scope, self._payload_only_text(rec))]:
+                    return False
+            return True
 
     def vector_index_complete(self, scope: str, ctx, *, model_id: str) -> bool:
         """Whether every readable text record in one authorized scope has this model's vector.
@@ -470,24 +610,44 @@ class Substrate:
         if ctx is None or not self.scope_engine.authorize_read(scope, ctx, "").allowed:
             raise ScopeViolation("read not permitted")
         with self._lock:
-            record_ids = [row[0] for row in self._conn.execute(
-                "SELECT record_id FROM fts WHERE scope = ?", (scope,)
-            ).fetchall()]
-            if not record_ids:
-                return True
-            if not self._vec_exists(scope, model_id):
+            # Stray entries affect the search corpus even when later filtering
+            # hides their IDs. Reject orphan or cross-scope index members.
+            if self._conn.execute(
+                "SELECT 1 FROM fts LEFT JOIN records ON records.record_id=fts.record_id "
+                "WHERE records.record_id IS NULL OR records.scope IS NOT fts.scope LIMIT 1"
+            ).fetchone():
                 return False
+            # Records, not the rebuildable FTS projection, define inventory.
+            # A missing projection cannot attest complete hybrid recall.
+            record_ids = [row[0] for row in self._conn.execute(
+                "SELECT record_id FROM records WHERE scope = ?", (scope,)
+            ).fetchall()]
             table = self._vec_table(scope, model_id)
+            exists = self._vec_exists(scope, model_id)
             for rid in record_ids:
                 rec = self._source_or_record(rid)
+                if rec is not None and (not isinstance(rec.payload, dict) or not isinstance(rec.provenance, dict)
+                                        or not isinstance(rec.source_ids, list)
+                                        or not all(isinstance(item, str) for item in rec.source_ids)):
+                    return False
                 if rec is None or not self.scope_engine.authorize_read(
                     rec.scope, ctx, self.scope_engine._payload_text(rec)
                 ).allowed:
                     continue
+                indexed = self._conn.execute(
+                    "SELECT scope, text FROM fts WHERE record_id = ?", (rid,)
+                ).fetchall()
+                if [tuple(row) for row in indexed] != [(scope, self._payload_only_text(rec))]:
+                    return False
+                if not exists:
+                    return False
                 found = self._conn.execute(
-                    f"SELECT 1 FROM {table} WHERE record_id = ?", (rid,)
+                    f"SELECT embedding FROM {table} WHERE record_id = ?", (rid,)
                 ).fetchone()
-                if found is None:
+                if found is None or len(found[0]) != VEC_DIM * 4:
+                    return False
+                # Legacy stores may contain NaN/inf from before write validation.
+                if not all(math.isfinite(value[0]) for value in struct.iter_unpack('=f', found[0])):
                     return False
             return True
 
@@ -497,18 +657,21 @@ class Substrate:
         Needs write authority over the scope (review-style gate: same rule as writes).
         """
         import sqlite_vec
-        # Review 717b85a F1: authorize against the STORED record, not the caller's
-        # scope argument. The record must exist, and must live in `scope`.
-        stored = self._lookup_record(record_id)
-        if (ctx is None or stored is None or stored.scope != scope
-                or not self.scope_engine.authorize_write(stored, ctx).allowed):
-            raise ScopeViolation("write not permitted")
+        vector = list(vector)
         if len(vector) != VEC_DIM:
             raise ValueError(f"embedding must have {VEC_DIM} dimensions")
+        if not all(math.isfinite(value) and abs(value) <= 3.4028234663852886e38 for value in vector):
+            raise ValueError("embedding values must be finite and within float32 range")
         table = self._vec_table(scope, model_id)
         with self._lock:
-            self._conn.execute("BEGIN IMMEDIATE")
+            own = self._begin_write("weft_vector")
             try:
+                # The writer reservation covers lookup, authorization and mutation,
+                # including against writers using independent SQLite connections.
+                stored = self._lookup_record(record_id)
+                if (ctx is None or stored is None or stored.scope != scope
+                        or not self.scope_engine.authorize_write(stored, ctx).allowed):
+                    raise ScopeViolation("write not permitted")
                 self._conn.execute(
                     f"CREATE VIRTUAL TABLE IF NOT EXISTS {table} USING "
                     f"vec0(record_id TEXT PRIMARY KEY, embedding float[{VEC_DIM}])"
@@ -518,9 +681,9 @@ class Substrate:
                     f"INSERT INTO {table}(record_id, embedding) VALUES (?, ?)",
                     (record_id, sqlite_vec.serialize_float32(list(vector))),
                 )
-                self._conn.execute("COMMIT")
+                self._finish_write("weft_vector", own)
             except Exception:
-                self._rollback_if_open()
+                self._abort_write("weft_vector", own)
                 raise
 
     def _vec_remove(self, record_id: str, scope: str) -> None:
@@ -537,8 +700,11 @@ class Substrate:
         import sqlite_vec
         if ctx is None:
             return []
+        vector = list(vector)
         if len(vector) != VEC_DIM:
             raise ValueError(f"query embedding must have {VEC_DIM} dimensions")
+        if not all(math.isfinite(value) and abs(value) <= 3.4028234663852886e38 for value in vector):
+            raise ValueError("query embedding values must be finite and within float32 range")
         engine = self.scope_engine
         readable = [s for s in sorted(engine.known_scopes) if engine.authorize_read(s, ctx, "").allowed]
         if scopes is not None:
@@ -549,11 +715,33 @@ class Substrate:
             for scope in readable:
                 if not self._vec_exists(scope, model_id):
                     continue
-                rows = self._conn.execute(
-                    f"SELECT record_id, distance FROM {self._vec_table(scope, model_id)} "
-                    "WHERE embedding MATCH ? AND k = ?",
-                    (blob, limit * 4),
-                ).fetchall()
+                table = self._vec_table(scope, model_id)
+                # A direct search may intentionally use a partial index, but any
+                # readable vector that does exist must be safe to rank.
+                for rid, stored_vector in self._conn.execute(f"SELECT record_id, embedding FROM {table}"):
+                    rec = self._source_or_record(rid)
+                    if rec is None or not engine.authorize_read(
+                            rec.scope, ctx, engine._payload_text(rec)).allowed:
+                        continue
+                    if (len(stored_vector) != VEC_DIM * 4 or not all(
+                            math.isfinite(value[0]) for value in struct.iter_unpack('=f', stored_vector))):
+                        raise ValueError('vector index contains invalid values')
+                count = self._conn.execute(f"SELECT count(*) FROM {table}").fetchone()[0]
+                if not count:
+                    continue
+                if count > 4096:
+                    # vec0 caps KNN k at 4096. Exhaustive scalar distance preserves
+                    # readable recall even if more than 4096 nearer rows are hidden.
+                    rows = self._conn.execute(
+                        f"SELECT record_id, vec_distance_L2(embedding, ?) FROM {table}",
+                        (blob,),
+                    ).fetchall()
+                else:
+                    rows = self._conn.execute(
+                        f"SELECT record_id, distance FROM {table} "
+                        "WHERE embedding MATCH ? AND k = ?",
+                        (blob, count),
+                    ).fetchall()
                 hits.extend((dist, rid) for rid, dist in rows)
             hits.sort()
             out = []
@@ -619,6 +807,35 @@ class Substrate:
                 self._rollback_if_open()
                 raise
 
+    def _read_transaction(self):
+        """Open a single read transaction snapshot across recall's checks and reads.
+
+        The connection is in autocommit mode, so each statement otherwise sees a
+        different WAL snapshot. Recall's completeness check, candidate queries, and
+        per-record reads must observe one consistent view. Callers must not hold an
+        open caller-owned transaction: this starts its own deferred BEGIN and rolls
+        back on exit. record_receipt writes its own BEGIN IMMEDIATE separately.
+        """
+        import contextlib
+
+        @contextlib.contextmanager
+        def _cm():
+            if self._conn.in_transaction:
+                raise sqlite3.OperationalError(
+                    "read_transaction refused: caller holds an open transaction"
+                )
+            with self._lock:
+                self._conn.execute("BEGIN")
+                try:
+                    yield
+                except BaseException:
+                    self._rollback_if_open()
+                    raise
+                else:
+                    self._rollback_if_open()
+
+        return _cm()
+
     def _lookup_record(self, record_id: str):
         """Internal lookup for rule checks. Never returned to a caller."""
         row = self._conn.execute("SELECT * FROM records WHERE record_id=?", (record_id,)).fetchone()
@@ -670,20 +887,21 @@ class Substrate:
             audited = self._journal_standalone("write_denied", None, None, "write not permitted")
             # Review G4/G5: the caller learns only that the write was refused.
             # The reason goes to the journal, where only holders of the scope read it.
-            raise ScopeViolation("write not permitted", audit_recorded=audited)
+            raise self._audited_violation("write not permitted", audited)
 
         if original_id is None and record.supersedes is not None:
             # G13: a supersedes link into a scope the caller did not authorize
             # would make another scope's record undeletable. Only correct() links.
             audited = self._journal_standalone("write_denied", None, None, "write not permitted")
-            raise ScopeViolation("write not permitted", audit_recorded=audited)
+            raise self._audited_violation("write not permitted", audited)
 
         _check_id(record.record_id)
         if validate_schema:
             self._validate(record)
 
+        own = False
         try:
-            self._conn.execute("BEGIN IMMEDIATE")
+            own = self._begin_write("weft_write")
 
             if original_id is not None:
                 orig_row = self._conn.execute(
@@ -699,13 +917,13 @@ class Substrate:
                 if not read.allowed:
                     # Review fix F7: a correction must not supersede what the caller cannot read.
                     self._journal("correct_denied", None, None, "correction not permitted")
-                    self._conn.execute("COMMIT")
-                    raise ScopeViolation("correction not permitted")
+                    self._finish_write("weft_write", own)
+                    raise self._audited_violation("correction not permitted", own)
                 if record.scope != orig.scope:
                     # Review N10: a correction stays in its original's scope.
                     self._journal("correct_denied", None, None, "correction not permitted")
-                    self._conn.execute("COMMIT")
-                    raise ScopeViolation("correction not permitted")
+                    self._finish_write("weft_write", own)
+                    raise self._audited_violation("correction not permitted", own)
                 record.supersedes = original_id
 
             # Phase 2: knowledge rules (spec §3) decide inside the transaction.
@@ -726,12 +944,16 @@ class Substrate:
             if existing is not None:
                 # Review G5: check authority over the incumbent BEFORE reporting a
                 # conflict, so a caller without the scope cannot learn the id exists.
-                if ctx is None or existing[0] not in ctx.granted_scopes:
+                incumbent = self._lookup_record(record.record_id)
+                if (incumbent is None or ctx is None or existing[0] not in ctx.granted_scopes
+                        or not self.scope_engine.authorize_write(incumbent, ctx).allowed
+                        or not self.scope_engine.authorize_read(
+                            incumbent.scope, ctx, self.scope_engine._payload_text(incumbent)).allowed):
                     # Review fix F2 / G4: overwrite needs the incumbent's scope. The
                     # caller gets the same generic refusal as any denied write.
                     self._journal("write_denied", None, None, "write not permitted")
-                    self._conn.execute("COMMIT")
-                    raise ScopeViolation("write not permitted")
+                    self._finish_write("weft_write", own)
+                    raise self._audited_violation("write not permitted", own)
                 if not overwrite:
                     raise RecordConflict(f"record {record.record_id!r} already exists")
                 if existing[2] == "verified":
@@ -755,19 +977,21 @@ class Substrate:
                    VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
                 record.to_row(),
             )
-            self._fts_index(record)
+            # Index the serialized record representation, so rebuilds and integrity
+            # checks use the same key order as the durable authority.
+            self._fts_index(self._lookup_record(record.record_id))
             detail = f"type={record.record_type} status={record.epistemic_status}"
             if existing is not None:
                 detail += " overwrite"
             self._journal("put", record.record_id, record.scope, detail)
             self._bump_version()
-            self._conn.execute("COMMIT")
+            self._finish_write("weft_write", own)
         except KnowledgeRefusal as exc:
-            self._rollback_if_open()
+            self._abort_write("weft_write", own)
             audited = self._journal_standalone("write_denied", None, None, "write not permitted")
-            raise ScopeViolation("write not permitted", audit_recorded=audited) from None
+            raise self._audited_violation("write not permitted", audited) from None
         except Exception:
-            self._rollback_if_open()
+            self._abort_write("weft_write", own)
             raise
 
     def delete(self, record_id: str, ctx: ScopeContext | None = None, *, reason: str = "") -> bool:

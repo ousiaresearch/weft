@@ -1,0 +1,70 @@
+{
+  "frozen_sha256": "535ca817651442eae6fab069b453dbe6603ff7a262a981520b7dab71b5c424f6",
+  "session_id": "local-a27f9392524fe1d1411833dce6141ae3d960fdcf72e6cc6df9a21897b1820462",
+  "model": "gpt-6.1-terra",
+  "provider": "openai-codex",
+  "review": {
+    "verdict": "APPROVE",
+    "invariants": [
+      {
+        "id": "physical-logical-set",
+        "status": "specified; implementation and verification gated",
+        "evidence": "Round 3 requires exact reconciliation of active physical rows with the authorized logical set before ranking, including exclusion of orphan and ineligible rows."
+      },
+      {
+        "id": "external-effects-and-restore",
+        "status": "specified direction; protocol details and verification gated",
+        "evidence": "Intent precedes SQLite commit, external finalization precedes acknowledgement, and divergent or unprovable histories fence service. Crash, replay and restore rules require independent review before activation."
+      },
+      {
+        "id": "bypass-detection",
+        "status": "required; mechanism not established",
+        "evidence": "Triggers are only backstops. The contract requires an enforced boundary and verified coordinator proof and reconciliation; failure to establish them blocks operation."
+      },
+      {
+        "id": "profile-intent",
+        "status": "specified; verification gated",
+        "evidence": "An independently authenticated client binding must be compared with the resolver and independent authority before every operation; ambient selection alone is insufficient."
+      },
+      {
+        "id": "generation-identity",
+        "status": "specified; implementation and verification gated",
+        "evidence": "The contract binds verified artifacts, runtime, processing contracts, activation identity, canonical input and exact vector bytes, and blocks unclassified or incompatible state."
+      },
+      {
+        "id": "fence-and-writer-order",
+        "status": "specified; enforcement and progress verification gated",
+        "evidence": "Admitted mutators acquire the common external fence before SQLite writes; disclosure revalidates and enqueues under that fence. Deadlines and progress remain implementation gates."
+      },
+      {
+        "id": "offline-rebuild",
+        "status": "specified; recovery and verification gated",
+        "evidence": "Rebuild is exclusively store-wide, staging is non-queryable, activation follows full validation, and owner-crash recovery remains fenced and explicit."
+      },
+      {
+        "id": "immutable-handoff",
+        "status": "specified; concrete coordinator required",
+        "evidence": "The irrevocable point is enqueue to the authenticated intended recipient under the fence. Already enqueued bytes may arrive after deletion acknowledgement; capacity exhaustion fails without disclosure."
+      },
+      {
+        "id": "authorization",
+        "status": "specified within trusted-local scope; broader isolation gated",
+        "evidence": "Eligibility, current authorization and final candidates are checked under the snapshot and disclosure protocol. Untrusted-principal guarantees remain subject to the separate authority design."
+      },
+      {
+        "id": "unavailable-dependencies",
+        "status": "fail-closed stop conditions specified",
+        "evidence": "Missing authority, enforceable fencing, immutable artifacts, compatible runtime or reliable reconciliation blocks the affected path rather than constituting an achieved protection."
+      }
+    ],
+    "findings": [],
+    "gate_defeats": [],
+    "tests_run": "None. This was a design-only review; no tools, file reads, changes or execution were performed.",
+    "scope_limitations": [
+      "Reviewed only the supplied text, treating round 3 as superseding conflicting earlier language. The supplied SHA-256 was not independently verified.",
+      "Approval is of the proposed contract direction, not an implementation, migration, security guarantee or phase transition.",
+      "Protocol details expressly left to implementation and independent review remain mandatory stop gates; unavailable dependencies legitimately block admission.",
+      "Privileged hostile same-user access and untrusted-service isolation remain outside the stated trusted-local boundary."
+    ]
+  }
+}

@@ -102,42 +102,52 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
             sub.record_receipt("recall", readable, {"selected": 0, "excluded": 0}, ctx)
         return [], receipt
 
-    if use_vector:
-        assert embedder is not None
-        for scope in readable:
-            if not sub.vector_index_complete(scope, ctx, model_id=embedder.model_id):
-                raise ValueError("hybrid/vector recall requires a complete vector index for every readable scope")
-
+    # D3-1: embedding computed outside the database transaction so long-running
+    # model inference does not pin a WAL snapshot or hold the connection lock.
+    query_embedding = embedder.embed_query(query) if use_vector else None
     pool = limit * 4
-    ranked = []
-    if use_lexical:
-        match = " OR ".join(f'"{t}"' for t in content_terms)
-        ranked.append(sub.fts_candidates(match, ctx, pool, scopes=readable))
-    if use_vector:
-        ranked.append(sub.vector_candidates(embedder.embed_query(query), ctx, pool, scopes=readable, model_id=embedder.model_id))
-    candidate_ids = ranked[0] if len(ranked) == 1 else _fuse(ranked, pool)
+    # Snapshot-time consistency: completeness check, candidate selection, and
+    # per-record reads must observe one view (review G-P3-7). record_receipt
+    # writes its own BEGIN IMMEDIATE after this block.
+    with sub._read_transaction():
+        if use_lexical and not use_vector:
+            for scope in readable:
+                if not sub.fts_index_complete(scope, ctx):
+                    raise ValueError("lexical recall requires a complete full-text index for every readable scope")
+        if use_vector:
+            assert embedder is not None
+            for scope in readable:
+                if not sub.vector_index_complete(scope, ctx, model_id=embedder.model_id):
+                    raise ValueError("hybrid/vector recall requires a complete vector index for every readable scope")
+        ranked = []
+        if use_lexical:
+            match = " OR ".join(f'"{t}"' for t in content_terms)
+            ranked.append(sub.fts_candidates(match, ctx, pool, scopes=readable))
+        if use_vector:
+            ranked.append(sub.vector_candidates(query_embedding, ctx, pool, scopes=readable, model_id=embedder.model_id))
+        candidate_ids = ranked[0] if len(ranked) == 1 else _fuse(ranked, pool)
 
-    items: list[Item] = []
-    seen_documents: set = set()  # one result per document: a note is not five paragraphs
-    for rid in candidate_ids:
-        if len(items) >= limit:
-            break
-        rec = sub.get(rid, ctx)  # gated again: defence in depth
-        if rec is None:
-            receipt.exclusions.append("withheld by content rule")
-            continue
-        document = rec.provenance.get("document") if isinstance(rec.provenance, dict) else None
-        key = document if document else f"record:{rid}"
-        if key in seen_documents:
-            continue
-        seen_documents.add(key)
-        text = rec.payload.get("text", "") if isinstance(rec.payload, dict) else ""
-        tier, shown = _pick_tier(text, terms)
-        derived = bool(isinstance(rec.provenance, dict) and rec.provenance.get("machine_derived"))
-        items.append(Item(rid, rec.scope, shown, tier, derived))
-        receipt.selected.append(rid)
-        if _TIER_ORDER[tier] > _TIER_ORDER[receipt.tier]:
-            receipt.tier = tier
+        items: list[Item] = []
+        seen_documents: set = set()  # one result per document: a note is not five paragraphs
+        for rid in candidate_ids:
+            if len(items) >= limit:
+                break
+            rec = sub.get(rid, ctx)  # gated again: defence in depth
+            if rec is None:
+                receipt.exclusions.append("withheld by content rule")
+                continue
+            document = rec.provenance.get("document") if isinstance(rec.provenance, dict) else None
+            key = document if document else f"record:{rid}"
+            if key in seen_documents:
+                continue
+            seen_documents.add(key)
+            text = rec.payload.get("text", "") if isinstance(rec.payload, dict) else ""
+            tier, shown = _pick_tier(text, terms)
+            derived = bool(isinstance(rec.provenance, dict) and rec.provenance.get("machine_derived"))
+            items.append(Item(rid, rec.scope, shown, tier, derived))
+            receipt.selected.append(rid)
+            if _TIER_ORDER[tier] > _TIER_ORDER[receipt.tier]:
+                receipt.tier = tier
 
     if ctx is not None:
         sub.record_receipt("recall", readable,

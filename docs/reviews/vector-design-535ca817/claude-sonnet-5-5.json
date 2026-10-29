@@ -1,0 +1,172 @@
+{
+  "frozen_sha256": "535ca817651442eae6fab069b453dbe6603ff7a262a981520b7dab71b5c424f6",
+  "session_id": "local-57081dd13ed1eb15d5e52f20199c72835701c0d0cf4760ec2daed44ab9d4d24d",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "review": {
+    "verdict": "REQUEST_CHANGES",
+    "invariants": [
+      {
+        "id": "I1-generation-descriptor",
+        "status": "SPECIFIED_COHERENT_GATE_OPEN",
+        "evidence": "Contract items 1-3, Round 2 §5 and Round 3 §8 consistently require a closed, hashed manifest, a trusted factory, a separate query contract, no self-reported identity, and fail-closed handling of unclassified inputs. One OR branch remains: centroid+head is 'rejected or one tested meaning' (contract item 2). That is a deliverable, not a contradiction."
+      },
+      {
+        "id": "I2-physical-vs-logical-set",
+        "status": "CONTRADICTORY",
+        "evidence": "Round 3 §1 requires 'no extra physical row' in the one-to-one check. It also requires that an extra hidden or orphan vector 'must not affect ranking, limits or fallback behavior'. The acceptance bullet asks for absent-vs-hidden behavior comparisons. See F1."
+      },
+      {
+        "id": "I3-eligibility-and-exclusions",
+        "status": "SPECIFIED_GATE_OPEN_WITH_GAPS",
+        "evidence": "Round 3 §2 requires key-set reconciliation, not counts, and unknown states fail closed. Exclusions are called 'authenticated', but the authenticator is not defined (F10). The relationship to caller-level authorization is not defined (F3)."
+      },
+      {
+        "id": "I4-external-write-ahead-effect",
+        "status": "INTERNALLY_INCONSISTENT_ORDERING",
+        "evidence": "The Round 3 §3 sequence (intent, SQLite commit with FULL sync, finalize, ack, release) is coherent for success paths. Where validation sits relative to the intent append is unspecified (F2). The set of 'externally relevant' operations is undefined (F4). The acknowledgement vs fence-release order conflicts with the no-network-I/O-under-fence rule (F9)."
+      },
+      {
+        "id": "I5-restore-ordering",
+        "status": "NO_DEFINED_EXIT",
+        "evidence": "Round 3 §3 makes 'finalized history ahead of SQLite' a fenced, never-auto-advanced state. That is exactly the state every legitimate restore produces, and no exit ceremony is defined. The text does defer cross-system restore/failover design as a gate. See F5."
+      },
+      {
+        "id": "I6-bypass-detection",
+        "status": "SPECIFIED_GATE_OPEN_WITH_GAPS",
+        "evidence": "Round 3 §4 correctly demotes triggers to detectors and requires external reconciliation. The trigger manifest in Round 2 §3 lists content, link, correction and delete only. It omits grants, registry, exclusions and epoch tables (F7)."
+      },
+      {
+        "id": "I7-profile-intent",
+        "status": "SPECIFIED_GATE_OPEN",
+        "evidence": "Round 2 §6 and Round 3 §7 require an operator-pinned, independently authenticated client binding compared against the resolver and authority. The credential and its independence from ambient resolution are not specified (F11). Hostile same-user access is explicitly out of scope."
+      },
+      {
+        "id": "I8-generation-identity-and-ABA",
+        "status": "SPECIFIED_COHERENT_WITH_LIFECYCLE_GAP",
+        "evidence": "Non-reused external identities, activation tokens and BEGIN IMMEDIATE compare-and-publish are consistent across rounds. The transition graph and the fate of non-active generation tables are undefined (F6)."
+      },
+      {
+        "id": "I9-same-fence-writer-ordering",
+        "status": "COHERENT_WITH_AMBIGUITIES",
+        "evidence": "Round 2 §1 lock order plus Round 3 §7 (maintenance holds the exclusive store-wide fence; staging validates ownership instead of re-acquiring) resolves the earlier recursion conflict. Fence modes (shared vs exclusive for disclosure), the reservation lifecycle across retries, and ack timing remain unspecified (F9)."
+      },
+      {
+        "id": "I10-offline-rebuild",
+        "status": "SPECIFIED_COHERENT_AVAILABILITY_COST_ACKNOWLEDGED",
+        "evidence": "Exclusive offline rebuild, states, explicit operator recovery after owner crash, deferred deletes with no acknowledgement, and 'lengthy rebuilds reduce availability' are all stated. Retired and failed table handling is open (F6)."
+      },
+      {
+        "id": "I11-immutable-handoff",
+        "status": "SPECIFIED_COHERENT",
+        "evidence": "Round 3 §6 defines the irrevocable point as a local coordinator enqueue to the authenticated recipient. It bounds reservation capacity and lock-hold time, not end-to-end delivery. The post-deletion delivery residual is acknowledged and must be documented. Queue exhaustion fails without blocking the fence."
+      },
+      {
+        "id": "I12-authorization",
+        "status": "UNDERSPECIFIED",
+        "evidence": "'Reauthorize under the fence' is required, but the authorization oracle is not identified. The separate policy authority is deferred. See F8."
+      },
+      {
+        "id": "I13-legitimate-blocking",
+        "status": "SPECIFIED_COHERENT",
+        "evidence": "Block rules are explicit for a missing OS/service fence, external authority, artifact immutability, an unprovable handoff, and incompatible runtime. 'No silent lexical fallback' is consistent across sections. These are intentional blockers, not defects."
+      },
+      {
+        "id": "I14-legacy-disposition",
+        "status": "SPECIFIED_GATE_OPEN_WITH_GAP",
+        "evidence": "The exact-manifest inventory, LEGACY_QUARANTINED state, and the split between schema migration and rebuild are coherent. How legacy and fresh stores are enrolled into the external allocator and history (genesis) is unspecified (F4)."
+      }
+    ],
+    "findings": [
+      {
+        "id": "F1",
+        "severity": "high",
+        "section": "Round 3 §1 plus its acceptance bullet",
+        "scenario": "The one-to-one check lists 'orphan' and 'extra physical row' as violations, which implies fail-closed or fence. The same section says an extra row 'must not affect ranking, limits or fallback behavior', and tests compare absent vs hidden-orphan behavior. An orphan row either makes the query unavailable or fences the store, which is a hidden-dependent behavior difference and a membership signal. Or it is silently ignored, which contradicts the 'no extra row' check. The closer-orphan and closer-ineligible tests cannot be written without picking one.",
+        "fix": "Classify an extra or orphan physical row as an integrity violation. It either fences the store with an operator-visible diagnostic carrying no record IDs, or the design defines a separate quarantined-orphan state that is excluded before ranking. Rewrite the acceptance criteria to match: positive visible controls still succeed when no orphan exists, and an orphan produces the specified generic unavailable or fence outcome rather than a different ranking. Drop the 'must not affect fallback' wording. Acknowledge that, outside the untrusted-principal gate, this outcome is an availability signal rather than a confidentiality guarantee."
+      },
+      {
+        "id": "F2",
+        "severity": "high",
+        "section": "Round 3 §3 vs Concurrency contract and Round 1 mutation/ABA fence",
+        "scenario": "The ordered protocol appends an external intent before the SQLite commit. Validation of captured incarnation, revision, generation and input happens under BEGIN IMMEDIATE, which is after the intent is durable. Every routine rejection (delete/recreate ABA, generation switch, a changed input) then leaves an intent-only record. Per §3 that resolves only by an 'authorized' recorded abort. The mandatory race tests therefore each produce a fenced or reconciliation-required store, or the abort has to be unauthenticated and automatic, which nothing allows.",
+        "fix": "Specify the exact sequence: reserve, fence, read-validate everything that can be validated, allocate and append the intent, BEGIN IMMEDIATE, final revalidate, write. Define a coordinator-signed ABORT record that the live fence-holding coordinator appends for deterministic pre-commit rejection, without operator involvement. Reserve operator-authorized abort for crash-orphaned intents only. State that the intent body never encodes unvalidated effects."
+      },
+      {
+        "id": "F3",
+        "severity": "medium",
+        "section": "Round 3 §1-§2 and Round 2 §1 (grants)",
+        "scenario": "The 'authorized logical set' is used for set equality. The eligible set (§2) is a caller-independent function of record state. If any record in a scope is not visible to a given caller (restricted-content tests exist), a scope-wide vec0 table cannot equal the caller-authorized set. 'Post-filtering alone is not proof', so vec0 KNN with a limit followed by a filter is disallowed. No default exclusion-before-ranking mechanism exists, so the alpha path serves only scopes with uniform visibility, and the document does not say so.",
+        "fix": "State the alpha restriction explicitly: either one visibility class per scope/generation table, with visibility change treated as a mutation that moves the record, or hybrid recall is blocked for mixed-visibility scopes. Separate the integrity set (scope-wide, caller-independent) from the visibility set, and define which one the set-equality check uses."
+      },
+      {
+        "id": "F4",
+        "severity": "medium",
+        "section": "Round 3 §3-§4 vs Round 2 §3/§6 and legacy migration",
+        "scenario": "§3 requires external intents for 'mutations with durable externally relevant effects, including deletion and allocation'. §4 says all incarnation/revision/activation values must be externally allocated, which implies every content revision and vector publication is an external effect. The operation classes are never enumerated, and neither is whether scope-epoch bumps are externally allocated. Separately, existing legacy and fresh stores have no externally allocated incarnations. The 'short validated SQLite transaction' migration has no genesis or enrollment step that follows the write-ahead protocol, so it either skips the protocol or leaves records without authoritative identities. It would also baseline unverified legacy content as authoritative.",
+        "fix": "Add a closed operation-class catalogue (content, link, delete, grant, exclusion, evidence/vector publish, activation, epoch advance, enrollment, restore) stating which classes need an intent/finalize pair. Define a bulk genesis operation, covered by the same protocol, that allocates initial incarnations and revisions. Record explicitly that genesis trusts the operator-approved pre-migration content and cannot prove prior deletions."
+      },
+      {
+        "id": "F5",
+        "severity": "medium",
+        "section": "Round 3 §3 reconciliation and Round 1 restore",
+        "scenario": "'Finalized history ahead of SQLite fences service and never auto-advances' describes the normal condition after restoring an older backup. 'Operator approval alone is not evidence' blocks the obvious exit. Replay of post-backup deletions, advancing the allocator past the external high-water mark without reuse, and re-establishing lineage are not specified. Authority loss and bypass-fenced stores likewise have no non-laundering exit. The text defers 'cross-system crash/restore/failover' definition, which is acknowledged, but the missing exit shape makes the fence-forever vs operator-override choice undecidable at review.",
+        "fix": "Define an explicit RESTORE_RECONCILE state and ceremony. Open fenced and compute the external suffix after the backup point. Replay idempotent deletions by incarnation ID or commitment. Invalidate evidence for superseded revisions. Advance allocators from the external high-water mark. Append a restore-finalize record under a new lineage epoch, then serve. State that when the external suffix is missing, truncated or unauthenticated, the only exit is a new-lineage import rebuilt from authoritative sources, with no resurrection of unprovable-deleted records. Give bypass-fenced stores the same kind of exit, which invalidates evidence for the affected scope and forces a rebuild."
+      },
+      {
+        "id": "F6",
+        "severity": "medium",
+        "section": "Round 2 §4 lifecycle states vs deletion semantics (Round 2 §6, Round 3 §8)",
+        "scenario": "BUILDING, VALIDATED, RETIRED and FAILED generations keep vec0 tables holding vectors derived from records. A user deletion of a record covers only the active table 'in the live DB'. Retired and failed tables retain vectors of deleted records indefinitely. Allowed transitions are unspecified, including whether RETIRED can return to ACTIVE, and what name and allocation reservation these tables keep. Only legacy quarantine acknowledges retained sensitive vectors.",
+        "fix": "Specify the transition graph. Either forbid RETIRED to ACTIVE, so a return always requires a fresh rebuild and activation token, or define it. State whether deletion also purges non-active tables under the same fence or documents them as retained residuals alongside quarantine and backups. Define retention and authorized-cleanup rules (verified backup, known ownership) for RETIRED and FAILED tables, and name reservation so retired tables cannot be misread as active."
+      },
+      {
+        "id": "F7",
+        "severity": "medium",
+        "section": "Round 2 §3 trigger/DDL manifest and Round 3 §4-§5",
+        "scenario": "Triggers invalidate revisions on 'content/link/correction/delete' mutations only. Grants, registry or active-generation rows, exclusion rows, and the scope-epoch table are also mutation surfaces, and the disclosure recheck depends on their epoch. A direct write to a grant or exclusion row, such as from an old binary, does not advance the externally allocated epoch. The §5 epoch recheck then passes. Detection depends on whole-store reconciliation that is not tied to these tables.",
+        "fix": "Extend the manifest and the 'unlogged mutation' detector to every authority-bearing table: grants, registry, generation state, exclusions, evidence, epochs and coordinator markers. Define what the detector compares: DB-resident authoritative values against external-history-derived expectations, at open and under the fence on each disclosure. Test direct writes to each such table."
+      },
+      {
+        "id": "F8",
+        "severity": "medium",
+        "section": "Round 3 §5-§6 'reauthorize/revalidate under the fence'",
+        "scenario": "The authorization source is never named. If grants live in the same authoritative SQLite DB, the scope epoch covers them. If policy lives in the 'separate authority design', a revocation there is not covered by the epoch. The claim that an operation ordered before handoff prevents disclosure then cannot hold for revocation, though the text still reads as if it did.",
+        "fix": "State the alpha authorization oracle. Either grants are stored in the store DB and mutated only through the coordinator, so they fall under the epoch, or revocation via any external policy source is explicitly excluded from the ordering claim. In the second case the handoff must also query that source under the fence."
+      },
+      {
+        "id": "F9",
+        "severity": "low",
+        "section": "Round 3 §3 vs Round 2 §1; Round 3 §5-§6",
+        "scenario": "§3 says 'acknowledge success and release the fence'. Round 2 requires no fence hold during client-controlled I/O, so an ack delivered under the fence contradicts it. Fence modes are unstated (shared vs exclusive for disclosure). A reservation held while query validation retries is unspecified, so retry starvation could exhaust reserved capacity.",
+        "fix": "Define the ack as a durable local outcome record. The fence is then released and the ack is delivered after release. Specify shared vs exclusive modes and release the reservation on each retry or re-reserve with a bound."
+      },
+      {
+        "id": "F10",
+        "severity": "low",
+        "section": "Round 3 §2 and §8 evidence framing",
+        "scenario": "Exclusions are 'authenticated', but the mechanism is undefined: unkeyed digests can be recomputed by any writer, so authentication must come from the coordinator context or a keyed construction. The domain-separated frame lists 'version, store/generation/record keys and vector bytes' but not incarnation, revision, canonical input digest, activation, or descriptor digest. Fields that are bound in Round 2 §2 but not hashed can be swapped independently.",
+        "fix": "Specify that the authenticator is a coordinator-context-plus-external-commitment scheme or a MAC with a coordinator-only key. List every bound field in the frame, with numeric widths, and test field-swap detection. Apply the same framing to exclusion records."
+      },
+      {
+        "id": "F11",
+        "severity": "low",
+        "section": "Round 2 §6, Round 3 §7 profile intent",
+        "scenario": "The operator pin is compared to the profile resolver, but every client is an ordinary same-user process. If the pin and the resolver both derive from the same ambient inputs (environment, working directory, config path), a wrong-profile selection passes both checks. The coordinator has no stated way to authenticate a caller's profile intent independent of that ambient selection.",
+        "fix": "Define a per-profile client credential or capability issued at provisioning, held only in that profile's protected directory and presented to the coordinator. Tests must use same-named scopes across profiles with a mismatched environment."
+      }
+    ],
+    "gate_defeats": [
+      "F1: Round 3 §1 requires both a fail-closed one-to-one set check and unchanged behavior for hidden or orphan extra vectors. The closer-orphan acceptance tests cannot satisfy both, so passing them proves nothing about the property they were written for.",
+      "F2: Intent-before-validation means the required ABA and race rejection tests each create an intent-only crash state. The gate either fences after ordinary rejections or gets an unspecified automatic abort, and either outcome defeats the stated bounded-progress and no-stale-publication tests."
+    ],
+    "tests_run": "None. Design-only review of the appended text (frozen SHA-256 535ca817651442eae6fab069b453dbe6603ff7a262a981520b7dab71b5c424f6), with no tools, files or implementation inspected. The checks were cross-section consistency of ordering, set semantics and recovery states, not execution.",
+    "scope_limitations": [
+      "I did not treat the following as defects, because the text states them as unimplemented stop gates or accepted residuals: no implementation, schema or DDL; the external authority and OS-identity fence being absent (an intentional alpha blocker); the connection-level coordinator proof; the ack-after-deletion delivery residual; physical remanence in WAL, free pages, shadow tables and backups; the performance cost of per-row validation; and the cross-system crash and failover review.",
+      "Out of scope as stated by the document: hostile same-user or privileged actors, untrusted principals (separate visibility-isolated-ingestion gates), timing indistinguishability, and power-loss durability (process-kill tests only). Durability on the macOS target (fullfsync behavior for SQLite and the external append) falls under the 'verified OS/storage assumptions' clause; I raised it as a risk, not a finding.",
+      "I assumed 'authorized' in Round 3 §1 might mean caller-level visibility. The text is ambiguous, and F3 depends on that reading. If all records in a scope share one visibility class, F3 reduces to a clarification.",
+      "Claims about sqlite-vec trigger, shadow-table and serialization behavior were not evaluated. They must be checked against the deployed versions, as the document already requires.",
+      "APPROVE is withheld because findings and gate defeats exist. Resolving F1 and F2 and clarifying F3-F11 would not by itself approve any implementation, which remains subject to the document's later-turn review and operator phase gate."
+    ]
+  }
+}

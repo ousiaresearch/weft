@@ -1,0 +1,81 @@
+{
+  "frozen_sha256": "ab26a2472652be9d5ca167b8e859753cabcb6cbda3d8cbb4c63820ae9e075fb3",
+  "session_id": "local-dd8242c6eb85707a93e3f993ff0750fcb66e756265b461219e4761a1fedf760e",
+  "model": "gpt-6.1-terra",
+  "provider": "openai-codex",
+  "review": {
+    "verdict": "REQUEST_CHANGES",
+    "invariants": [
+      {
+        "id": "profile-binding",
+        "status": "CONDITIONAL",
+        "evidence": "The contract requires an independently provisioned identity checked at every entry point and an explicit clone or recovery ceremony. The provisioning and enforcement mechanisms remain implementation gates."
+      },
+      {
+        "id": "artifact-provenance",
+        "status": "CONDITIONAL",
+        "evidence": "The contract requires a validated content-addressed snapshot, exclusive loading from it, and prevention of changes by admitted writers; generation blocks if these cannot be enforced and tested. It does not claim protection against a hostile same-user actor."
+      },
+      {
+        "id": "publication-and-aba",
+        "status": "CONDITIONAL",
+        "evidence": "Publication requires revalidation under BEGIN IMMEDIATE using non-reused record, mutation, and activation identities. Allocator behavior across restore, rollback, overflow, collision, and instances remains a required implementation gate."
+      },
+      {
+        "id": "deletion-handoff-ordering",
+        "status": "DEFECT",
+        "evidence": "The handoff protocol requires a shared mutation/disclosure fence, but the specified writer protocol requires SQLite serialization without explicitly requiring every writer to acquire that same fence before committing."
+      },
+      {
+        "id": "vector-validation-and-evidence",
+        "status": "DEFECT",
+        "evidence": "The contract requires output validation and per-vector evidence but does not require the validated output bytes to remain immutable through publication or evidence to bind those exact bytes."
+      },
+      {
+        "id": "legacy-and-restore",
+        "status": "CONDITIONAL",
+        "evidence": "Legacy migration blocks without an enforced old-binary fence. Recovery requires independently durable authenticated effect history and a protected freshness watermark, or fails closed when later effects cannot be ruled out."
+      },
+      {
+        "id": "test-sufficiency",
+        "status": "INCOMPLETE",
+        "evidence": "The proposed tests cover many important races and failure modes, but do not explicitly test an independent writer committing between handoff revalidation and response commitment, or mutation of an output buffer between validation and publication."
+      }
+    ],
+    "findings": [
+      {
+        "id": "F1",
+        "severity": "HIGH",
+        "section": "Concurrency contract; Review round 1: Query handoff",
+        "scenario": "A query holds the coordinator's disclosure fence and revalidates a candidate. An independent deletion writer follows the stated BEGIN IMMEDIATE protocol but does not acquire that fence, commits the deletion, and then the query commits the old response to its reserved handoff. The deletion is ordered before handoff, yet the deleted record is disclosed. SQLite write serialization alone does not serialize the writer with a separate coordinator fence.",
+        "fix": "Require every admitted operation that can change a result's authorization, relevant record state, generation activation, or store lineage to acquire the same cross-process mutation/disclosure fence before its authoritative commit and hold it through commit. Define lock ordering, crash recovery, and how restore and migration participate. Block serving if any admitted writer can bypass the fence. Add a deterministic independent-connection test that pauses after handoff revalidation and attempts deletion before response commitment."
+      },
+      {
+        "id": "F2",
+        "severity": "HIGH",
+        "section": "Proposed generation contract 5–6; Review round 1: Document outputs and evidence",
+        "scenario": "A trusted adapter returns a mutable or reused output buffer. The caller validates its dimensions and finite values, but another inference or admitted thread changes the buffer before the SQLite vector write. The published bytes can therefore differ from the validated output, while input and generation evidence still appears valid. A later vector replacement that leaves evidence intact likewise need not be detected by input-only evidence.",
+        "fix": "Copy each output into an owned immutable canonical float32 byte representation, validate those exact bytes, and use them for the write. Bind per-vector evidence to the exact stored vector bytes and record identity, and validate that binding on serving reads, subject to verified sqlite-vec representation semantics. Add deterministic buffer-reuse and vector/evidence mismatch tests for both document publication and query processing."
+      }
+    ],
+    "gate_defeats": [
+      {
+        "finding": "F1",
+        "gate": "Deletion ordered before handoff prevents disclosure.",
+        "defeat": "A permitted writer that uses SQLite serialization but bypasses the separate disclosure fence can commit in the revalidation-to-handoff interval."
+      },
+      {
+        "finding": "F2",
+        "gate": "Every published vector is validated and missing or mismatched evidence is refused.",
+        "defeat": "Validation of a mutable output and evidence tied only to input and generation do not establish that the bytes eventually stored are the bytes validated."
+      }
+    ],
+    "tests_run": "None. This was a design review of the supplied text only; no tools, file reads, implementation execution, or external research were used.",
+    "scope_limitations": [
+      "The supplied SHA-256 was not independently verified because the review prohibited tools.",
+      "Conditional invariants are proposed requirements and blocking gates, not verified safeguards.",
+      "The review does not assess the contents of the referenced companion design or verify deployed SQLite, sqlite-vec, operating-system, or model behavior.",
+      "The findings describe contract-level scenarios, not observed implementation defects."
+    ]
+  }
+}

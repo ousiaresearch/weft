@@ -1,0 +1,9 @@
+{
+  "target_commit": "5323b29f8c0ca0a89f646976f9ac0cca7c5e7ecb",
+  "requested_model": "gpt-5-codex",
+  "status": "unavailable",
+  "attempt": "Codex CLI, isolated scratch git repository, read-only sandbox; exact frozen diff supplied on stdin.",
+  "error": "The 'gpt-5-codex' model is not supported when using Codex with a ChatGPT account.",
+  "openai_api_provider_status": "logged out",
+  "review_verdict": null
+}

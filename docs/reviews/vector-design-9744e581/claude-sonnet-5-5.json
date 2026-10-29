@@ -1,0 +1,191 @@
+{
+  "frozen_sha256": "9744e5818eae43cd9edfa71956436ac67e39485ba88a822afa5fef197fc3a0ee",
+  "session_id": "local-5d6dc696af05e556755dcc305c7bc4273af2ff93d670990a7d97fb6e4aa2be12",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "review": {
+    "verdict": "REQUEST_CHANGES",
+    "invariants": [
+      {
+        "id": "INV-ORPHAN",
+        "status": "UNDERSPECIFIED",
+        "evidence": "R4 §1 fences the store on any extra, missing, orphan or duplicate row. R4 §2 and R3 §3 send crash-orphaned intents to an audited ceremony. R4 §5 says never auto-delete unknown objects. 'Affected store' is not scoped, the recovery operations are not in the §3 catalogue, and R3 §1 still describes serving despite orphans (F8, F15)."
+      },
+      {
+        "id": "INV-UNIFORM-VISIBILITY",
+        "status": "UNDERSPECIFIED",
+        "evidence": "R4 §1 blocks hybrid recall when members are differently visible. It does not say who evaluates visibility, when, with what epoch binding, or how it differs from exclusions. The lexical path is not covered (F3, F12)."
+      },
+      {
+        "id": "INV-PREVALIDATED-INTENT",
+        "status": "CONTRADICTED",
+        "evidence": "R4 §2 orders fence, validate, intent, BEGIN IMMEDIATE. The vector bytes and evidence MAC must exist before the SQLite commit, so model inference has to run either under the exclusive fence or before it. The spec does not choose, and the bounded-hold claim conflicts with the first option (F6). Identifier allocation is both inside the intent and its own catalogued operation (F4)."
+      },
+      {
+        "id": "INV-AUTH-ABORT",
+        "status": "UNDERSPECIFIED",
+        "evidence": "R4 §2 allows a coordinator ABORT on a 'deterministic pre-commit rejection or confirmed rollback' but does not define 'confirmed'. It does not define abort binding to the intent and fence token, or what happens once COMMIT has been issued (F7)."
+      },
+      {
+        "id": "INV-GENESIS",
+        "status": "CONTRADICTED",
+        "evidence": "R2 §6 provisions the binding before the store exists. R4 §3 has GENESIS establish it. Legacy enrollment is described as taking pre-migration bytes as baseline, and also as blocked when history cannot be proven. A legacy store can never have that history (F10)."
+      },
+      {
+        "id": "INV-EXTERNAL-HISTORY-RECOVERY",
+        "status": "UNDERSPECIFIED",
+        "evidence": "R3 §3 and R4 §4 specify the write-ahead protocol and reconciliation states. They do not give a replay disposition per operation class, history retention or compaction, or the minimum authority class. Whole-host rollback is not listed as a residual (F11)."
+      },
+      {
+        "id": "INV-EXACT-EVIDENCE",
+        "status": "SPECIFIED_UNIMPLEMENTED",
+        "evidence": "R4 §8 specifies a length-delimited, domain-separated frame covering exact vector bytes, with a coordinator-keyed MAC. Algorithms, widths and key lifecycle are listed as gates. The frame omits the physical table and vec0 key mapping (F14)."
+      },
+      {
+        "id": "INV-CLIENT-PROFILE-BINDING",
+        "status": "CONTRADICTED",
+        "evidence": "R4 §8 requires the capability to bind the intended profile 'independently of environment and resolver', but never says how the caller obtains the capability. If it is found through the ambient profile, a wrong environment selects a consistent wrong profile, capability and store (F1)."
+      },
+      {
+        "id": "INV-CLOSED-CATALOGUE",
+        "status": "CONTRADICTED",
+        "evidence": "R4 §3 says 'no durable mutation exempt'. R4 §6 lists the authority-bearing tables and omits jobs, audit and FTS. The catalogue is a prose list without default-deny. Capability and key lifecycle, ledger compaction, recovery ceremonies and DROP or cleanup are not clearly in it (F2, F3)."
+      },
+      {
+        "id": "INV-EXTERNAL-FENCE-HANDOFF-ORDER",
+        "status": "UNDERSPECIFIED",
+        "evidence": "R4 §7 gives the order: reserve, fence, SQLite, finalize, enqueue, release. It does not cover caller-correlated outcome lookup after a crash (F5), the cost of the under-fence recheck (F9), or starvation of mutations by waiting readers' reservations (F13)."
+      },
+      {
+        "id": "INV-OFFLINE-LIFECYCLE",
+        "status": "SPECIFIED_UNIMPLEMENTED",
+        "evidence": "R4 §5 gives a state machine, one ACTIVE generation, no resurrection, and explicit cleanup. R2 §4 and R3 §7 give exclusive store-wide ownership. Unavailability during rebuild is acknowledged. Open points are the fencing granularity for non-active artifacts (F8) and the per-staging-write external append cost (F6)."
+      },
+      {
+        "id": "INV-RESIDUALS-ACKNOWLEDGED",
+        "status": "SATISFIED_AS_DOCUMENTATION",
+        "evidence": "The spec states that every mechanism is an unimplemented gate. It states no untrusted-principal or same-user hostile guarantee, no timing or confidentiality claim, no physical-erasure claim, no delivery deadline, and no power-loss claim. Not treated as implemented. Whole-host rollback is the missing residual (F11)."
+      }
+    ],
+    "findings": [
+      {
+        "id": "F1",
+        "severity": "high",
+        "section": "R4 §8 client capability; R4 §7 pinned profile; R2 §6 binding",
+        "scenario": "A wrong HERMES_HOME or config makes the resolver choose profile B. The capability is looked up through the same ambient selection (a path under B's home). Capability, instance ID, authority record and store all agree on B, so every binding check passes while the operator intended A. This is the 'common environment mistake' the spec says must fail, and it passes. The spec also asks the OS boundary to protect the capability from 'other ordinary profiles/processes', but the stated boundary is a single OS user. File modes cannot separate two profiles running as that user.",
+        "fix": "State the source of intent. The invoking harness must pin an explicit instance ID in a launch-time channel not derived from the resolver or environment, for example a fixed argument or host config entry that is not profile-relative. The coordinator then checks pinned instance == capability instance == store instance == authority record on every operation. A mismatch fails without mutation. Capability discovery must not use the ambient resolver. Restate the capability's protection honestly as accident-prevention under one OS user, unless profiles run under separate identities or sandboxes. Add a test where the environment and the pinned ID disagree."
+      },
+      {
+        "id": "F2",
+        "severity": "high",
+        "section": "R4 §3 operation catalogue; R4 §6 manifest",
+        "scenario": "'Closed' is only a prose list of categories. Operations that change the future trust base are not clearly in it: capability issue, scope and revocation; MAC key creation and rotation; external-ledger retention, compaction or truncation; the recovery ceremony and operator ABORT of orphaned intents; quarantine and RETIRED table DROP or cleanup; instance clone; coordinator or schema upgrade. A key rotation or ledger compaction performed as 'maintenance' therefore has no intent or finalize. After it, evidence MACs or history can no longer be tied to an authorized operation, and the 'no exemption' invariant is silently false.",
+        "fix": "Replace the prose with an enumerated catalogue table. Each row gives the operation class, fence state required, intent fields, replay disposition and finalize or abort rule. Add a default-deny rule: an unlisted operation is refused, and a coordinator build that registers an unlisted mutator fails its startup self-check. Include trust-base operations (capability, key, ledger lifecycle, recovery and cleanup) and add them to the manifest. Test each class for intent and finalize crash points."
+      },
+      {
+        "id": "F3",
+        "severity": "medium",
+        "section": "R4 §3 vs §6; R4 §1 lexical mode; Scope section",
+        "scenario": "R4 §3 says no durable mutation is exempt, but the §6 table manifest omits jobs, audit, FTS shadow tables, caches and ingestion state. Either every job-state update needs an fsync'd external append, or those tables are non-authoritative and must provably not influence eligibility, completion or recall. The spec does neither. Separately, 'explicitly requested lexical' is called separate but is never placed under binding, fence, disclosure epoch or handoff. A lexical query served from a connection that ignores the fence could disclose a record after its deletion was acknowledged.",
+        "fix": "Classify every table, trigger and virtual table as AUTHORITY (catalogued, manifested, covered by external history) or DERIVED/NON-AUTHORITY. For the second class, add a test that no recall, eligibility or completion decision reads it without re-deriving from AUTHORITY tables. Unclassified tables block open. FTS must be a derived index rebuilt or verified from authoritative records, or be authenticated. Lexical disclosure must use the same binding, snapshot, under-fence revalidation and trusted handoff as hybrid, with an explicit lexical label. Add a test that lexical results after an acknowledged deletion are impossible."
+      },
+      {
+        "id": "F4",
+        "severity": "medium",
+        "section": "R4 §2 identifier allocation vs R4 §3 catalogue",
+        "scenario": "R4 §2 allocates externally backed identifiers before appending the intent. R4 §3 lists 'identity allocation' as an operation needing its own intent and finalize. That implies an allocation intent before the operation intent. A crash between them leaves reserved but unused identifiers, and no defined owner or reconciliation path. Aborted operations each consume identifiers, and the spec does not say whether that is acceptable or how it is reconciled.",
+        "fix": "Make allocation part of the operation intent. The intent append is the atomic reservation of the listed identifiers, and ABORT or finalize closes them. Standalone allocation operations do not exist. State that identifiers consumed by aborted or orphaned intents are permanently burned. State that the allocator high-water is derived from the ledger, and test overflow, burn and restore-after-burn behaviour."
+      },
+      {
+        "id": "F5",
+        "severity": "medium",
+        "section": "R4 §7 outcome after crash",
+        "scenario": "A crash occurs after SQLite commit and external finalize but before the enqueue. The caller is told to 'query a separately authenticated operation outcome', but the caller never received the coordinator-allocated operation ID. It cannot look the outcome up, and a blind retry creates a second ingest, correction or grant with new incarnations.",
+        "fix": "Require a caller-generated idempotency token, bound to the capability and included in the intent, SQLite marker and finalize. Make outcome lookup keyed by token. Retrying a committed token returns the recorded outcome and applies nothing. Define token retention, and what a replayed token with different parameters yields (reject). Test a crash after finalize before enqueue, followed by a retry."
+      },
+      {
+        "id": "F6",
+        "severity": "high",
+        "section": "R4 §2 ordering vs Concurrency contract and R4 §7 bounded hold",
+        "scenario": "The original contract computes embeddings outside the write transaction. R4 §2 orders fence, validate, intent, commit, and the evidence MAC covers the exact vector bytes. The bytes must therefore exist at or before the intent, so inference runs either under the exclusive store-wide fence or before it. Under the fence, a multi-second model call blocks all recall, grants and deletions, which contradicts bounded hold. Before the fence, the inputs were read before the fence-time authorization check. The spec does not define when content may be handed to the embedder or what is discarded on change. Rebuild staging also needs one external intent and fsync per chunk with unbounded count.",
+        "fix": "State one pipeline. Capture (incarnation, revision, input digest, activation) and authorize outside the fence, with the embedder seeing only content authorized at capture. Run inference outside the fence. Under the fence, revalidate every captured token and then MAC, append intent, commit and finalize. Any change discards the output and retries within a bounded count. Inference never runs under the ordinary fence. Only the exclusive maintenance owner may infer under the fence, and it is bounded by chunk size and chunk-level external intents with a measured rate. Test deletion during inference, then publication refused."
+      },
+      {
+        "id": "F7",
+        "severity": "medium",
+        "section": "R4 §2 authenticated ABORT",
+        "scenario": "'Confirmed rollback' is not defined. The coordinator issues COMMIT, SQLite returns an error but the commit in fact became durable (or the reverse). If a coordinator bug treats the error as confirmed rollback and appends ABORT, history says aborted while the database holds the marker. Alternatively an ABORT could be replayed or applied to a different intent. R4 §2 does say uncertain outcomes fence, but the boundary between a pre-commit rejection and uncertainty is not stated.",
+        "fix": "Define two abort classes. (a) Rejection before COMMIT is issued: abortable immediately. (b) Anything after COMMIT is issued: never abortable on the same connection's report. The coordinator closes the connection, opens a fresh one under the still-held fence, and checks for the operation marker. If the marker is present, append finalize. If absent and fence ownership is intact, append ABORT. If uncertain, fence. Bind ABORT to the intent sequence number, operation nonce, fence-owner token and a hash of the intent, and make ABORT-after-finalize and finalize-after-ABORT invalid for the verifier. Test injected commit errors on both sides of durability."
+      },
+      {
+        "id": "F8",
+        "severity": "medium",
+        "section": "R4 §1 integrity fence; R4 §5 retention; R4 §2 orphaned intents",
+        "scenario": "(a) 'Fence the affected store' on any extra or missing row includes non-active artifacts. An orphan row in a FAILED or LEGACY_QUARANTINED table, which cannot be queried, stops recall for every scope and refuses deletes. (b) The way out of an integrity fence is a rebuild or recovery ceremony. Those operations are not in the catalogue (F2), and no state machine says which operations the fenced store accepts. (c) A deletion requested during the integrity fence is neither acknowledged nor queued, and the spec does not say which.",
+        "fix": "Define a fence-severity table. Authority-table or bypass anomalies fence the whole store. A non-queryable artifact anomaly blocks only activation, cleanup and maintenance for that artifact, and is reported to the operator. An anomaly in an active generation fences that scope or generation plus any operation that depends on it. Name the operations a fenced store accepts (diagnostic read, recovery ceremony, restore) and say that no deletion is acknowledged until the fence clears, with disclosure also blocked. Add each severity class to the tests."
+      },
+      {
+        "id": "F9",
+        "severity": "medium",
+        "section": "R4 §6 comparison under the fence; R3 §5 disclosure epochs",
+        "scenario": "R4 §6 requires comparing DB authority state and transaction markers to the external-history expectation 'under the fence at each disclosure'. Read literally that is an O(DB) comparison while holding the exclusive store-wide fence, which defeats the bounded-hold limits and starves writers. If instead only the ledger head is compared, a direct SQL change made after the snapshot and before the fence leaves the head unchanged, so it passes undetected.",
+        "fix": "Phase the check. In the snapshot phase, run the full manifest comparison and record the ledger head, scope epochs and generation activation. Under the fence, require an O(1) comparison: ledger head and epochs unchanged, plus a change detector for unadmitted writes (for example SQLite data_version or an equivalent file-change indicator, which must be verified on the deployed SQLite). A change with no matching ledger advance fences the store as a bypass. State what the O(1) check cannot detect, and add a test for an unadmitted write between snapshot and fence."
+      },
+      {
+        "id": "F10",
+        "severity": "medium",
+        "section": "R4 §3 GENESIS; R1/R2 migration gates",
+        "scenario": "R2 §6 has the operator provision the instance ID and expected binding before the store exists, so GENESIS inherits them. R4 §3 says GENESIS 'establishes independent intended-profile binding'. If GENESIS creates the binding, it is not independent. For legacy enrollment, R4 §3 says pre-migration bytes become the baseline and prior deletions cannot be proven. The same section and R1 say legacy migration stays blocked if history cannot be proven. A legacy store has no authenticated deletion history, so as written enrollment is either impossible or silently weakened.",
+        "fix": "Say that GENESIS consumes a binding provisioned earlier and fails if it is absent. Decide the legacy outcome explicitly. Either legacy enrollment is blocked in this alpha (fresh stores only). Or it is allowed under an operator-attested baseline recorded as attestation, not evidence, with the stated residual that earlier deletions may be reintroduced. In that case, add a mandatory pre-enrollment review of the deletion backlog and a record that enrollment is non-evidentiary. Specify GENESIS intent contents and chunking before the review."
+      },
+      {
+        "id": "F11",
+        "severity": "medium",
+        "section": "R4 §4 restore; R3 §3 external authority; R2 §6",
+        "scenario": "(a) 'Replay supported idempotent effects' does not say what happens to post-backup operations that cannot be replayed (new ingests, corrections) when the intent holds only commitments. Restore may either block or silently drop them. Dropped content with burned incarnations may be re-ingested later, which is ABA-adjacent. (b) The external authority is 'outside the database and its rollback domain', but a whole-host snapshot revert, VM rollback or Time Machine restore of the disk puts the database, ledger and allocator back together and passes every check. (c) Ledger retention and compaction are unspecified, and a backup older than the retained suffix is then unrestorable.",
+        "fix": "Give each catalogued operation class a replay disposition: REPLAY (idempotent), INVALIDATE (mark the incarnation lost and burn the identifier, no reintroduction without a new ingest), or BLOCK. Restore fails if any suffix operation is BLOCK or unprovable. State the minimum authority class: separate OS identity and storage domain, with an off-host or independent witness required to claim detection of whole-host rollback. If none is deployed, list whole-host rollback as an undetectable residual and do not claim rollback detection on that deployment. Specify ledger retention and make compaction a catalogued operation."
+      },
+      {
+        "id": "F12",
+        "severity": "medium",
+        "section": "R4 §1 uniform visibility vs R3 §1/§2 and tests",
+        "scenario": "Uniform visibility is stated but not operationalized. Who evaluates the content-dependent policy for each member, in the snapshot or under the fence? Is the evaluation versioned with the eligibility function? Is a policy change an epoch advance? A record ingested later that is withheld turns a previously available scope into permanent unavailable for hybrid recall, which should be a documented behaviour. R3 §1 still asks for closer-ineligible and absent-versus-hidden timing comparisons that R4 §1 withdraws. Exclusion (an extraction or state outcome) and visibility (policy) are not distinguished, so a withheld record could be recorded as an exclusion and sidestep the mixed-visibility rule.",
+        "fix": "Specify the visibility class as a versioned function of authoritative state, evaluated for every member in the snapshot and rechecked through the scope epoch under the fence. Policy and grant changes advance the epoch. Name 'mixed visibility' as a distinct unavailable reason in the operator diagnostic only. State that an exclusion may never express a policy decision, and have eligibility reject exclusion reasons outside the closed catalogue. Strike the R3 §1 timing and absent-versus-hidden comparison tests."
+      },
+      {
+        "id": "F13",
+        "severity": "low",
+        "section": "R4 §7 reservation before fence",
+        "scenario": "Every reader and writer reserves handoff capacity before the fence and may wait up to a deadline. During a long maintenance hold, waiting reads exhaust the pool. A grant revocation or deletion cannot reserve capacity, so it cannot even be attempted when maintenance ends, and recall responses of unknown size cannot be reserved precisely.",
+        "fix": "Partition capacity: a reserved pool for mutations, revocations and deletions, and a separate pool for reads. Reserve a fixed maximum response size. Reject reads early while a maintenance fence is observed, instead of holding a reservation. Test progress of a revocation under read saturation."
+      },
+      {
+        "id": "F14",
+        "severity": "low",
+        "section": "R4 §8 evidence frame",
+        "scenario": "The frame covers record key and vector bytes but not the physical table name or vec0 row key. If evidence rows and vectors are matched through an unauthenticated rowid mapping, a mapping that points evidence for record X to bytes that happen to equal another record's identical vector (duplicate content) cannot be distinguished by the frame.",
+        "fix": "Add the physical table identity and vec0 row key to the frame, and require one-to-one mapping checks in the same snapshot. Test duplicate-content records with swapped row mappings."
+      },
+      {
+        "id": "F15",
+        "severity": "low",
+        "section": "Document structure: Rounds 1-4 and original Proposed generation contract",
+        "scenario": "Each round says it 'supersedes conflicting earlier language' without enumerating which sentences are voided. Stale text remains normative-looking: original item 3 'either restrict or label custom adapters', original item 5 OR branches, the original concurrency contract ordering, R3 §1 closer-orphan tests that expect serving, R2 §6's 'acknowledgement means fence ordered the deletion' versus R4 §7's enqueue as the linearization point. Implementers or test authors can derive contradictory acceptance tests from the same document.",
+        "fix": "Before the next review, consolidate one normative contract with a supersession table (old clause to replacement or removed). Derive acceptance tests only from the consolidated text. Mark the deletion acknowledgement point as the enqueue of the outcome (R4 §7) throughout."
+      }
+    ],
+    "gate_defeats": [
+      "F1: the client capability and profile binding can be satisfied by ambient discovery, so the wrong-profile mistake they target passes the check.",
+      "F2: the operation catalogue is not closed, because trust-base and recovery operations have no intent or finalize and there is no default-deny.",
+      "F6: the inference-versus-fence ordering is undecided, so either the bounded fence hold or the prevalidated-intent and exact-evidence ordering cannot be met."
+    ],
+    "tests_run": [],
+    "scope_limitations": [
+      "Design review only. No tools, files or external references were used, and nothing was executed.",
+      "Based solely on the appended text, taken as frozen at the stated hash.",
+      "No untrusted-principal or same-user hostile isolation is evaluated, per the spec.",
+      "Mechanisms the spec marks as unimplemented gates (codec, MAC and key lifecycle, external authority, coordinator identity, sqlite-vec and trigger behaviour, artifact immutability, old-binary fence, power-loss durability) are not treated as guarantees and are not judged as to feasibility.",
+      "Findings F1, F2, F3, F4, F5, F6, F7, F9, F10, F11, F12, F13, F14 and F15 are spec defects (contradiction, omission or ambiguity). Whether the specified mechanisms can be built on the target OS is an implementation gate, not covered here. F8 is mostly a spec defect, with its severity table needing implementation confirmation. The data_version fix in F9 must be verified on the deployed SQLite."
+    ]
+  }
+}

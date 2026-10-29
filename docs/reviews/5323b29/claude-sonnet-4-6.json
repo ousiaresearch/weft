@@ -1,0 +1,84 @@
+{
+  "target_commit": "5323b29f8c0ca0a89f646976f9ac0cca7c5e7ecb",
+  "requested_model": "claude-sonnet-4-6",
+  "confirmed_canonical_model": [
+    "claude-sonnet-4-6"
+  ],
+  "review": {
+    "verdict": "REQUEST_CHANGES",
+    "invariants": [
+      {
+        "id": 1,
+        "status": "HOLDS",
+        "evidence": "weft/retrieval.py: new guard before the search pool checks vector_index_complete for every readable scope; weft/substrate.py vector_search now raises ValueError on dimension mismatch instead of silently returning empty. test_cli_refuses_hybrid_when_model_index_does_not_match and test_cli_rejects_wrong_query_vector_dimension exercise both failure paths end-to-end."
+      },
+      {
+        "id": 2,
+        "status": "HOLDS",
+        "evidence": "weft/substrate.py vector_has_record enforces authorize_read before touching the vector table and returns only bool; vector_index_complete raises ScopeViolation when the caller cannot read the scope, exposes no identifiers or counts. test_cli_scope_isolation_has_positive_control verifies in-scope recall succeeds and asserts secret not in json.dumps(out-of-scope result)."
+      },
+      {
+        "id": 3,
+        "status": "HOLDS",
+        "evidence": "weft/ingest.py: empty-document check returns Rejection before any DB write; all embed_document calls are batched before set_job/put, so an exception at embedding time leaves no records or jobs. test_cli_rejects_empty_document_instead_of_claiming_vectors and test_embedder_failure_does_not_leave_partial_ingestion both assert 0 rows in records and jobs tables."
+      },
+      {
+        "id": 4,
+        "status": "HOLDS",
+        "evidence": "weft/cli.py confirms vector_has_record on the source sid before emitting vector_indexed:true; nonexistent store raises FileNotFoundError before Substrate is constructed; malformed DB raises sqlite3.DatabaseError caught by main(); resources are in finally blocks. All four error paths are covered by dedicated tests. One dependency on Ingestor defaults not visible in the diff is flagged as F2."
+      },
+      {
+        "id": 5,
+        "status": "HOLDS",
+        "evidence": "weft/adapters.py default_text_embedder checks for required files (config.json, tokenizer.json, model.safetensors), non-zero sizes, and runs a probe embedding before returning; weft/cli.py calls default_text_embedder before constructing Substrate, so any model failure prevents DB creation entirely. test_cli_rejects_missing_model_without_silent_fallback asserts not db.exists(); test_partial_snapshot_is_a_visible_error covers the incomplete-snapshot path."
+      },
+      {
+        "id": 6,
+        "status": "HOLDS",
+        "evidence": "weft/substrate.py sets os.umask(0o077) before mkdir and sqlite3.connect so all new path components and sidecar files inherit the restrictive mask; mkdir is called with explicit mode=0o700; umask is restored unconditionally in finally; connection is closed in except if any initialization step fails. test_new_database_parent_directories_are_owner_only verifies both intermediate and leaf directories are 0o700; test_constructor_closes_connection_when_database_is_malformed confirms the connection is closed and unusable after failure."
+      },
+      {
+        "id": 7,
+        "status": "HOLDS",
+        "evidence": "Tests cover the concrete behavioral paths: positive ingest+vector confirmation, scope isolation with positive control, model-id mismatch rejection, query dimension mismatch, empty document, embedding failure, missing/malformed DB, and directory permissions. Two gaps exist: (a) Ingestor doc_vectors/doc_centroid defaults are not shown in the diff, leaving the CLI post-ingest check on sid partially unverifiable; (b) job_state read-vs-write semantics are not shown in the diff."
+      }
+    ],
+    "findings": [
+      {
+        "id": "F1",
+        "severity": "medium",
+        "file": "weft/retrieval.py",
+        "line": "103",
+        "description": "assert embedder is not None bypasses main()'s exception handler. Any direct library caller that passes mode='hybrid' with embedder=None receives an AssertionError, which is not in the caught tuple (OSError, RuntimeError, ValueError, ImportError, sqlite3.Error, SubstrateError), producing a raw traceback. Under python -O the assertion is compiled away entirely, at which point the code continues and raises AttributeError on embedder.model_id, also uncaught.",
+        "repro": "Call recall(sub, 'query', ctx, mode='hybrid', embedder=None) directly; observe AssertionError propagates to the caller unhandled. Repeat under python -O and observe AttributeError instead.",
+        "fix_suggestion": "Replace 'assert embedder is not None' with 'if embedder is None: raise ValueError(\"hybrid/vector recall requires an embedder\")' so the error is uniformly handled by callers including main()."
+      },
+      {
+        "id": "F2",
+        "severity": "medium",
+        "file": "weft/cli.py",
+        "line": "72",
+        "description": "The post-ingest invariant check calls vector_has_record(result, ...) where result is the source document sid. A vector is written for sid only when the Ingestor is configured with doc_vectors=True or (doc_centroid=True and paragraphs are non-empty). The Ingestor __init__ defaults are not visible in the diff. If both flags default to False, the check always raises RuntimeError after an otherwise successful ingestion that correctly wrote paragraph vectors, producing a false failure and leaving the user unable to ingest.",
+        "repro": "Construct Ingestor(sub, embedder=embedder) where the class defaults are doc_vectors=False, doc_centroid=False; ingest a valid multi-paragraph document; observe cli._run_ingest raises 'ingestion completed without a vector' despite paragraph vectors being present.",
+        "fix_suggestion": "Verify vector presence for at least one vector known to be written regardless of doc_vectors/doc_centroid settings (e.g., the first paragraph sid-p0000), or document and test the Ingestor defaults that guarantee source-level vector storage."
+      },
+      {
+        "id": "F3",
+        "severity": "low",
+        "file": "weft/ingest.py",
+        "line": "140",
+        "description": "self.sub.job_state() is invoked before all embedding computation begins. If job_state creates a job row on first access (e.g., a 'pending' entry), an embedding failure would leave a stale job record in the database despite the code comment stating 'Model load/inference failures therefore cannot leave an apparently successful partial import.' The job_state implementation is not shown in the diff, so this invariant cannot be confirmed from the supplied code.",
+        "repro": "If job_state writes a new job row on first call, run test_embedder_failure_does_not_leave_partial_ingestion; the assertion SELECT COUNT(*) FROM jobs == 0 would fail.",
+        "fix_suggestion": "Document or enforce that job_state is purely read-only (returns an existing state without creating rows), or move the call to after successful embedding computation."
+      }
+    ],
+    "gate_defeats": [],
+    "wrong_reason_tests": [],
+    "tests_run": "No tests run; static diff review only"
+  },
+  "independent_validation": {
+    "F1": "Not confirmed: recall() explicitly raises ValueError when a non-lexical mode has no embedder before reaching the assert (weft/retrieval.py:87-88).",
+    "F2": "Not confirmed: Ingestor defaults doc_centroid=True; non-empty documents with paragraphs create and store the source centroid vector (weft/ingest.py:105, 159-185).",
+    "F3": "Not confirmed: job_state performs only a SELECT and returns the existing state (weft/substrate.py:372-384)."
+  }
+}

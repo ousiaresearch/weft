@@ -11,13 +11,14 @@ import json
 import os
 import sqlite3
 import sys
+from contextlib import closing
 from pathlib import Path
 
 from weft.adapters import default_text_embedder
 from weft.ingest import Ingestor, Rejection
 from weft.retrieval import recall
 from weft.scope import ScopeContext, ScopeEngine
-from weft.substrate import Substrate, SubstrateError
+from weft.substrate import SCHEMA_VERSION, Substrate, SubstrateError
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -37,6 +38,8 @@ def _parser() -> argparse.ArgumentParser:
     search.add_argument("--scope", required=True, help="the one scope this invocation may read")
     search.add_argument("--query", required=True, help="natural-language search query")
     search.add_argument("--limit", type=int, default=5)
+    rebuild = commands.add_parser("rebuild-fts", help="rebuild one scope's local text index")
+    rebuild.add_argument("--scope", required=True)
     return parser
 
 
@@ -105,12 +108,39 @@ def _run_recall(args) -> int:
             sub.close()
 
 
+def _run_rebuild_fts(args) -> int:
+    db_path = Path(args.db).expanduser()
+    if not db_path.is_file():
+        raise FileNotFoundError(f"Weft database not found: {db_path}")
+    # Inspect without initializing or migrating an unrelated SQLite file. Old
+    # schema versions need a separate migration workflow, not this command.
+    with closing(sqlite3.connect(db_path.resolve().as_uri() + "?mode=ro", uri=True)) as check:
+        version = check.execute("PRAGMA user_version").fetchone()[0]
+        objects = {row[0] for row in check.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'"
+        )}
+        if version != SCHEMA_VERSION or not {"records", "fts", "meta", "journal", "jobs"} <= objects:
+            raise ValueError("not a supported existing Weft store; refusing maintenance")
+        if check.execute("SELECT value FROM meta WHERE key='store_version'").fetchone() is None:
+            raise ValueError("not a supported existing Weft store; refusing maintenance")
+    engine, ctx = _context(args.scope)
+    sub = Substrate(db_path, engine)
+    try:
+        sub.rebuild_fts(args.scope, ctx)
+        print(json.dumps({"status": "rebuilt", "scope": args.scope, "index": "fts"}))
+        return 0
+    finally:
+        sub.close()
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = _parser()
     args = parser.parse_args(argv)
     try:
         if args.command == "ingest":
             return _run_ingest(args)
+        if args.command == "rebuild-fts":
+            return _run_rebuild_fts(args)
         return _run_recall(args)
     except (OSError, RuntimeError, ValueError, ImportError, sqlite3.Error, SubstrateError) as exc:
         print(f"weft: {exc}", file=sys.stderr)

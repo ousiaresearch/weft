@@ -1,0 +1,152 @@
+{
+  "frozen_sha256": "f1e35a97b56d8294d7a57b2f8f356d41cf87a9c41d5aecf5fe95c7435e1dde7d",
+  "session_id": "local-483efa6ec95e5ab43b67cd55187e2b99a2542fda9a3619e719836eb7a3ad828f",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "review": {
+    "verdict": "REQUEST_CHANGES",
+    "invariants": [
+      {
+        "id": "INV-1 vector provenance",
+        "status": "PARTIAL: coherent but incomplete",
+        "evidence": "The descriptor, per-vector evidence and exact-byte binding in Round 2 items 1 and 2 are internally consistent. 'Eligible row' is never defined (F6). The descriptor allows 'dtype' but evidence is float32-only (F11). The fingerprint of platform and kernels is open-ended (F9)."
+      },
+      {
+        "id": "INV-2 shared writer/disclosure fence and ordering",
+        "status": "PARTIAL: lock order is coherent, but revision coverage and the handoff boundary are underspecified",
+        "evidence": "Round 2 item 1 fixes the order: reservation, then external fence, then SQLite, then release. This supersedes Round 1 acceptably. The 'mutation revision covering every candidate and permission' is undefined (F3). The trigger backstop cannot tell coordinator writes from rogue writes (F2). 'Bounded handoff' conflicts with 'no maximum delivery time' (F4)."
+      },
+      {
+        "id": "INV-3 exact vector byte evidence",
+        "status": "SPECIFIED, UNIMPLEMENTED: sound as a gate",
+        "evidence": "Round 2 item 2 materializes owned immutable float32 bytes, validates and publishes those same bytes with evidence, and keys batches by unique record/input. It requires sqlite-vec readback and endianness checks and fails closed. It correctly says a digest is not proof of correctness. The one gap is dtype/endianness canonicalization (F11)."
+      },
+      {
+        "id": "INV-4 revision/ABA",
+        "status": "PARTIAL",
+        "evidence": "Non-reused incarnation and activation tokens with external allocator high-water are specified. Triggers that bump in-database revisions are not tied to that allocator (F2). Token scope (per scope vs per store) is not stated (F7)."
+      },
+      {
+        "id": "INV-5 model identity",
+        "status": "SPECIFIED, UNIMPLEMENTED: coherent",
+        "evidence": "Trusted factory, immutable snapshot for the full model lifetime, query/document contracts built from the same snapshot, and a default rule that any output-affecting change needs a new generation. Open issue: the runtime fingerprint is undefined (F9)."
+      },
+      {
+        "id": "INV-6 profiles",
+        "status": "PARTIAL",
+        "evidence": "An independent instance identity and an external authority store are required. 'Separately verified inputs' for choosing the profile is undefined, so a consistently wrong profile selection passes every check (F10)."
+      },
+      {
+        "id": "INV-7 offline rebuild and crash",
+        "status": "PARTIAL",
+        "evidence": "The state machine, never-queryable staging, single-transaction activation and fenced crash recovery with operator inspection are coherent. Exclusive-fence reentrancy for staging writes, deletion availability during rebuild, and legacy-table disposition are unspecified (F7, F8)."
+      },
+      {
+        "id": "INV-8 external freshness/deletion recovery",
+        "status": "GAP: ordering of acknowledgement vs external history is undefined",
+        "evidence": "The watermark and effect history live outside the database, and crash windows are explicitly deferred. The design does not say whether external intent is durable before the SQLite commit and before acknowledgement. That is a precondition for the resurrection guarantee (F1)."
+      },
+      {
+        "id": "INV-9 old-binary fencing",
+        "status": "BLOCKED by the design's own stop condition",
+        "evidence": "Round 2 item 3 correctly refuses a version marker or SQLite lock as a fence and blocks admission if no fence is demonstrated. No mechanism class is named, and the Scope section excludes direct database writers (F5)."
+      },
+      {
+        "id": "INV-10 scope boundaries",
+        "status": "PARTIAL: mostly honest",
+        "evidence": "Hostile same-user actors, physical erasure, the untrusted service and power loss are stated as out of scope or unproven. The accidental-vs-hostile split is inconsistent for direct SQLite openers (F5). 'Authenticated' watermarks imply a key in the same-user domain (scope_limitations)."
+      }
+    ],
+    "findings": [
+      {
+        "id": "F1",
+        "severity": "high",
+        "section": "Round 2 item 6 (deletion acknowledgement, external watermark/effect history) with Round 1 'Restore and migration'",
+        "scenario": "A delete commits in SQLite, the fence is released and the user is acknowledged. The process dies before the external effect history or watermark records the deletion, or the external write happens first and the SQLite commit is lost. In the first case the database is ahead of the watermark. Reconciliation either blocks forever or, once an operator authorizes it, adopts the database state and advances the watermark without the deletion ever appearing in history. A pre-deletion backup is later restored. Its lineage matches the stale watermark, so the deleted record is silently resurrected. The reverse order (external ahead, SQLite rolled back by a WAL/synchronous=NORMAL loss) leaves a deletion recorded for a record that still exists.",
+        "fix": "Specify a write-ahead protocol under the fence: (1) durably append an authenticated intent entry (opaque sequence, record incarnation, operation) externally; (2) commit SQLite with synchronous=FULL; (3) durably finalize externally; (4) only then acknowledge. Define recovery for each crash window: intent without commit means inspect the database and then roll forward or explicitly abort. Database ahead of the watermark with no intent means block and never auto-advance. Finalized history ahead of the database means block as rollback. Kill-inject between every step. State the pragma/durability assumptions."
+      },
+      {
+        "id": "F2",
+        "severity": "high",
+        "section": "Round 2 item 3 (trigger backstop) with items 1 and 6 (external allocator)",
+        "scenario": "A non-coordinator writer (old tool, library path with a missing pragma) updates a record's content. The backstop trigger bumps the in-database revision and invalidates evidence, but a SQL trigger cannot call the external allocator or the fence. The bumped revision looks like a legitimate mutation. A later coordinator re-embeds under it, so the bypass is laundered into valid evidence. The in-database counter also exceeds the external high-water mark, or reuses values after delete/recreate in a way the external allocator never saw. The 'non-reused identity' invariant and the single-authority claim both fail silently.",
+        "fix": "Make the triggers detectors, not authorities. The coordinator sets a per-transaction proof (for example an application-defined function or a temp-table nonce tied to the fence token) that triggers check. A write without it sets a sticky persistent POISONED state that blocks serving until operator reconciliation, and it never produces a normal revision. Draw all incarnation and revision values from the single external-high-water-backed allocator or a reconciled in-database sequence. Test with the deployed SQLite for REPLACE, recursive_triggers and pragma variants."
+      },
+      {
+        "id": "F3",
+        "severity": "medium",
+        "section": "Round 1 'Query handoff' and Round 2 items 1, 2, 3 and 7",
+        "scenario": "The snapshot records 'a mutation revision covering every candidate and permission'. If that is a store-global counter, any unrelated ingest between snapshot and fence invalidates the query. With a continuously indexing writer, queries starve or retry without bound. If it is per-record, it misses insertion of a new eligible record, grant changes and generation changes (set membership). It also misses vec0 wrapper writes, because the design says triggers cannot be assumed on vec0 or shadow tables. Meanwhile the full per-row validation scan is mandated per query without saying whether it runs under the fence (which stalls all writers) or outside it (so the fence recheck is only a revision comparison).",
+        "fix": "Define the covered set explicitly: a per-scope epoch bumped by every membership, grant, evidence, vec0-wrapper and generation change, plus per-record revisions. Run the full scan in the snapshot outside the fence. Under the fence, re-verify only the final top-k candidates (evidence, bytes, authorization, incarnation) plus the epoch. Bound retries and fail 'unavailable' with a diagnostic. State fence hold-time limits and cross-process progress guarantees."
+      },
+      {
+        "id": "F4",
+        "severity": "medium",
+        "section": "Round 1 'Query handoff' vs Round 2 item 6",
+        "scenario": "'Irrevocable, bounded handoff' is defined by capacity, not by time or by bytes leaving coordinator control. A stalled client leaves an enqueued response holding a deleted record's text. The deletion is acknowledged and the fence ordering is satisfied, yet the content is delivered minutes or hours later because 'no maximum end-to-end delivery time is promised'. The ordering gate then guarantees nothing meaningful to the user about when the content stops being disclosed.",
+        "fix": "Define the handoff point concretely, for example completion of the write into the client-owned transport (not an in-coordinator queue), or give queued responses a short TTL after which they are discarded and counted as undelivered. Keep 'irrevocable' only for bytes past that boundary. Test a stalled client, a client killed before read, and deletion acknowledgement during queue residency."
+      },
+      {
+        "id": "F5",
+        "severity": "medium",
+        "section": "Scope and security boundary vs Round 2 item 3 / Round 1 'Restore and migration'",
+        "scenario": "The Scope section puts a 'same-user process or direct database writer' outside the boundary. Round 2 then requires that old binaries and direct SQLite opens be fenced or refused, even for fresh stores, with real operational identities, and rejects file locks and version markers as insufficient. No mechanism class is named. As written, the gate is either unsatisfiable (every same-user process can open the file), so the alpha is permanently blocked, or it is satisfied by a test that only exercises known old binaries. The latter leaves unknown tools, shells and editors able to bypass the coordinator while the 'enforced' claim is made.",
+        "fix": "Name the intended fence class before testing: for example a store-owning service under a distinct OS identity or sandbox, with the database file unreadable to the user's other processes and access only through an authenticated socket. Define 'accidental unfenced writer' vs 'hostile' explicitly and make the Scope text agree. Keep the stop condition: if the class cannot be deployed on the target OS, the alpha stays blocked, and the document should say that."
+      },
+      {
+        "id": "F6",
+        "severity": "medium",
+        "section": "Proposed contract items 5 and 6, Round 2 item 4 (activation inventory)",
+        "scenario": "Completeness, activation and recall all depend on 'the current eligible source set', which is never defined. Records with empty or over-limit extraction output, quarantined records, or records mid-correction could be treated as ineligible. Activation then passes with fewer vectors than expected, and hybrid recall silently misses them while claiming completeness. A rogue or buggy path can also shrink the eligible set.",
+        "fix": "Make the eligibility predicate a versioned function of authoritative columns, bound to the processing contract in the descriptor and evaluated inside the snapshot. Each record must have either verified vector evidence or a verified generation-bound exclusion record with a reason code. Activation requires an exact count and key-set match. Mismatch is a fail-closed condition."
+      },
+      {
+        "id": "F7",
+        "severity": "medium",
+        "section": "Round 2 items 1 and 4 (rebuild vs lock order)",
+        "scenario": "The rebuild holds the exclusive fence for its whole duration, but every staging write 'validates under the writer protocol', which requires acquiring that same fence. Without owner reentrancy this deadlocks. With reentrancy by process identity alone, a second process could join. A user deletion request arrives hours into a rebuild: it is rejected or held, so it cannot be acknowledged, and the only way to proceed is to kill the owner. That triggers the half-staged crash path. The design also doesn't say whether the fence, activation and allocator tokens are per scope or per store, although generations are per scope.",
+        "fix": "Define a maintenance-mode fence with an owner-lineage token and lease. Only the token holder may do staging writes. Define an operator-initiated pause/preempt that checkpoints staging at a bounded point, applies the deletion or correction under the normal protocol, and resumes with source revalidation. State the fence and token granularity (per scope or per store) and test deletion during rebuild."
+      },
+      {
+        "id": "F8",
+        "severity": "low",
+        "section": "Legacy and migration contract",
+        "scenario": "Legacy vec0 tables and shadow tables are 'inventoried', but the contract says unknown tables block migration and nothing may be deleted automatically. After a successful schema migration the old tables remain, unregistered, holding stale vectors of records that may be deleted later. Registry allocation is collision-checked, but the legacy truncated-hash names could still be hit or re-adopted by a future legacy-aware code path. Separately, the single 'migration transaction' with failpoints at vector data and evidence conflates a short schema migration with the long staged generation build described for rebuild.",
+        "fix": "Split the work into a short transactional schema/registry migration, which creates no vectors, and a separate offline rebuild. Add a registry state LEGACY_QUARANTINED: non-queryable, non-writable, reserved name, removed only by explicit operator action after verified backup. Include these objects in the physical-retention and deletion statements."
+      },
+      {
+        "id": "F9",
+        "severity": "low",
+        "section": "Round 2 item 5 (runtime fingerprint)",
+        "scenario": "The descriptor includes 'platform/device and relevant kernels' with no closed manifest. An OS update or a device fallback (for example GPU to CPU) either changes the fingerprint, making every query descriptor mismatch and every scope unqueryable until a full rebuild, or the field omits something output-affecting and numeric drift passes as 'same'. The compatible-variant predicate is deferred, so there is no safe middle path.",
+        "fix": "Enumerate a closed fingerprint manifest, classified as output-affecting or not. Unclassified items fail closed. A mismatch yields an explicit 'rebuild required' diagnostic, not silent lexical fallback. Define a deterministic validation predicate (fixed probe corpus, bounded distance) as the only route to a compatible variant, and include it in review."
+      },
+      {
+        "id": "F10",
+        "severity": "low",
+        "section": "Round 2 item 6 (binding; 'separately verified inputs')",
+        "scenario": "The resolver derives both the active profile and the expected binding. If an ambient input such as an environment variable selects the wrong profile, the resolver picks that profile's matching authority entry and matching database. Every consistency check passes and the session reads another profile's memory. The guarantee covers only mismatched store/authority pairs, not wrong intent.",
+        "fix": "Require the caller or client to pin the intended profile or instance identity out of band (explicit argument or client config) and compare it with the resolver output. State the residual if ambient selection is still allowed."
+      },
+      {
+        "id": "F11",
+        "severity": "low",
+        "section": "Proposed contract item 1 vs Round 2 item 2",
+        "scenario": "The descriptor records 'dtype', but the evidence scheme assumes exact stored float32 bytes. A future descriptor with another dtype, or a big-endian or differently packed platform, would produce a valid-looking descriptor that the evidence digest cannot cover exactly.",
+        "fix": "Restrict descriptor v1 to float32 little-endian. Reject other dtypes and endianness as unknown descriptor versions. Specify the digest framing (domain separation, length prefix, record key) and test the readback on each supported platform."
+      }
+    ],
+    "gate_defeats": [
+      "F1: A deletion acknowledged before its external intent or history entry is durable and ordered with the SQLite commit can be silently undone by restoring a pre-deletion backup that still matches the stale watermark. This defeats the deletion-recovery gate.",
+      "F2: A trigger-bumped revision from an out-of-protocol writer is indistinguishable from a coordinator mutation. A later fenced re-embed can launder the bypass into valid evidence and defeat the single-authority and ABA gates."
+    ],
+    "tests_run": [],
+    "scope_limitations": [
+      "Design-only review of the frozen text (SHA-256 f1e35a97b56d8294d7a57b2f8f356d41cf87a9c41d5aecf5fe95c7435e1dde7d). No code, files, tools, deployed SQLite/sqlite-vec behavior or tests were examined.",
+      "I treated every unimplemented mechanism as a blocker, not as implemented. No finding asserts an implementation defect.",
+      "I did not evaluate the behavior of the separate visibility-isolated-ingestion.md gates, the untrusted-service model, policy revocation, or the real deployed sqlite-vec trigger and serialization semantics.",
+      "Hostile same-user actors and power-loss durability are outside the document's own boundary. 'Authenticated' external watermarks give only accidental-error protection if their key lives in the same user domain.",
+      "Per-query exhaustive validation cost is flagged by the document itself and not assessed here."
+    ]
+  }
+}

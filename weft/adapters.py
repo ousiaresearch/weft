@@ -93,13 +93,18 @@ class WhisperTranscriber:
         if ffmpeg is None:
             raise RuntimeError("ffmpeg not found")
         fd_in, src = tempfile.mkstemp(suffix=".bin", dir=_scratch_dir())
-        fd_out, dst = tempfile.mkstemp(suffix=".wav", dir=_scratch_dir())
-        os.close(fd_out)
+        dst = None
         try:
             with os.fdopen(fd_in, "wb") as fh:
                 fh.write(data)
+            fd_out, dst = tempfile.mkstemp(suffix=".wav", dir=_scratch_dir())
+            os.close(fd_out)
             subprocess.run([ffmpeg, "-y", "-loglevel", "error", "-i", src,
                             "-ar", "16000", "-ac", "1", dst], check=True, timeout=600)
+        except BaseException:
+            if dst is not None:
+                os.unlink(dst)
+            raise
         finally:
             os.unlink(src)
         return dst

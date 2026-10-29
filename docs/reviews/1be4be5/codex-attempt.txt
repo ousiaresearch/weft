@@ -1,0 +1,8 @@
+⚠ A previous `hermes update` pulled new code but did not restart running gateways.
+  Gateways may still be serving pre-update modules (mixed sys.modules).
+  Run `hermes update` or `hermes gateway restart`.
+custom didn't respond in time on any of 3 attempts — it looks temporarily unavailable. Wait a minute and send /retry, or switch models with /model. To avoid this in future, add a backup provider with `hermes fallback add`.
+
+Provider said: Hermes can't reach the model provider. You may be offline. Check your internet connection and try again.
+
+session_id: local-4427739db985218e57b919ededb1f6143ff8d99571a251e6c7960d64f496a179

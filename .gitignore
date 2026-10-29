@@ -8,3 +8,12 @@ __pycache__/
 models/
 eval/gold-set*.json
 eval/recall_gate_results.json
+
+# Scratch/review artifacts (not distributed)
+.review/
+.hermes/
+build/
+eval/recall_gate_results-*.json
+eval/_probe_*.py
+tmp*/
+weft_memory.egg-info/

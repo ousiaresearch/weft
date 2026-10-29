@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "weft-memory"
+version = "0.1.0a0"
+description = "Local evidence-bound memory prototype"
+requires-python = ">=3.11"
+license = {file = "LICENSE"}
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: GNU Affero General Public License v3",
+  "Programming Language :: Python :: 3",
+]
+dependencies = [
+  "sqlite-vec>=0.1.9,<0.2",
+  "pypdf>=6.21.2,<7",
+  "python-docx>=1.2,<2",
+]
+
+[project.optional-dependencies]
+local-embedding = [
+  "mlx>=0.32.4,<0.33; sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "mlx-embeddings==0.1.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
+]
+
+[project.scripts]
+weft = "weft.cli:entrypoint"
+
+[tool.setuptools]
+packages = ["weft"]

@@ -1,0 +1,148 @@
+{
+  "frozen_sha256": "ab26a2472652be9d5ca167b8e859753cabcb6cbda3d8cbb4c63820ae9e075fb3",
+  "session_id": "local-753da5bcf24480bda74da8cd7662413be765656cbc68899ef1d8ea7c625cf697",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "review": {
+    "verdict": "REQUEST_CHANGES",
+    "invariants": [
+      {
+        "id": "INV-1 generation identity is full-digest, canonical, and fail-closed",
+        "status": "partially_specified",
+        "evidence": "Artifact, tokenizer, config, dimension, dtype, pooling and metric are well specified (Contract 1). 'Trusted adapter/implementation identity' and runtime/library versions are not defined as bytes or versions. See F-6."
+      },
+      {
+        "id": "INV-2 every served vector is bound to its current record input and active generation",
+        "status": "not_established",
+        "evidence": "Contract 5 offers two options without choosing one. Per-vector evidence has no digest of the stored vector bytes. Nothing at database level forces revision or invalidation when content changes outside the verified API. See F-1 and F-2."
+      },
+      {
+        "id": "INV-3 profile binding prevents wrong-store use",
+        "status": "partially_specified",
+        "evidence": "Independent instance identity is required on every entry point. Where it is provisioned and how it is verified is open. A restored or rolled-back copy of the same store passes the binding. See F-5."
+      },
+      {
+        "id": "INV-4 publication linearization (BEGIN IMMEDIATE with captured tokens)",
+        "status": "adequate_as_design",
+        "evidence": "Capturing incarnation, revision, input and activation before model work and comparing under BEGIN IMMEDIATE is sound. It is only as strong as the set of writers that are forced through it (F-1, F-3)."
+      },
+      {
+        "id": "INV-5 disclosure/deletion linearization",
+        "status": "adequate_as_design_gated",
+        "evidence": "Reserve capacity, take the fence, revalidate, commit the immutable response, release. The ordering is well defined. Blocking when no real coordinator exists is intentional. See F-8 for residual claims and query-embedder binding (F-4)."
+      },
+      {
+        "id": "INV-6 generation transition lifecycle",
+        "status": "contradicted",
+        "evidence": "'Offline rebuild' conflicts with tests that race queries and embedding against generation swap and rebuild. No staged-generation state machine, crash recovery or orphan-table handling is defined. See F-3."
+      },
+      {
+        "id": "INV-7 artifact immutability across validation and load",
+        "status": "gated",
+        "evidence": "Private content-addressed snapshot plus block-if-unenforceable is the correct posture. Lazy loading and mmap lifetime are not addressed. See F-7."
+      },
+      {
+        "id": "INV-8 legacy migration and old-binary fencing",
+        "status": "gated_for_legacy_unaddressed_for_fresh",
+        "evidence": "Legacy migration is blocked without a demonstrated external fence, which is acceptable. The same old-binary hazard for fresh new-schema stores has no stated defence. See F-2."
+      },
+      {
+        "id": "INV-9 restore never resurrects deleted data",
+        "status": "gated",
+        "evidence": "Fail-closed unless an external authenticated deletion history with a freshness watermark exists. Accidental rollback outside the restore ceremony is not covered. See F-5."
+      },
+      {
+        "id": "INV-10 test sufficiency",
+        "status": "insufficient",
+        "evidence": "Many relevant scenarios are listed. Several fault classes are missing. See F-9."
+      }
+    ],
+    "findings": [
+      {
+        "id": "F-1",
+        "severity": "high",
+        "section": "Proposed generation contract 5; Concurrency contract",
+        "scenario": "Stale-vector prevention depends on every mutation path (content, source-link, correction, deletion) bumping the record revision and invalidating the vector and evidence. The design describes this as application-level 'participation'. Any path not routed through the verified API leaves a stale vector with valid-looking evidence. Examples are an old binary, a later-added code path, or a legacy CLI command. Contract 5 also says 'either gate all writes ... or retain per-vector evidence and validate on use' without choosing. Validating input digests on use means recomputing canonical input per row per query, which the performance bullet says is not viable. The revision-compare shortcut is only sound if revisions are maintained independently of application code.",
+        "fix": "Choose one option. Require revision/incarnation bumps and vector/evidence invalidation to be enforced inside SQLite, for example with triggers or constraints on the record, content and source-link tables, so any SQLite writer that can mutate records also invalidates. Admit these triggers in the migration inventory, since 'unknown triggers block migration' would otherwise reject them. Define the fail-closed behavior when a writer lacks the extension needed to run the trigger. Key vec0 rows and evidence by a non-reused incarnation id, never by a reusable rowid."
+      },
+      {
+        "id": "F-2",
+        "severity": "high",
+        "section": "Legacy and migration contract; Review round 1 (Restore and migration)",
+        "scenario": "The old-binary fence is demanded only for legacy migration. A fresh-store alpha created by the new code is not fenced against older binaries, which the design states 'can accept future versions'. Such a binary can delete or edit records and call generic vector_put without updating evidence or revisions. Evidence-free vectors would fail closed on read. Deleted or edited records with surviving evidence and vectors, or orphaned rows, are not caught under F-1's current wording. The statement that fresh-store alpha can be tested 'without legacy migration' hides this hazard.",
+        "fix": "State an explicit fresh-store compatibility mechanism and make it an acceptance test. For example, use a schema layout older binaries cannot operate on, or an extension-dependent trigger that makes old writers abort. Test an old binary against a fresh new-schema store and require no silent success. If it cannot be enforced, mark mixed-binary operation on a fresh store as unsupported and block alpha admission."
+      },
+      {
+        "id": "F-3",
+        "severity": "high",
+        "section": "Contract 4; Legacy and migration contract; Concurrency contract; Acceptance tests",
+        "scenario": "The design says generation transition is an 'offline rebuild'. It also requires a 'migration transaction' with exact validation, a registry with 'unique active generation', and tests that race query and embedding against 'generation swap and rebuild' and 'switch-away/back' ABA. These cannot all hold. A rebuild over a corpus needs model compute, which cannot sit inside one transaction without holding the write lock for the compute duration. Otherwise it needs staged state, which the registry does not model (only 'active'). Undefined results include: a crash mid-rebuild leaving orphan vec0 or shadow tables; partially published staged vectors; who may read a staging generation; and how activation is made atomic with deletions that arrive during the rebuild.",
+        "fix": "Define the generation lifecycle explicitly, for example building, validated, active, retired and failed. Say whether the system is online or exclusive during rebuild, and what fences concurrent readers and writers. Specify that rebuild publishes through per-record BEGIN IMMEDIATE with token checks into the non-active generation. Specify that activation is one verified transaction re-checking completeness against current records and deletions, and that crash recovery cleans up orphans. Make the test list consistent with the chosen model."
+      },
+      {
+        "id": "F-4",
+        "severity": "medium",
+        "section": "Contract 6; Contract 2",
+        "scenario": "Document adapters must come from the verified factory, but the query-side embedder is only checked for dimension, finiteness and a 'compatible query contract'. If that contract is self-reported by an adapter, an unverified or wrong-model query embedder with the same dimension produces silently wrong rankings, which determine which records are disclosed. A generation switch between query embedding and snapshot can also pair an old-generation query vector with the new generation.",
+        "fix": "Require query embeddings to come from the same verified factory and descriptor mechanism. Compare the embedder's verified query-contract digest with the query contract stored in the snapshot's active generation, inside the snapshot-plus-fence revalidation. Otherwise hybrid recall refuses. Do not accept self-reported compatibility."
+      },
+      {
+        "id": "F-5",
+        "severity": "medium",
+        "section": "Review round 1 (Profile binding, Restore and migration); Contract 4",
+        "scenario": "The binding check compares an instance identity against store metadata. A file-level rollback, snapshot restore, cloud-sync revert or copy of the whole store back into the same profile passes the binding, because it carries the same identity. It also resurrects deleted records and reuses allocator tokens. The freshness watermark is required only for the restore ceremony. Rollback by ordinary OS tooling is not a ceremony. 'Uncertainty fences the store' is stated, but there is no detection mechanism outside the database. The provisioning source and trust of the instance identity are also unspecified, so an identity derived from the same resolver that picks the path does not detect resolver errors.",
+        "fix": "Keep a monotonic store epoch or watermark, together with the allocator high-water mark, outside the database and checked at every open. A mismatch fences the store until the explicit recovery ceremony. Define who provisions the instance identity and where it is kept, and test that the same identity does not pass under a different resolver-derived path."
+      },
+      {
+        "id": "F-6",
+        "severity": "medium",
+        "section": "Contract 1; Contract 3",
+        "scenario": "'Trusted adapter/implementation identity' is undefined. Hashing the source tree makes every edit a new generation (a full rebuild). A hand-set version string cannot detect numerical or tokenizer changes. The acceptance list mentions 'adapter runtime' but the descriptor does not enumerate runtime and library versions (inference framework, quantization kernels, tokenizer library, Python and device). Vectors for the same artifacts can differ across runtimes, so mixed-version vectors could be treated as one generation with no stated rule.",
+        "fix": "Specify what the implementation identity covers (code digest of the adapter and preprocessing modules, plus pinned versions of the inference and tokenizer libraries). State whether a change in any of these is a new generation or a recorded compatible variant with a tested predicate. Do not rely on a manually bumped string."
+      },
+      {
+        "id": "F-7",
+        "severity": "medium",
+        "section": "Review round 1 (Artifact stability)",
+        "scenario": "Immutability is required for 'the entire load/generation interval'. Weights are often memory-mapped or loaded lazily. If the snapshot is mutated or removed while the process serves queries (not just at load), later vectors come from different bytes than the descriptor claims. The same applies to tokenizer files read lazily. The snapshot is verified once but the long-running process lifetime is not covered.",
+        "fix": "Extend the immutability requirement to the whole process lifetime of any embedder bound to a generation, or make the loader fully read and own the bytes. Re-verify snapshot identity when a process binds to a generation. Fail embedding if the snapshot is not intact."
+      },
+      {
+        "id": "F-8",
+        "severity": "low",
+        "section": "Review round 1 (Query handoff); Contract 5",
+        "scenario": "After an irrevocable handoff, a deletion acknowledged to the operator may still be followed by bounded disclosure of the previous response. The user-facing deletion result does not state this. Separately, 'deletion' of vectors is not specified as logical versus physical. Deleted vec0 and shadow rows and SQLite free pages and WAL can retain vector bytes until vacuum, and these vectors are semi-invertible. Only backup/external-copy erasure is disclaimed.",
+        "fix": "Define the deletion acknowledgement to state the linearization point and the maximum handoff window. Document live-database residue and the secure_delete/vacuum policy, and do not claim physical erasure."
+      },
+      {
+        "id": "F-9",
+        "severity": "medium",
+        "section": "Acceptance tests and stop conditions",
+        "scenario": "The listed races use 'two independent connections' with deterministic barriers, which may be threads in one process. The coordinator and fence claims need separate OS processes. Missing cases: kill -9 or power-loss during rebuild and during the handoff window; old binary against a fresh store (F-2); direct SQL mutation of content with a valid-looking vector (F-1); vector-byte versus evidence divergence (F-10); query from a wrong or unverified embedder (F-4); file-level rollback (F-5); artifact mutation after load during the process lifetime (F-7); clone ceremony and allocator collisions across instances; and a diagnostic reader being used to feed recall.",
+        "fix": "Add these to the acceptance list. Require multi-process tests for the fence and coordinator, with crash injection at each publication and activation boundary."
+      },
+      {
+        "id": "F-10",
+        "severity": "medium",
+        "section": "Contract 5; Review round 1 (Document outputs and evidence)",
+        "scenario": "The evidence verifies input digest and generation, but does not bind to the vec0 row's vector bytes. As far as I know, SQLite cannot enforce constraints or triggers on virtual tables. A rowid reuse, failed or partial extension DML, shadow-table inconsistency, or batch-order bug can leave the evidence valid while the vec0 row holds a different record's vector. 'Validate evidence per eligible row' would pass.",
+        "fix": "Store a digest of the exact float32 vector bytes in the evidence. Verify it against the vec0 content at publication, and sample or fully verify on completeness checks. Also assert that batch outputs are mapped to inputs by an explicit, tested key, not by position."
+      },
+      {
+        "id": "F-11",
+        "severity": "low",
+        "section": "Review round 1 (Registry authority); Contract 6 (performance bullet)",
+        "scenario": "A 'privileged diagnostic-only raw reader' is allowed to open the store without binding or schema validation, but no mechanism stops it from being used by a recall path. Separately, per-query exhaustive per-row evidence validation is mandated, while the final bullet says it may not be viable. No sound cheaper alternative is defined. Under growth this pressure invites a weaker check.",
+        "fix": "Make the raw reader a separate tool or API that cannot return recall results. Define a sound incremental alternative to exhaustive per-query validation, such as validating at publication and activation and checking a per-scope aggregate revision and count on query, with a periodic full audit. State its guarantees."
+      }
+    ],
+    "gate_defeats": [],
+    "tests_run": [],
+    "scope_limitations": [
+      "Design-only review of the supplied text, with no tools and no external research. I could not verify the stated SHA-256 and treated the appended text as the frozen surface.",
+      "I did not verify sqlite-vec or SQLite behavior. The point about triggers on virtual tables is from memory and should be confirmed against the deployed version.",
+      "The review does not verify any implementation, model routing, or claims about prior review rounds.",
+      "Explicitly declared gates (coordinator and handoff, OS-enforced immutability, external old-binary fence, external deletion history) were treated as intentional blocking, not as achieved safeguards. Hostile same-user compromise and untrusted-service isolation are out of scope as the document states."
+    ]
+  }
+}

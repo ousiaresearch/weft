@@ -7,6 +7,7 @@ Nothing is recorded as a success when extraction fails (D3-9).
 from __future__ import annotations
 
 import hashlib
+import json
 import io
 import os
 import re
@@ -14,7 +15,7 @@ import uuid
 import zipfile
 from dataclasses import dataclass
 
-from weft.substrate import Record, RecordConflict
+from weft.substrate import Record, RecordConflict, ScopeViolation
 
 def _centroid(vectors: list) -> list:
     """Normalised mean of the given vectors (note-level representation, no extra model calls)."""
@@ -66,6 +67,12 @@ def _digest(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def _record_digest(record: Record) -> str:
+    row = list(record.to_row())
+    del row[5]  # creation time is not part of the intended content
+    return _digest(json.dumps(row, separators=(',', ':')).encode())
+
+
 def _parse(name: str, data: bytes):
     """Return extracted text, or a Rejection. Never returns partial text on failure."""
     ext = os.path.splitext(name.lower())[1]
@@ -108,6 +115,21 @@ class Ingestor:
         self.doc_vectors = doc_vectors  # also embed each document's opening text (note-level)
         self.doc_centroid = doc_centroid  # note-level vector: normalised mean of paragraph vectors (default on)
 
+    def _put_matching(self, record, ctx):
+        """Recover only an identical, currently readable and writable incumbent."""
+        try:
+            self.sub.put(record, ctx)
+        except RecordConflict:
+            incumbent = self.sub._lookup_record(record.record_id)
+            engine = self.sub.scope_engine
+            if (incumbent is None
+                    or not engine.authorize_write(incumbent, ctx).allowed
+                    or not engine.authorize_read(incumbent.scope, ctx, engine._payload_text(incumbent)).allowed
+                    or any(getattr(incumbent, field) != getattr(record, field) for field in (
+                        'record_id', 'record_type', 'scope', 'payload', 'epistemic_status',
+                        'effective_at', 'supersedes', 'source_ids', 'provenance', 'attribution'))):
+                raise
+
     def ingest_turn(self, text: str, speaker: str, ctx, scope: str, conversation_id: str) -> str:
         """A conversation turn becomes a Source with the speaker's attribution (spec §7.1)."""
         attribution = _TURN_ATTRIBUTION.get(speaker)
@@ -118,12 +140,17 @@ class Ingestor:
         if changed:
             provenance["fenced"] = True
         rid = "turn-" + uuid.uuid4().hex[:24]
-        self.sub.put(Record(
+        record = Record(
             record_id=rid, record_type="Source", scope=scope, payload={"text": clean},
             attribution=attribution, source_ids=[], provenance=provenance,
-        ), ctx)
-        if self.embedder is not None:
-            self.sub.vector_put(rid, scope, self.embedder.embed_document(clean), ctx=ctx, model_id=self.embedder.model_id)
+        )
+        if not self.sub.scope_engine.authorize_write(record, ctx).allowed:
+            raise ScopeViolation("write not permitted", audit_recorded=False)
+        vector = self.embedder.embed_document(clean) if self.embedder is not None else None
+        with self.sub.ingestion_transaction():
+            self.sub.put(record, ctx)
+            if self.embedder is not None:
+                self.sub.vector_put(rid, scope, vector, ctx=ctx, model_id=self.embedder.model_id)
         return rid
 
     def ingest_document(self, name: str, data: bytes, ctx, scope: str, author: str):
@@ -137,16 +164,34 @@ class Ingestor:
         content_hash = _digest(data)
         sid = "doc-" + hashlib.sha256(f"{scope}\0{content_hash}".encode()).hexdigest()[:24]
         paragraphs = _extract_paragraphs(parsed)
+        source = Record(
+            record_id=sid, record_type="Source", scope=scope,
+            payload={"text": parsed, "name": name}, attribution="document", source_ids=[],
+            provenance={"author": author, "document": name, "content_hash": content_hash},
+        )
+        observations = [Record(
+            record_id=f"{sid}-p{i:04d}", record_type="Observation", scope=scope,
+            payload={"text": paragraph}, attribution="document", source_ids=[sid],
+            provenance={"location": f"paragraph {i + 1}", "document": name},
+        ) for i, paragraph in enumerate(paragraphs)]
+        if any(not self.sub.scope_engine.authorize_write(record, ctx).allowed
+               for record in [source, *observations]):
+            raise ScopeViolation("write not permitted", audit_recorded=False)
         state = self.sub.job_state(sid, "ingest", content_hash, scope=scope, ctx=ctx)
         if state == "done":
-            if self.embedder is None:
-                return sid
-            expected_vectors = [f"{sid}-p{i:04d}" for i in range(len(paragraphs))]
-            if self.doc_vectors or (self.doc_centroid and paragraphs):
-                expected_vectors.append(sid)
-            if all(self.sub.vector_has_record(rid, scope, ctx, model_id=self.embedder.model_id)
-                   for rid in expected_vectors):
-                return sid
+            with self.sub.ingestion_transaction():
+                # A completed bundle with missing members may reflect a deletion.
+                # Never repair it implicitly by recreating those records on retry.
+                if any(self.sub._lookup_record(record.record_id) is None
+                       for record in [source, *observations]):
+                    raise RecordConflict('completed ingestion is incomplete')
+                self._put_matching(source, ctx)
+                for observation in observations:
+                    self._put_matching(observation, ctx)
+                if self.embedder is None:
+                    return sid
+                # Existing vector rows carry no generation-configuration evidence.
+                # Recompute rather than treating their presence as a matching mode.
 
         # Compute every embedding before writing the job, Source, or Observations. Model
         # load/inference failures therefore cannot leave an apparently successful partial import.
@@ -159,31 +204,29 @@ class Ingestor:
             if self.doc_centroid and paragraph_vectors:
                 source_vector = _centroid(paragraph_vectors)
 
-        self.sub.set_job(sid, "ingest", content_hash, "running", scope=scope, ctx=ctx)
-        try:
-            self.sub.put(Record(
-                record_id=sid, record_type="Source", scope=scope,
-                payload={"text": parsed, "name": name},
-                attribution="document", source_ids=[],
-                provenance={"author": author, "document": name, "content_hash": content_hash},
-            ), ctx)
-        except RecordConflict:
-            pass  # the Source from an interrupted earlier run
-        for i, paragraph in enumerate(paragraphs):
-            oid = f"{sid}-p{i:04d}"
-            try:
-                self.sub.put(Record(
-                    record_id=oid, record_type="Observation", scope=scope,
-                    payload={"text": paragraph}, attribution="document",
-                    source_ids=[sid], provenance={"location": f"paragraph {i + 1}", "document": name},
-                ), ctx)
-            except RecordConflict:
-                pass  # written by an interrupted earlier run
-            if self.embedder is not None:
-                self.sub.vector_put(oid, scope, paragraph_vectors[i], ctx=ctx, model_id=self.embedder.model_id)
-        if self.embedder is not None and source_vector is not None:
-            self.sub.vector_put(sid, scope, source_vector, ctx=ctx, model_id=self.embedder.model_id)
-        self.sub.set_job(sid, "ingest", content_hash, "done", scope=scope, ctx=ctx)
+        with self.sub.ingestion_transaction():
+            # Read completion under the write transaction: another ingestion may
+            # have completed and a member been deleted while embeddings ran.
+            current_state = self.sub.job_state(sid, "ingest", content_hash, scope=scope, ctx=ctx)
+            if (state == "done" or current_state == "done") and any(
+                    self.sub._lookup_record(record.record_id) is None
+                    for record in [source, *observations]):
+                raise RecordConflict('completed ingestion is incomplete')
+            self.sub.set_job(sid, "ingest", content_hash, "running", scope=scope, ctx=ctx)
+            self._put_matching(source, ctx)
+            # A preexisting source vector would contradict this requested mode.
+            # Refuse rather than silently retaining it under the same model ID.
+            if (self.embedder is not None and not self.doc_vectors and not self.doc_centroid
+                    and self.sub.vector_has_record(sid, scope, ctx, model_id=self.embedder.model_id)):
+                raise ValueError('existing source vector conflicts with requested vector mode')
+            for i, observation in enumerate(observations):
+                oid = observation.record_id
+                self._put_matching(observation, ctx)
+                if self.embedder is not None:
+                    self.sub.vector_put(oid, scope, paragraph_vectors[i], ctx=ctx, model_id=self.embedder.model_id)
+            if self.embedder is not None and source_vector is not None:
+                self.sub.vector_put(sid, scope, source_vector, ctx=ctx, model_id=self.embedder.model_id)
+            self.sub.set_job(sid, "ingest", content_hash, "done", scope=scope, ctx=ctx)
         return sid
 
     def ingest_media(self, name: str, data: bytes, kind: str, ctx, scope: str,
@@ -199,8 +242,18 @@ class Ingestor:
             return Rejection(name, "no_adapter_configured")
         content_hash = _digest(data)
         sid = "media-" + hashlib.sha256(f"{scope}\0{content_hash}".encode()).hexdigest()[:24]
-        if self.sub.job_state(sid, "derive", content_hash, scope=scope, ctx=ctx) == "done":
-            return sid
+        stub = Record(record_id=sid, record_type="Source", scope=scope, payload={}, attribution="document")
+        if ctx is None or not self.sub.scope_engine.authorize_write(stub, ctx).allowed:
+            raise ScopeViolation("write not permitted")
+        with self.sub.ingestion_transaction():
+            row = self.sub._conn.execute(
+                "SELECT state FROM jobs WHERE scope=? AND source_id=? AND stage='derive' AND content_hash=?",
+                (scope, sid, content_hash),
+            ).fetchone()
+            # The public job writer and an unkeyed digest cannot attest inference.
+            # Until trusted provenance exists, no completed media job is reusable.
+            if row and row[0] == 'done':
+                raise RecordConflict('completed media reuse is unavailable')
         self.sub.set_job(sid, "derive", content_hash, "running", scope=scope, ctx=ctx)
         try:
             text = adapter(data)
@@ -212,17 +265,37 @@ class Ingestor:
         if not isinstance(text, str) or not text.strip():
             self.sub.set_job(sid, "derive", content_hash, "failed", "empty_output", scope=scope, ctx=ctx)
             return Rejection(name, "empty_output")
-        model = getattr(adapter, "model_id", "unknown")
-        try:
-            self.sub.put(Record(
-                record_id=sid, record_type="Source", scope=scope, payload={"text": text.strip()},
-                attribution="media-derived", source_ids=[],
-                provenance={"machine_derived": True, "model": model, "kind": kind,
-                            "name": name, "content_hash": content_hash},
-            ), ctx)
-        except RecordConflict:
-            pass
+        vector = None
         if self.embedder is not None:
-            self.sub.vector_put(sid, scope, self.embedder.embed_document(text.strip()), ctx=ctx, model_id=self.embedder.model_id)
-        self.sub.set_job(sid, "derive", content_hash, "done", scope=scope, ctx=ctx)
+            try:
+                vector = self.embedder.embed_document(text.strip())
+            except Exception as exc:
+                try:
+                    self.sub.set_job(sid, "derive", content_hash, "failed", "embedding_failed", scope=scope, ctx=ctx)
+                except Exception as job_exc:
+                    exc.add_note(f"Could not record failed job: {job_exc}")
+                raise
+        failure_reason = "persistence_failed"
+        try:
+            with self.sub.ingestion_transaction():
+                model = getattr(adapter, "model_id", "unknown")
+                output = Record(
+                    record_id=sid, record_type="Source", scope=scope, payload={"text": text.strip()},
+                    attribution="media-derived", source_ids=[],
+                    provenance={"machine_derived": True, "model": model, "kind": kind,
+                                "name": name, "content_hash": content_hash},
+                )
+                # Reusing a preexisting output is not proof this adapter produced it.
+                self.sub.put(output, ctx)
+                if self.embedder is not None:
+                    failure_reason = "embedding_failed"
+                    self.sub.vector_put(sid, scope, vector, ctx=ctx, model_id=self.embedder.model_id)
+                    failure_reason = "persistence_failed"
+                self.sub.set_job(sid, "derive", content_hash, "done", 'sha256:' + _record_digest(output), scope=scope, ctx=ctx)
+        except Exception as exc:
+            try:
+                self.sub.set_job(sid, "derive", content_hash, "failed", failure_reason, scope=scope, ctx=ctx)
+            except Exception as job_exc:
+                exc.add_note(f"Could not record failed job: {job_exc}")
+            raise
         return sid

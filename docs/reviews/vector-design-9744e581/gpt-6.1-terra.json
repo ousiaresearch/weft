@@ -1,0 +1,85 @@
+{
+  "frozen_sha256": "9744e5818eae43cd9edfa71956436ac67e39485ba88a822afa5fef197fc3a0ee",
+  "session_id": "local-464e44373687d8619de7e5a785e0a9268d92c8d8309a7498a4fd58b3e8a5a20e",
+  "model": "gpt-6.1-terra",
+  "provider": "openai-codex",
+  "review": {
+    "verdict": "REQUEST_CHANGES",
+    "invariants": [
+      {
+        "id": "I1",
+        "status": "SPECIFIED_NOT_IMPLEMENTED",
+        "evidence": "Round 4 requires caller-independent physical integrity inventory, generic unavailable on corruption, and blocks hybrid recall for mixed visibility. It expressly does not claim hidden-record noninterference."
+      },
+      {
+        "id": "I2",
+        "status": "SPECIFIED_WITH_DEFECT",
+        "evidence": "Round 4 requires validation before intent and permits coordinator-authenticated abort after a confirmed pre-commit rejection, but its allocation and intent ordering is circular."
+      },
+      {
+        "id": "I3",
+        "status": "IMPLEMENTATION_GATE",
+        "evidence": "Genesis, external durable history, crash reconciliation, restore suffix verification, replay, and fresh-lineage import are specified as prerequisites; concrete protocols and durability remain unverified."
+      },
+      {
+        "id": "I4",
+        "status": "IMPLEMENTATION_GATE",
+        "evidence": "Evidence must authenticate the specified identity, input, generation and exact canonical vector-byte fields. Codec, authenticator, key lifecycle and deployed sqlite-vec readback remain gates."
+      },
+      {
+        "id": "I5",
+        "status": "IMPLEMENTATION_GATE",
+        "evidence": "A provisioned profile capability, independent resolver and distinct-identity coordinator must be checked against the intended instance. OS enforcement and capability provisioning remain unverified."
+      },
+      {
+        "id": "I6",
+        "status": "SPECIFIED_WITH_DEFECT",
+        "evidence": "Round 4 enumerates broad mutation classes, but does not require an exhaustive deny-by-default operation catalogue covering the actual authoritative and auxiliary effects."
+      },
+      {
+        "id": "I7",
+        "status": "SPECIFIED_WITH_DEFECT",
+        "evidence": "The exclusive external fence orders mutation and irrevocable handoff, and permits committed-but-undelivered outcomes. The contract does not establish a recoverable caller-known operation identity for outcome queries."
+      },
+      {
+        "id": "I8",
+        "status": "SPECIFIED_NOT_IMPLEMENTED",
+        "evidence": "Rebuild is exclusive and offline; staging is non-queryable, activation is validated, and retired or failed generations cannot reactivate. Owner-crash recovery, retained-data treatment and progress remain implementation gates."
+      }
+    ],
+    "findings": [
+      {
+        "id": "F1",
+        "severity": "HIGH",
+        "section": "Round 4.2–4.3: validation, allocation and operation catalogue",
+        "scenario": "A valid mutation needs a new incarnation or epoch. Round 4.2 says to allocate externally backed non-reused identifiers before appending its intent, while round 4.3 says identity allocation itself requires an externally authenticated intent and finalize or abort. An allocator cannot satisfy both requirements by first allocating and by first logging an allocation intent without an additional primitive. A crash between allocation and the operation intent is also not assigned a recovery state.",
+        "fix": "Define a non-circular durable allocation primitive: for example, atomically append the operation intent and reserve its identifiers in the external authority, or use an explicitly specified pre-existing reservation protocol with its own authenticated history. Specify crash recovery, consumption of abandoned reservations, non-reuse and genesis bootstrap."
+      },
+      {
+        "id": "F2",
+        "severity": "HIGH",
+        "section": "Round 4.3 and 4.6: operation catalogue and authority tables",
+        "scenario": "An implementation introduces a durable FTS, job, audit, cleanup, backup-catalogue or recovery bookkeeping write alongside a listed record operation. The design names broad change classes and demands mediated authority, but does not require a closed, exhaustive mapping from every permitted operation to its complete durable effects, nor explicitly reject an unclassified write. Such a path could escape the external-history and reconciliation rules, or leave auxiliary state inconsistent with the authoritative operation.",
+        "fix": "Require a versioned, exhaustive, deny-by-default catalogue before admission. For each operation, specify authorization, exact authoritative and auxiliary effects, intent and marker binding, allocation, abort, replay and recovery semantics, and whether any derived state is disposable and must be rebuilt. Reject unknown operations or durable effects and test catalogue completeness against every admitted write path."
+      },
+      {
+        "id": "F3",
+        "severity": "HIGH",
+        "section": "Round 4.7: outcome and fence timing",
+        "scenario": "A client submits a non-idempotent operation. The coordinator commits and finalizes it, then crashes before delivering the response. The design tells the client to query an authenticated operation outcome, but does not require an operation identifier known to that client before the uncertain interval or define retry deduplication. If the identifier was only allocated server-side and returned in the lost response, the client cannot reliably distinguish the committed operation from a new attempt.",
+        "fix": "Require a client-known, capability-bound unique request identifier before execution; bind it to the canonical request and durable intent, marker, finalization or abort and outcome. Define authenticated lookup and idempotent retry behavior, including rejection of identifier reuse with different inputs and retention sufficient for recovery. If outcomes cannot be proven, return an explicit unresolved state rather than treating a retry as a new operation."
+      }
+    ],
+    "gate_defeats": [
+      "F1 leaves the mandatory external allocation and write-ahead ordering internally inconsistent.",
+      "F2 leaves the claimed closed mutation boundary insufficiently specified for exhaustive enforcement and recovery.",
+      "F3 leaves the prescribed recovery path unusable for some committed-but-undelivered operations."
+    ],
+    "tests_run": "None. This was a design-only review of the supplied text; no tools, file reads, changes, runtime tests or hash verification were performed.",
+    "scope_limitations": [
+      "The supplied surface and its stated frozen hash were treated as user-provided; the hash was not independently verified.",
+      "No implementation, deployed SQLite or sqlite-vec behavior, external authority, OS fence, client capability, recovery protocol, or operator process was examined or proven.",
+      "Untrusted-principal isolation, hostile same-user resistance, timing noninterference, physical erasure and bounded end-to-end delivery are outside the stated guarantees."
+    ]
+  }
+}

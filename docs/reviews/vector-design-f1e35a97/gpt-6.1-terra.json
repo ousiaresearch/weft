@@ -1,0 +1,83 @@
+{
+  "frozen_sha256": "f1e35a97b56d8294d7a57b2f8f356d41cf87a9c41d5aecf5fe95c7435e1dde7d",
+  "session_id": "local-afa13ac23f10020691bb244b7767300cdabefacc44458c563e7618c0b735ae92",
+  "model": "gpt-6.1-terra",
+  "provider": "openai-codex",
+  "review": {
+    "verdict": "REQUEST_CHANGES",
+    "invariants": [
+      {
+        "id": "provenance",
+        "status": "PARTIAL",
+        "evidence": "Verified writes and per-vector evidence are mandatory, but the recall contract does not explicitly require detection or exclusion of extra vec0 rows before they affect nearest-neighbor selection."
+      },
+      {
+        "id": "writer-disclosure-fence",
+        "status": "SPECIFIED_WITH_IMPLEMENTATION_BLOCKER",
+        "evidence": "Admitted writers acquire the external fence before SQLite writes; disclosure reserves capacity, revalidates under the same fence, and commits to a bounded handoff. Serving is blocked if this cannot be enforced."
+      },
+      {
+        "id": "exact-vector-bytes",
+        "status": "SPECIFIED_WITH_VERIFICATION_GATE",
+        "evidence": "Owned canonical float32 bytes are validated, written with evidence, and checked against actual vec0 readback before eligible vectors contribute to recall. Platform serialization and deployed sqlite-vec behavior remain to be verified."
+      },
+      {
+        "id": "revision-aba",
+        "status": "SPECIFIED_WITH_IMPLEMENTATION_BLOCKER",
+        "evidence": "Record incarnations, mutations and activations require non-reused identities, with external allocator and lineage reconciliation. Uncertainty, including restore or rollback uncertainty, fences the store."
+      },
+      {
+        "id": "model-identity",
+        "status": "SPECIFIED_WITH_IMPLEMENTATION_BLOCKER",
+        "evidence": "Trusted document and query factories bind to the verified generation and separately specified compatible contracts. Snapshot immutability and runtime identity must hold throughout model lifetime or the affected path stops."
+      },
+      {
+        "id": "profile-binding",
+        "status": "SPECIFIED_WITH_IMPLEMENTATION_BLOCKER",
+        "evidence": "An independent protected authority supplies the expected profile and instance binding; same-named scopes and copied database metadata are insufficient."
+      },
+      {
+        "id": "offline-rebuild-crash",
+        "status": "SPECIFIED_WITH_VERIFICATION_GATE",
+        "evidence": "Rebuild is exclusively offline, staging is non-queryable, activation is transactional after inventory and validation, and crashes require fenced inspection and explicit recovery. Power-loss guarantees are not assumed."
+      },
+      {
+        "id": "freshness-deletion-recovery",
+        "status": "SPECIFIED_WITH_IMPLEMENTATION_BLOCKER",
+        "evidence": "A protected external monotonic lineage/effect watermark and allocator high-water mark are reconciled on every open, mutation and disclosure. Missing or unprovable state blocks service; crash windows and replay remain to be defined."
+      },
+      {
+        "id": "old-binary-fencing",
+        "status": "SPECIFIED_WITH_IMPLEMENTATION_BLOCKER",
+        "evidence": "Both fresh stores and migrations require an enforced boundary tested against actual old binaries and direct opens. A version marker or SQLite lock alone is insufficient."
+      },
+      {
+        "id": "scope-boundaries",
+        "status": "SPECIFIED",
+        "evidence": "The proposal is limited to trusted-local per-profile alpha, excludes hostile privileged same-user access, retains separate untrusted-service gates, and distinguishes logical deletion from physical erasure."
+      }
+    ],
+    "findings": [
+      {
+        "id": "F1",
+        "severity": "HIGH",
+        "section": "Round 2: exact vector evidence and per-query validation",
+        "scenario": "A vec0 table contains an extra row with no corresponding eligible record or valid evidence, due to a defective admitted mutation, recovery, or extension behavior. Its vector ranks above legitimate rows. Validating evidence and bytes for every eligible record does not necessarily inspect the extra row, and a top-k vec0 search can let it displace a legitimate result before post-search candidate validation. The orphan has therefore influenced recall despite not being an authorized evidenced vector. Activation inventory alone does not establish that the invariant still holds at every later recall.",
+        "fix": "Require, in the same coherent recall snapshot, a complete collision-free bijection between physical vec0 rows and the authoritative set of vector-bearing records and evidence, including rejection of orphan, duplicate, missing, wrong-scope and ineligible rows; alternatively prove that the search operates only over the fully validated eligible set before ranking and limiting. Add regressions where an unevidenced or ineligible row ranks above valid rows and verify fail-closed behavior or provably unaffected results."
+      }
+    ],
+    "gate_defeats": [
+      {
+        "finding_id": "F1",
+        "invariant": "Only authorized, evidenced vectors may influence recall.",
+        "mechanism": "An extra physical vector can affect top-k selection even when all eligible records pass their individual evidence checks."
+      }
+    ],
+    "tests_run": "None. Design review only; no tools, file reads, code execution, or changes. The supplied SHA-256 was not independently verified.",
+    "scope_limitations": [
+      "The review is limited to the appended proposed contract, with round 2 superseding conflicting earlier text.",
+      "Findings identify design gaps, not verified defects in an implementation.",
+      "Named fences, authority stores, sqlite-vec semantics, crash recovery, and acceptance tests remain unimplemented or unverified gates as stated in the proposal."
+    ]
+  }
+}
