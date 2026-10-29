@@ -7,6 +7,7 @@ reasoning functions and reports per-case pass/fail plus aggregate metrics.
 from __future__ import annotations
 
 import json
+import re
 import time
 from pathlib import Path
 
@@ -21,8 +22,8 @@ from weft.reasoning import (
     hypothesize,
     synthesize,
 )
+from weft.scope import ScopeEngine, ScopeContext
 from weft.substrate import Record, Substrate
-from weft.scope import ScopeContext, ScopeEngine
 
 
 KNOWN = {"s", "t"}
@@ -167,7 +168,7 @@ def _fake_model(case_id: str):
     responses = {
         "E1": "The lighthouse was decommissioned in 1987 [src-1].",
         "E2": "stub",  # Abstention raised before model call when no evidence
-        "E3": "[{\"claim_id\": \"claim-1\", \"conflict_with\": \"obs-2\", \"reason\": \"opposite\"}]",
+        "E3": '[{"claim_id": "claim-1", "conflict_with": "obs-2", "reason": "opposite"}]',
         "E4": "The lighthouse status is public [src-1].",
         "E5": "stub",  # Abstention expected due to content_conflict
         "E6": "The corrected fuel capacity is 450L [obs-1] [corr-1].",
@@ -178,6 +179,10 @@ def _fake_model(case_id: str):
         def __call__(self, prompt):
             return text
     return FakeModel()
+
+
+def _extract_citations(text: str) -> list[str]:
+    return re.findall(r"\[(\w+(?:-\w+)*)\]", text)
 
 
 @pytest.fixture(scope="module")
@@ -206,12 +211,14 @@ class TestPhase7Evaluation:
                 assert "src-t-1" not in evidence_ids, f"{case['case_id']}: scope leak"
 
                 answer = synthesize(sub, ctx, case["query"], layer)
-                assert "1987" in answer, f"{case['case_id']}: answer={answer}"
-                assert "src-1" in answer, f"{case['case_id']}: answer={answer}"
+                citations = _extract_citations(answer)
 
-                # Validate against parsed gold fields.
-                assert "1987" in case["gold_answer"]
-                assert "src-1" in case["gold_citations"]
+                # Compare against parsed gold fields.
+                for token in case["gold_answer"].split():
+                    if token.lower() not in ["insufficient", "evidence", "conflicting"]:
+                        assert token in answer, f"{case['case_id']}: gold token '{token}' missing from answer '{answer}'"
+                for cid in case["gold_citations"]:
+                    assert cid in citations, f"{case['case_id']}: gold citation {cid} missing from {citations}"
 
             elif case["case_id"] == "E2":
                 assert case["abstain"] is True
@@ -232,11 +239,10 @@ class TestPhase7Evaluation:
                 )
                 sub.put(claim, ctx)
                 conflicts = contradict(sub, ctx, claim, layer)
-                assert len(conflicts) >= 1, f"{case['case_id']}: expected conflicts"
-                assert any(c.conflict_with == "obs-2" for c in conflicts)
-
-                assert "obs-1" in case["gold_citations"]
-                assert "obs-2" in case["gold_citations"]
+                conflict_ids = [c.conflict_with for c in conflicts]
+                for cid in case["gold_citations"]:
+                    if cid != "obs-1":
+                        assert cid in conflict_ids, f"{case['case_id']}: gold citation {cid} missing from conflicts {conflict_ids}"
 
             elif case["case_id"] == "E4":
                 # Directly assert retrieval does not include out-of-scope records.
@@ -246,20 +252,33 @@ class TestPhase7Evaluation:
                 assert "src-t-1" not in evidence_ids, f"{case['case_id']}: cross-scope leak"
 
                 answer = synthesize(sub, ctx, case["query"], layer)
-                assert "src-t-1" not in answer, f"{case['case_id']}: cross-scope leak"
+                citations = _extract_citations(answer)
+                assert "src-t-1" not in citations, f"{case['case_id']}: cross-scope leak"
                 assert "12M" not in answer, f"{case['case_id']}: cross-scope leak"
 
-                assert "src-1" in case["gold_citations"]
+                for cid in case["gold_citations"]:
+                    assert cid in citations, f"{case['case_id']}: gold citation {cid} missing from {citations}"
 
             elif case["case_id"] == "E5":
-                # Verify the record exists in the substrate but is denied by content_conflict.
+                # Verify the record exists in the substrate.
                 raw_rec = sub._conn.execute("SELECT * FROM records WHERE record_id = 'doc-1'").fetchone()
                 assert raw_rec is not None, "doc-1 must exist in substrate"
                 rec = Record.from_row(raw_rec)
                 assert rec.scope == "s"
-                assert _authorize_read(sub, ctx, rec) is not None
 
-                # The scope engine should deny this record due to content_conflict.
+                # Prove content_conflict specifically denies this record.
+                conflict_reason = sub.scope_engine.content_conflict(rec.scope, _safe_text(rec))
+                assert conflict_reason is not None, f"{case['case_id']}: expected content_conflict denial"
+                assert "content is bound to a different scope" in conflict_reason
+
+                # authorize_read should deny for the same content-conflict reason.
+                decision = sub.scope_engine.authorize_read(rec.scope, ctx, sub.scope_engine._payload_text(rec))
+                assert decision.allowed is False, f"{case['case_id']}: expected read denial"
+                assert conflict_reason in decision.reason, (
+                    f"{case['case_id']}: denial reason '{decision.reason}' does not match content_conflict '{conflict_reason}'"
+                )
+
+                # Synthesis must abstain.
                 with pytest.raises(Abstention):
                     synthesize(sub, ctx, case["query"], layer)
 
@@ -267,12 +286,12 @@ class TestPhase7Evaluation:
 
             elif case["case_id"] == "E6":
                 answer = synthesize(sub, ctx, case["query"], layer)
-                assert "450L" in answer, f"{case['case_id']}: answer={answer}"
-                assert "obs-1" in answer, f"{case['case_id']}: answer={answer}"
-                assert "corr-1" in answer, f"{case['case_id']}: answer={answer}"
+                citations = _extract_citations(answer)
 
-                assert "obs-1" in case["gold_citations"]
-                assert "corr-1" in case["gold_citations"]
+                assert "450L" in answer, f"{case['case_id']}: answer={answer}"
+                assert "corrected" in answer.lower() or "correction" in answer.lower(), f"{case['case_id']}: correction missing from answer '{answer}'"
+                for cid in case["gold_citations"]:
+                    assert cid in citations, f"{case['case_id']}: gold citation {cid} missing from {citations}"
 
             else:
                 pytest.fail(f"Unknown case: {case['case_id']}")
