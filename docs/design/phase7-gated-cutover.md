@@ -1,7 +1,7 @@
 # Phase 7 — Gated Cutover Checklist
 
 **Plan:** `~/.hermes/plans/2026-10-24_weft-memory-system-full-plan.md`
-**Current HEAD:** `e22f64b` (Phase 7 checklist final cleanup)
+**Current HEAD:** `22a3de6` (Phase 7 alpha artifacts: checklist, build script, changelog)
 
 ## Gates
 
@@ -42,6 +42,6 @@ Each gate must be PASS before the next is attempted.
 
 ## Next Actions
 
-1. Run adversarial review on Phase 7 additions (evaluation runner, deletion export-purge test, crash-recovery integration test).
-2. Update plan document to mark Phase 7 gates 2-4 as PASS once review clears.
-3. Prepare alpha distribution artifacts (LICENSE notice, install docs, container/build script).
+1. Verify G1–G10 on a clean checkout.
+2. Tag `v0.1.0a0` and push to origin.
+3. Create GitHub release with wheel and install instructions.

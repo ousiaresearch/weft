@@ -26,11 +26,10 @@ Each gate must be verified before the alpha tag is cut.
 - Install docs: `docs/local-cli.md`
 - Operational requirements: `docs/operational-requirements.md`
 - Provenance: `docs/clean-room-provenance.md`
-- Changelog: `CHANGELOG.md` (to be created)
+- Changelog: `CHANGELOG.md`
 
 ## Next actions
 
 1. Verify G1–G10 on a clean checkout.
-2. Create `CHANGELOG.md` from commit history.
-3. Tag `v0.1.0a0` and push to origin.
-4. Create GitHub release with wheel and install instructions.
+2. Tag `v0.1.0a0` and push to origin.
+3. Create GitHub release with wheel and install instructions.
