@@ -60,7 +60,7 @@ This set exercises the Weft reasoning loop against a closed, deterministic groun
 **Scope:** s
 **Input:** Record `doc-1` is filed in scope `s` but contains a marker registered to scope `t` ("project Alpha").
 **Query:** "What does Phase 6 include?"
-**Gold answer:** "content is bound to a different scope"
+**Gold answer:** "no scoped evidence available for synthesis"
 **Gold citations:** `[]`
 **Abstain:** Yes
 

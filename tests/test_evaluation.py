@@ -292,9 +292,9 @@ class TestPhase7Evaluation:
                 with pytest.raises(Abstention):
                     synthesize(sub, ctx, case["query"], layer)
 
-                # E5 gold answer is the content_conflict reason; synthesis abstains
-                # because that record is excluded from evidence.
-                assert case["gold_answer"] == conflict_reason
+                # E5 gold answer is the synthesis abstention reason when content_conflict
+                # excludes the only candidate record.
+                assert case["gold_answer"] == "no scoped evidence available for synthesis"
                 assert case["abstain"] is True
 
             elif case["case_id"] == "E6":
