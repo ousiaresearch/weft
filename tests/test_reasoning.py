@@ -85,8 +85,11 @@ def test_contradict_returns_conflicts(sub):
             return json.dumps([{"claim_id": "c1", "conflict_with": "r1", "reason": "opposite"}])
     layer = ModelLayer(local_factory=lambda _: FakeModel())
     sub_obj, ctx = sub
+    src = Record(record_id="r1", record_type="Source", scope="s", payload={"text": "claim text evidence"}, attribution="document", source_ids=[])
     claim = Record(record_id="c1", record_type="Claim", scope="s", payload={"text": "claim text"}, attribution="agent", source_ids=["r1"], epistemic_status="derived")
+    sub_obj.put(src, ctx)
     sub_obj.put(claim, ctx)
+    sub_obj.rebuild_fts("s", ctx)
     conflicts = contradict(sub_obj, ctx, claim, layer)
     assert len(conflicts) == 1
     assert conflicts[0].conflict_with == "r1"
@@ -105,6 +108,7 @@ def test_contradict_requires_derived_claim(sub):
 def test_conclude_promotes_hypothesis_without_write(sub):
     layer = ModelLayer()
     sub_obj, ctx = sub
+    sub_obj.put(Record(record_id="r1", record_type="Source", scope="s", payload={"text": "src"}, attribution="document", source_ids=[]), ctx)
     claim = Record(record_id="c1", record_type="Hypothesis", scope="s", payload={"text": "hyp"}, attribution="agent", source_ids=["r1"], epistemic_status="derived")
     sub_obj.put(claim, ctx)
     concluded = conclude(sub_obj, ctx, claim, layer, allow_write=False)
@@ -214,7 +218,7 @@ def test_hypothesize_rejects_unreadable_evidence(sub_with_other):
     layer = ModelLayer(local_factory=lambda _: FakeModel())
     sub_obj, read_ctx = sub_with_other
     bad_evidence = [Record(record_id="x", record_type="Source", scope="other", payload={"text": "p"}, attribution="document", source_ids=[])]
-    with pytest.raises(ReasoningError, match="evidence record .* not readable"):
+    with pytest.raises(ReasoningError, match="evidence records not found or not readable"):
         hypothesize(sub_obj, read_ctx, "q", layer, evidence=bad_evidence)
 
 
@@ -239,6 +243,7 @@ def test_contradict_raises_abstention_on_malformed_json(sub):
     sub_obj, ctx = sub
     claim = Record(record_id="c1", record_type="Claim", scope="s", payload={"text": "x"}, attribution="agent", source_ids=["r1"], epistemic_status="derived")
     sub_obj.put(claim, ctx)
+    sub_obj.rebuild_fts("s", ctx)
     with pytest.raises(Abstention, match="invalid JSON"):
         contradict(sub_obj, ctx, claim, layer)
 
