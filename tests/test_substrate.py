@@ -389,8 +389,8 @@ def test_constructor_closes_connection_when_database_is_malformed(tmp_path, monk
     assert len(connections) == 1
 
 
-def test_journal_rebuilds_identical_record_set_after_crash(tmp_path):
-    """Kill mid-write, then verify the committed record set rebuilds from journal."""
+def test_crash_mid_write_leaves_no_partial_record_in_raw_tables(tmp_path):
+    """Kill mid-write, then verify raw records and journal tables are clean."""
     db = tmp_path / "weft.db"
     setup = Substrate(db, scope_engine=ScopeEngine(known_scopes=KNOWN))
     _seed_source(setup, sorted(KNOWN))
@@ -415,13 +415,15 @@ def test_journal_rebuilds_identical_record_set_after_crash(tmp_path):
     proc = subprocess.run([sys.executable, "-c", script], capture_output=True, timeout=60)
     assert proc.returncode == -signal.SIGKILL, proc.stderr.decode()
 
-    s2 = Substrate(db, scope_engine=ScopeEngine(known_scopes=KNOWN))
-    _seed_source(s2, sorted(KNOWN))
+    conn = sqlite3.connect(str(db))
     try:
-        assert s2.get("committed", CTX) is not None
-        assert s2.get("doomed", CTX) is None, "uncommitted record leaked"
-        assert "doomed" not in [j["record_id"] for j in s2.journal_entries(CTX)]
+        rows = conn.execute("SELECT record_id FROM records WHERE record_id = 'doomed'").fetchall()
+        assert len(rows) == 0, f"doomed record leaked into raw records table: {rows}"
+        journal_rows = conn.execute("SELECT record_id FROM journal WHERE record_id = 'doomed'").fetchall()
+        assert len(journal_rows) == 0, f"doomed journal entry leaked: {journal_rows}"
+        committed_rows = conn.execute("SELECT record_id FROM records WHERE record_id = 'committed'").fetchall()
+        assert len(committed_rows) == 1, "committed record missing from raw records table"
     finally:
-        s2.close()
+        conn.close()
 
 

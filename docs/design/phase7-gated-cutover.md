@@ -15,10 +15,10 @@ Each gate must be PASS before the next is attempted.
 2. **Grounded reasoning measured**
    - **PASS:** Evaluation set v1 committed (`docs/evaluation/set-v1.md`) with Phase 7 runner (`tests/test_evaluation.py`). Runner invokes actual `synthesize`, `contradict`, and `hypothesize` functions with fake model layer; validates gold answers, citation presence, and abstention behavior. E4 directly asserts retrieval excludes out-of-scope records. E5 verifies content_conflict denial. All 6 cases pass: grounded synthesis, abstention, contradiction detection, cross-scope leak, content-conflict denial, correction lineage.
    - **Artifacts:** `docs/evaluation/set-v1.md`, `tests/test_evaluation.py`
-   - **Evidence:** 7 evaluation tests passing.
+   - **Evidence:** 7 evaluation tests passing. Runner invokes `synthesize` and `contradict`; validates gold answer tokens, citation presence, retrieval contents, and content_conflict denial.
 
 3. **Crash recovery verified**
-   - **PASS:** Added `test_journal_rebuilds_identical_record_set_after_crash` (kill-mid-write via SIGKILL, verify uncommitted record absent from both records table and journal).
+   - **PASS:** Added `test_crash_mid_write_leaves_no_partial_record_in_raw_tables` (kill-mid-write via SIGKILL, verify uncommitted record absent from raw records and journal tables via direct SQL).
    - **Artifacts:** `tests/test_substrate.py`
    - **Evidence:** 429 tests passing.
 
