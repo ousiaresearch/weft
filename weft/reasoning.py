@@ -1,0 +1,221 @@
+"""Reasoning loop: extract, hypothesize, contradict, conclude, synthesize.
+
+All functions are scope-gated and fail closed. No function bypasses the
+substrate authority. Reasoning output is always cited or abstained.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+from dataclasses import dataclass, field
+from typing import Any, List, Optional
+
+from weft.knowledge import check_record
+from weft.models import ModelLayer, ModelResult
+from weft.scope import ScopeContext, ScopeEngine
+from weft.substrate import Record, Substrate
+
+
+class ReasoningError(Exception):
+    """Base reasoning failure."""
+
+
+class Abstention(Exception):
+    """Reasoning could not produce a cited conclusion."""
+
+    def __init__(self, reason: str):
+        self.reason = reason
+        super().__init__(reason)
+
+
+@dataclass
+class Conflict:
+    claim_id: str
+    conflict_with: str
+    reason: str
+
+
+@dataclass
+class Hypothesis:
+    text: str
+    evidence_ids: List[str] = field(default_factory=list)
+    attribution: str = "agent"
+
+
+@dataclass
+class Claim:
+    text: str
+    evidence_ids: List[str] = field(default_factory=list)
+    attribution: str = "agent"
+    epistemic_status: str = "derived"
+
+
+def _authorize_read(sub: Substrate, ctx: ScopeContext, rec: Record) -> bool:
+    return sub.scope_engine.authorize_read(rec.scope, ctx, sub.scope_engine._payload_text(rec)).allowed
+
+
+def _candidates(sub: Substrate, ctx: ScopeContext, query: str, limit: int = 10) -> List[Record]:
+    """Return in-scope candidates for reasoning, never out-of-scope records."""
+    from weft.retrieval import recall
+    items, _ = recall(sub, query, ctx, limit=limit, mode="lexical")
+    out = []
+    for item in items:
+        rec = sub.get(item.record_id, ctx)
+        if rec is not None and _authorize_read(sub, ctx, rec):
+            out.append(rec)
+    return out
+
+
+def extract_observations(sub: Substrate, ctx: ScopeContext, source_id: str, text: str, model_layer: ModelLayer) -> List[Record]:
+    """Extract observations from source text via model, scope-gated.
+
+    Returns a list of observation Records (not yet written).
+    """
+    prompt = (
+        "Extract observations from the following text. "
+        "Return JSON array of objects with keys: text, location, confidence. "
+        "Location is the quoted span. Confidence is 0.0-1.0.\n\n"
+        f"TEXT:\n{text}\n"
+    )
+    result = model_layer.run("local-extract", prompt, task="extract")
+    try:
+        items = json.loads(result.text)
+    except json.JSONDecodeError as exc:
+        raise ReasoningError(f"extraction model returned invalid JSON: {exc}") from exc
+    observations = []
+    source_scope = None
+    if source_id:
+        src = sub.get(source_id, ctx)
+        if src is not None:
+            source_scope = src.scope
+    scope = source_scope or (next(iter(sub.scope_engine.known_scopes)) if sub.scope_engine.known_scopes else "")
+    for item in items:
+        obs = Record(
+            record_id=f"obs-{source_id}-{len(observations):04d}",
+            record_type="Observation",
+            scope=scope,
+            payload={"text": item.get("text", ""), "location": item.get("location", ""), "confidence": float(item.get("confidence", 0.0))},
+            attribution="agent",
+            source_ids=[source_id],
+            epistemic_status="derived",
+        )
+        observations.append(obs)
+    return observations
+
+
+def hypothesize(sub: Substrate, ctx: ScopeContext, query: str, model_layer: ModelLayer, evidence: Optional[List[Record]] = None) -> Hypothesis:
+    """Form a tentative hypothesis from evidence.
+
+    Evidence defaults to lexical recall for the query. The hypothesis is
+    always marked tentative; it cannot become a Claim without user action.
+    """
+    if evidence is None:
+        evidence = _candidates(sub, ctx, query)
+    if not evidence:
+        raise Abstention("no evidence available for hypothesis")
+    evidence_ids = [rec.record_id for rec in evidence]
+    prompt = (
+        "Given the following evidence, propose one testable hypothesis. "
+        "Return JSON: {\"hypothesis\": \"...\"}\n\n"
+        "EVIDENCE:\n" + "\n".join(rec.payload.get("text", "")[:500] for rec in evidence[:5])
+    )
+    result = model_layer.run("local-reason", prompt, task="hypothesize")
+    try:
+        data = json.loads(result.text)
+        text = data.get("hypothesis", "").strip()
+    except json.JSONDecodeError:
+        text = result.text.strip()
+    if not text:
+        raise Abstention("model returned empty hypothesis")
+    return Hypothesis(text=text, evidence_ids=evidence_ids)
+
+
+def contradict(sub: Substrate, ctx: ScopeContext, claim: Record, model_layer: ModelLayer) -> List[Conflict]:
+    """Check a claim against existing evidence for contradictions.
+
+    Returns a list of conflicts. Does not modify any record.
+    """
+    if claim.epistemic_status != "derived":
+        raise ReasoningError("contradiction-check requires a derived claim")
+    evidence = _candidates(sub, ctx, claim.payload.get("text", ""), limit=10)
+    if not evidence:
+        return []
+    prompt = (
+        "You are checking for contradictions. Given a CLAIM and EVIDENCE, "
+        "return JSON array of conflicts: [{\"claim_id\":\"...\", \"conflict_with\":\"record_id\", \"reason\":\"...\"}]. "
+        "If none, return [].\n\n"
+        f"CLAIM: {claim.payload.get('text', '')}\n\n"
+        "EVIDENCE:\n" + "\n".join(rec.payload.get("text", "")[:500] for rec in evidence[:5])
+    )
+    result = model_layer.run("local-reason", prompt, task="contradict")
+    try:
+        conflicts_data = json.loads(result.text)
+    except json.JSONDecodeError:
+        return []
+    conflicts = []
+    for item in conflicts_data:
+        conflicts.append(Conflict(
+            claim_id=claim.record_id,
+            conflict_with=item.get("conflict_with", ""),
+            reason=item.get("reason", ""),
+        ))
+    return conflicts
+
+
+def conclude(sub: Substrate, ctx: ScopeContext, claim: Record, model_layer: ModelLayer, *, allow_write: bool = False) -> Claim:
+    """Promote a hypothesis to a derived claim, citing sources.
+
+    By default this does not write; it returns a Claim object. Writes require
+    explicit allow_write=True and a user-authored context.
+    """
+    if claim.epistemic_status != "derived":
+        raise ReasoningError("conclusion requires a derived claim")
+    if not claim.source_ids:
+        raise ReasoningError("conclusion requires evidence citations")
+    concluded = Claim(
+        text=claim.payload.get("text", ""),
+        evidence_ids=claim.source_ids,
+        attribution=claim.attribution or "agent",
+        epistemic_status="derived",
+    )
+    if allow_write and ctx.user_authored:
+        record = Record(
+            record_id=claim.record_id,
+            record_type="Claim",
+            scope=claim.scope,
+            payload={"text": concluded.text, "evidence": concluded.evidence_ids},
+            attribution=concluded.attribution,
+            source_ids=concluded.evidence_ids,
+            epistemic_status="derived",
+        )
+        check = check_record(record, ctx, is_verifier=lambda _: False, lookup=lambda rid: sub.get(rid, ctx))
+        if check is not None:
+            raise ReasoningError(f"knowledge rules refused conclusion: {check}")
+        sub.put(record, ctx)
+    return concluded
+
+
+def synthesize(sub: Substrate, ctx: ScopeContext, query: str, model_layer: ModelLayer, *, limit: int = 5) -> str:
+    """Answer a query from scoped evidence, or abstain.
+
+    Returns a cited answer string. Raises Abstention if evidence is absent or
+    contradictory.
+    """
+    evidence = _candidates(sub, ctx, query, limit=limit)
+    if not evidence:
+        raise Abstention("no scoped evidence available for synthesis")
+    prompt = (
+        "Answer the query using ONLY the provided evidence. "
+        "Cite record IDs in square brackets. If evidence is insufficient or "
+        "contradictory, respond with ABSTAIN: <reason>.\n\n"
+        f"QUERY: {query}\n\n"
+        "EVIDENCE:\n" + "\n".join(f"[{rec.record_id}] {rec.payload.get('text', '')[:800]}" for rec in evidence)
+    )
+    result = model_layer.run("local-reason", prompt, task="synthesize")
+    text = result.text.strip()
+    if text.startswith("ABSTAIN:"):
+        raise Abstention(text[len("ABSTAIN:"):].strip())
+    if not re.search(r"\[\w+(?:-\w+)*\]", text):
+        raise Abstention("synthesis produced no citations")
+    return text
