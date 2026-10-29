@@ -21,7 +21,7 @@
 6. `docs/security-audit-alpha.md` — alpha security audit
 
 **Gates:**
-- G1: Wheel metadata valid and installs cleanly in fresh venv.
+- G1: Wheel builds, metadata valid, and installs cleanly in fresh venv.
 - G2: Security audit cleared pending independent adversarial review.
 - G3: PyPI runbook reviewed.
 - G4: Install/uninstall regression passing.

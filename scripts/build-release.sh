@@ -52,6 +52,13 @@ echo "==> Building wheel"
 echo "==> Verifying wheel"
 ls -lh dist/*.whl
 
+echo "==> Checking wheel metadata"
+if ! "${PYTHON_BIN}" -m pip install --quiet twine 2>/dev/null; then
+  echo "Warning: could not install twine; skipping metadata check" >&2
+else
+  twine check dist/*.whl
+fi
+
 echo "==> Installing wheel in fresh venv"
 VERIFY_VENV="$(mktemp -d -t weft-alpha-verify-XXXXXXXXXX)"
 umask 0077
