@@ -262,7 +262,12 @@ class Substrate:
             raise sqlite3.OperationalError("ingestion transaction was rolled back")
         if own:
             self._conn.execute("BEGIN IMMEDIATE")
-        self._conn.execute(f"SAVEPOINT {name}")
+        try:
+            self._conn.execute(f"SAVEPOINT {name}")
+        except Exception:
+            if own:
+                self._rollback_if_open()
+            raise
         return own
 
     def _finish_write(self, name: str, own: bool) -> None:
@@ -765,16 +770,24 @@ class Substrate:
             return []
         out = []
         with self._lock:
-            rows = self._conn.execute(
-                "SELECT record_id FROM fts WHERE fts MATCH ? ORDER BY bm25(fts)",
-                (match,),
-            ).fetchall()
+            if scopes is not None:
+                placeholders = ",".join("?" * len(scopes))
+                rows = self._conn.execute(
+                    f"SELECT fts.record_id FROM fts "
+                    f"JOIN records ON records.record_id = fts.record_id "
+                    f"WHERE fts MATCH ? AND records.scope IN ({placeholders}) "
+                    f"ORDER BY bm25(fts)",
+                    (match, *scopes),
+                ).fetchall()
+            else:
+                rows = self._conn.execute(
+                    "SELECT record_id FROM fts WHERE fts MATCH ? ORDER BY bm25(fts)",
+                    (match,),
+                ).fetchall()
             for (rid,) in rows:
                 rec = self._source_or_record(rid)
                 if rec is None:
                     continue
-                if scopes is not None and rec.scope not in scopes:
-                    continue  # N-P3-1: the caller's narrowing applies to candidates
                 if self.scope_engine.authorize_read(rec.scope, ctx, self.scope_engine._payload_text(rec)).allowed:
                     out.append(rid)
                     if len(out) >= limit:

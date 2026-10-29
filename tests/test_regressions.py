@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pytest
 
+from weft.retrieval import recall
 from weft.scope import ScopeContext, ScopeEngine
 from weft.substrate import Record, RecordConflict, ScopeViolation, SchemaViolation, Substrate
 
@@ -684,3 +685,73 @@ def test_F_E_projection_directory_is_owner_only(sub, tmp_path):
     out = tmp_path / "proj"
     sub.write_projection(out, MEM_ONLY)
     assert (os.stat(out).st_mode & 0o077) == 0
+
+
+class _FakeConn:
+    def __init__(self):
+        self.in_txn = False
+        self.stmts = []
+
+    def execute(self, sql, *args, **kwargs):
+        self.stmts.append(sql)
+        if "BEGIN IMMEDIATE" in sql:
+            self.in_txn = True
+        if "ROLLBACK" in sql:
+            self.in_txn = False
+        if "COMMIT" in sql:
+            self.in_txn = False
+        if "SAVEPOINT" in sql:
+            raise sqlite3.OperationalError("not authorized")
+
+    def close(self):
+        pass
+
+    @property
+    def in_transaction(self):
+        return self.in_txn
+
+
+# TX-1: a failed SAVEPOINT after BEGIN IMMEDIATE must not leave an open transaction.
+def test_TX_1_failed_savepoint_rolls_back_open_transaction(tmp_path):
+    engine = ScopeEngine(known_scopes={"s"})
+    ctx = ScopeContext(granted_scopes=frozenset({"s"}), user_authored=True, actor="local-user")
+    sub = Substrate(tmp_path / "db", engine)
+    try:
+        sub._conn = _FakeConn()
+        with pytest.raises(sqlite3.OperationalError):
+            sub._begin_write("tx")
+        assert not sub._conn.in_transaction
+    finally:
+        sub.close()
+
+
+# SCOPE-1: out-of-scope records must not enter FTS ranking before exclusion.
+def test_SCOPE_1_fts_ranks_only_permitted_scopes(tmp_path):
+    sub = Substrate(tmp_path / "db", ScopeEngine(known_scopes={"a", "b"}))
+    try:
+        ctx_a = ScopeContext(granted_scopes=frozenset({"a"}), user_authored=True, actor="local-user")
+        ctx_b = ScopeContext(granted_scopes=frozenset({"b"}), user_authored=True, actor="local-user")
+        sub.put(Record(record_id="r1", record_type="Source", scope="a", payload={"text": "alpha secret"}, attribution="document", source_ids=[]), ctx_a)
+        sub.put(Record(record_id="r2", record_type="Source", scope="b", payload={"text": "beta hidden"}, attribution="document", source_ids=[]), ctx_b)
+        sub.rebuild_fts("a", ctx_a)
+        sub.rebuild_fts("b", ctx_b)
+        candidates = sub.fts_candidates("secret", ctx_a, limit=10, scopes=["a"])
+        assert "r2" not in candidates
+        assert "r1" in candidates
+    finally:
+        sub.close()
+
+
+# INJ-1: Summary and RecallReceipt must not be returned as recall items.
+def test_INJ_1_composite_artifacts_excluded_from_recall(tmp_path):
+    sub = Substrate(tmp_path / "db", ScopeEngine(known_scopes={"s"}))
+    try:
+        ctx_s = ScopeContext(granted_scopes=frozenset({"s"}), user_authored=True, actor="local-user")
+        sub.put(Record(record_id="sum", record_type="Summary", scope="s", payload={"text": "composite nebula"}, attribution="system", source_ids=[], epistemic_status="derived"), ctx_s)
+        sub.put(Record(record_id="src", record_type="Source", scope="s", payload={"text": "composite nebula origin"}, attribution="document", source_ids=[]), ctx_s)
+        sub.rebuild_fts("s", ctx_s)
+        items, receipt = recall(sub, "composite nebula", ctx_s, scope_hint="s", limit=10, mode="lexical")
+        assert all(item.record_id != "sum" for item in items)
+        assert any(item.record_id == "src" for item in items)
+    finally:
+        sub.close()

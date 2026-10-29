@@ -136,6 +136,9 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
             if rec is None:
                 receipt.exclusions.append("withheld by content rule")
                 continue
+            if rec.record_type in ("Summary", "RecallReceipt"):
+                receipt.exclusions.append("composite artifact")
+                continue
             document = rec.provenance.get("document") if isinstance(rec.provenance, dict) else None
             key = document if document else f"record:{rid}"
             if key in seen_documents:
