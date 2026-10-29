@@ -64,7 +64,7 @@ _INJECTION_PATTERNS = [
     # Line-start instruction patterns.
     re.compile(r"(?i)^\s*(ignore|you are|your task|answer:|abstain:|system:|user:|assistant:).*$", re.MULTILINE),
     # Mid-line instruction keywords and phrases.
-    re.compile(r"(?i)\b(ignore all|ignore previous|disregard all|disregard previous|forget all|you are a|your task is|act as system|system:|user:|assistant:|answer:).*", re.MULTILINE),
+    re.compile(r"(?i)\b(ignore all|ignore previous|disregard all|disregard prior|disregard previous|forget all|forget previous|you are a|your task is|act as the|act as system|system:|user:|assistant:|answer:).*", re.MULTILINE),
     # XML delimiter tags (with optional whitespace before >).
     re.compile(r"</?UNTRUSTED_DOCUMENT\s*>", re.IGNORECASE),
 ]
@@ -183,7 +183,7 @@ def hypothesize(sub: Substrate, ctx: ScopeContext, query: str, model_layer: Mode
     try:
         data = json.loads(result.text)
     except json.JSONDecodeError as exc:
-        raise ReasoningError(f"hypothesis model returned invalid JSON: {exc}") from exc
+        raise Abstention(f"hypothesis model returned invalid JSON: {exc}") from exc
     if not isinstance(data, dict):
         raise Abstention("model returned non-object JSON for hypothesis")
     text = data.get("hypothesis", "")
