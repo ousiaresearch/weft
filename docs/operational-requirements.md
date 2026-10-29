@@ -31,3 +31,21 @@ Default local model root: `~/.cache/huggingface/hub/`. The CLI does not delete o
 - Recall limit: 1–100 per invocation.
 - No hard cap on total records. Practical limit is SQLite performance with FTS5 and sqlite-vec on the host hardware.
 - Ingestion is idempotent by `(source_id, content_hash)`. Re-ingesting the same content is a no-op.
+
+## Resource limits (commercial release baseline)
+
+| Resource | Minimum | Recommended | Notes |
+|---|---|---|---|
+| Disk | 4 GB free | 16 GB free | 1 GB corpus + models + growth |
+| RAM | 4 GB | 8 GB unified | BGE-M3 + Qwen3.5-2B peak ~3–5 GB |
+| CPU | 2 cores | 4+ cores | Fallback when MLX unavailable |
+| SQLite WAL | enabled | enabled | Default in modern Python |
+| FTS5 + sqlite-vec | required | required | Bundled dependencies |
+| Concurrency | 1 writer, N readers | 1 writer, N readers | Serialized writes via BEGIN IMMEDIATE |
+
+## Crash recovery
+
+- WAL mode: default; checkpointed on close.
+- Ingestion transactions: atomic via SAVEPOINT; rollback on failure.
+- Version bump: `store_version` in `meta` table; future migrations check before upgrade.
+- Last-resort: operator can replay exports from the last known good backup.
