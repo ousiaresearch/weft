@@ -1,7 +1,7 @@
 # Phase 7 — Gated Cutover Checklist
 
 **Plan:** `~/.hermes/plans/2026-10-24_weft-memory-system-full-plan.md`
-**Current HEAD:** `bbc12d7` (Phase 7 evaluation runner rewrite)
+**Current HEAD:** `96c9dba` (Phase 7 evaluation runner strengthen)
 
 ## Gates
 
@@ -13,7 +13,7 @@ Each gate must be PASS before the next is attempted.
    - **Evidence:** 429 passing tests, including shadow recall/reason/compare.
 
 2. **Grounded reasoning measured**
-   - **PASS:** Evaluation set v1 committed (`docs/evaluation/set-v1.md`) with Phase 7 runner (`tests/test_evaluation.py`). Runner invokes actual `synthesize`, `contradict`, and `hypothesize` functions with fake model layer; validates gold answers, citation presence, and abstention behavior. All 6 cases pass: grounded synthesis, abstention, contradiction detection, cross-scope leak, content-conflict denial, correction lineage.
+   - **PASS:** Evaluation set v1 committed (`docs/evaluation/set-v1.md`) with Phase 7 runner (`tests/test_evaluation.py`). Runner invokes actual `synthesize`, `contradict`, and `hypothesize` functions with fake model layer; validates gold answers, citation presence, and abstention behavior. E4 directly asserts retrieval excludes out-of-scope records. E5 verifies content_conflict denial. All 6 cases pass: grounded synthesis, abstention, contradiction detection, cross-scope leak, content-conflict denial, correction lineage.
    - **Artifacts:** `docs/evaluation/set-v1.md`, `tests/test_evaluation.py`
    - **Evidence:** 7 evaluation tests passing.
 
@@ -42,7 +42,6 @@ Each gate must be PASS before the next is attempted.
 
 ## Next Actions
 
-1. Build Phase 4 evaluation set (§9.3) with gold answers, citations, abstention cases.
-2. Add fault-injection integration test for crash recovery.
-3. Add deletion export-purge test.
-4. Run adversarial review on new test additions.
+1. Run adversarial review on Phase 7 additions (evaluation runner, deletion export-purge test, crash-recovery integration test).
+2. Update plan document to mark Phase 7 gates 2-4 as PASS once review clears.
+3. Prepare alpha distribution artifacts (LICENSE notice, install docs, container/build script).
