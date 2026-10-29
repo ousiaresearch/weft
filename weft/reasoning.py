@@ -61,8 +61,8 @@ def _safe_text(rec: Record) -> str:
 
 
 _INJECTION_PATTERNS = [
-    re.compile(r"(?i)^(ignore|you are|your task|answer:|abstain:|system:|user:|assistant:)\b.*$", re.MULTILINE),
-    re.compile(r"</?UNTRUSTED_DOCUMENT>", re.IGNORECASE),
+    re.compile(r"(?i)^\s*(ignore|you are|your task|answer:|abstain:|system:|user:|assistant:).*$", re.MULTILINE),
+    re.compile(r"</?UNTRUSTED_DOCUMENT\s*>", re.IGNORECASE),
 ]
 
 
@@ -169,7 +169,10 @@ def hypothesize(sub: Substrate, ctx: ScopeContext, query: str, model_layer: Mode
         raise ReasoningError(f"hypothesis model returned invalid JSON: {exc}") from exc
     if not isinstance(data, dict):
         raise Abstention("model returned non-object JSON for hypothesis")
-    text = data.get("hypothesis", "").strip()
+    text = data.get("hypothesis", "")
+    if not isinstance(text, str):
+        raise Abstention("model returned non-string hypothesis")
+    text = text.strip()
     if not text:
         raise Abstention("model returned empty hypothesis")
     return Hypothesis(text=text, evidence_ids=evidence_ids)
