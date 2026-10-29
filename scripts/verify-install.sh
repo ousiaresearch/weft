@@ -19,6 +19,13 @@ PYTHON_BIN="${WEFT_PYTHON:-python3.11}"
 if ! command -v "${PYTHON_BIN}" >/dev/null 2>&1; then
   PYTHON_BIN="python3"
 fi
+PY_VER="$("${PYTHON_BIN}" -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')"
+PY_MAJOR="$("${PYTHON_BIN}" -c 'import sys; print(sys.version_info.major)')"
+PY_MINOR="$("${PYTHON_BIN}" -c 'import sys; print(sys.version_info.minor)')"
+if [ "${PY_MAJOR}" -lt 3 ] || [ "${PY_MAJOR}" -eq 3 -a "${PY_MINOR}" -lt 11 ]; then
+  echo "Error: ${PYTHON_BIN} is ${PY_VER}, but Weft requires Python >= 3.11" >&2
+  exit 1
+fi
 umask 0077
 "${PYTHON_BIN}" -m venv "${VENV}"
 "${VENV}/bin/python" -m pip install --quiet "${WHEEL}"

@@ -14,7 +14,7 @@
 
 ## Temp files
 
-- Release/verification scripts create temp dirs via `mktemp -d` under `/tmp` with umask 0077. `/tmp/weft-install-test.db` is only passed to `weft ... serve --help` and is not created.
+- Release/verification scripts create temp dirs via `mktemp -d` under `/tmp`. `mktemp -d` creates private directories; umask 0077 additionally restricts venv contents. `/tmp/weft-install-test.db` is only passed to `weft ... serve --help` and is not created.
 - `tests/test_install.py` uses `tempfile.mkdtemp` under `/tmp` with umask 0077; `/tmp/weft-install-pytest.db` is only passed to `weft ... serve --help` and is not created.
 - `weft/adapters.py:67,95,100` uses `tempfile.mkstemp` for adapter scratch files in the Hermes scratch dir.
 - `weft/substrate.py:1554` creates sibling `.tmp-*.part` files during writes; `weft/substrate.py:207-240` sets umask 0o077 and chmod 0o600 on the database and sidecars.
@@ -40,5 +40,5 @@
 
 ## Status
 
-Cleared for beta-readiness. Independent adversarial review recommended before beta tag.
+Beta-readiness self-audit complete. Independent adversarial review in progress (pending). Cleared items: entrypoints, egress, injection, temp-file handling.
 
