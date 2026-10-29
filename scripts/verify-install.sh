@@ -19,8 +19,6 @@ PYTHON_BIN="${WEFT_PYTHON:-python3.11}"
 if ! command -v "${PYTHON_BIN}" >/dev/null 2>&1; then
   PYTHON_BIN="python3"
 fi
-
-rm -rf "${VENV}"
 umask 0077
 "${PYTHON_BIN}" -m venv "${VENV}"
 "${VENV}/bin/python" -m pip install --quiet "${WHEEL}"

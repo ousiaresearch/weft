@@ -10,9 +10,7 @@
 - Regression test for install/uninstall cycle
 - PyPI publishing runbook (token creation, twine upload)
 
-**Out of scope:** Wheel signing (deferred to Phase 9+), new memory features, model additions, server hardening beyond installer.
-
-**Out of scope:** New memory features, model additions, server hardening beyond installer.
+**Out of scope:** Wheel signing (deferred to Phase 9+), new memory features, model additions, server hardening beyond installer, hardened pipx/systemd install docs.
 
 **Deliverables:**
 1. `docs/design/phase8-beta-readiness.md` (this doc)
@@ -24,7 +22,7 @@
 
 **Gates:**
 - G1: Wheel metadata valid and installs cleanly in fresh venv.
-- G2: Security audit cleared (entrypoints, temp files, egress, injection).
+- G2: Security audit cleared pending independent adversarial review.
 - G3: PyPI runbook reviewed.
 - G4: Install/uninstall regression passing.
 

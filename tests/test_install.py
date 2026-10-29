@@ -2,6 +2,7 @@ import subprocess
 import sys
 import os
 import shutil
+import tempfile
 
 WHEEL = None
 VENV = "/tmp/weft-install-test-pytest"
@@ -32,16 +33,17 @@ def _python():
 def test_install_uninstall_cycle():
     wheel = _find_wheel()
     python = _python()
-    if os.path.exists(VENV):
-        shutil.rmtree(VENV)
+    venv = os.path.join(tempfile.gettempdir(), f"weft-install-test-{os.getpid()}")
+    if os.path.exists(venv):
+        shutil.rmtree(venv)
     old_umask = os.umask(0o077)
     try:
-        subprocess.run([python, "-m", "venv", VENV], check=True)
-        pip = os.path.join(VENV, "bin", "python")
+        subprocess.run([python, "-m", "venv", venv], check=True)
+        pip = os.path.join(venv, "bin", "python")
         subprocess.run([pip, "-m", "pip", "install", "--quiet", wheel], check=True)
     finally:
         os.umask(old_umask)
-    weft = os.path.join(VENV, "bin", "weft")
+    weft = os.path.join(venv, "bin", "weft")
     subprocess.run([weft, "--help"], check=True, stdout=subprocess.DEVNULL)
     db = "/tmp/weft-install-pytest.db"
     subprocess.run([weft, "--db", db, "serve", "--help"], check=True, stdout=subprocess.DEVNULL)
@@ -54,4 +56,4 @@ def test_install_uninstall_cycle():
         capture_output=True,
     )
     assert result.returncode != 0, "weft still importable after uninstall"
-    shutil.rmtree(VENV)
+    shutil.rmtree(venv)
