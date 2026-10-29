@@ -1,0 +1,74 @@
+{
+  "suites": {
+    "locomo": {
+      "dataset": "locomo",
+      "count": 1986,
+      "lexical": {
+        "total": 1986,
+        "exact": 837,
+        "substring": 837,
+        "exact_rate": 0.4214501510574018,
+        "substring_rate": 0.4214501510574018,
+        "p50_ms": 24.540459271520376,
+        "p95_ms": 34.30437482893467
+      },
+      "hybrid": null
+    },
+    "longmemeval-s": {
+      "dataset": "longmemeval-s",
+      "count": 500,
+      "lexical": {
+        "total": 500,
+        "exact": 169,
+        "substring": 169,
+        "exact_rate": 0.338,
+        "substring_rate": 0.338,
+        "abstention_count": 0,
+        "abstention_accuracy": null,
+        "p50_ms": 47.79991693794727,
+        "p95_ms": 57.70175019279122
+      },
+      "hybrid": null
+    },
+    "beam-100k": {
+      "dataset": "beam",
+      "splits": [
+        "100K"
+      ],
+      "conversations": 20,
+      "count": 400,
+      "lexical": {
+        "total": 400,
+        "exact": 22,
+        "substring": 22,
+        "exact_rate": 0.055,
+        "substring_rate": 0.055,
+        "abstention_count": 160,
+        "abstention_accuracy": 0.0,
+        "p50_ms": 22.785708773881197,
+        "p95_ms": 64.05770871788263
+      },
+      "hybrid": null
+    },
+    "beam-500k": {
+      "dataset": "beam",
+      "splits": [
+        "500K"
+      ],
+      "conversations": 35,
+      "count": 700,
+      "lexical": {
+        "total": 700,
+        "exact": 35,
+        "substring": 35,
+        "exact_rate": 0.05,
+        "substring_rate": 0.05,
+        "abstention_count": 280,
+        "abstention_accuracy": 0.0,
+        "p50_ms": 407.1021252311766,
+        "p95_ms": 794.918708037585
+      },
+      "hybrid": null
+    }
+  }
+}

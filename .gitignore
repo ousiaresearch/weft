@@ -17,3 +17,4 @@ eval/recall_gate_results-*.json
 eval/_probe_*.py
 tmp*/
 weft_memory.egg-info/
+benchmarks/full/cache/
