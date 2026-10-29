@@ -33,9 +33,7 @@ def _python():
 def test_install_uninstall_cycle():
     wheel = _find_wheel()
     python = _python()
-    venv = os.path.join(tempfile.gettempdir(), f"weft-install-test-{os.getpid()}")
-    if os.path.exists(venv):
-        shutil.rmtree(venv)
+    venv = tempfile.mkdtemp(prefix="weft-install-test-")
     old_umask = os.umask(0o077)
     try:
         subprocess.run([python, "-m", "venv", venv], check=True)
