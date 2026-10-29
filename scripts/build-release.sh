@@ -39,7 +39,12 @@ echo "==> Cleaning previous builds"
 rm -rf build/ dist/ *.egg-info
 
 echo "==> Installing build dependencies"
-"${PYTHON_BIN}" -m pip install --quiet build
+if ! "${PYTHON_BIN}" -m pip install --quiet build 2>/dev/null; then
+  echo "Warning: pip install build failed; trying with --break-system-packages" >&2
+  if ! "${PYTHON_BIN}" -m pip install --quiet --break-system-packages build 2>/dev/null; then
+    echo "Warning: could not install build package; attempting build anyway" >&2
+  fi
+fi
 
 echo "==> Building wheel"
 "${PYTHON_BIN}" -m build --wheel
