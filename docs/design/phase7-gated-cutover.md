@@ -1,7 +1,7 @@
 # Phase 7 — Gated Cutover Checklist
 
 **Plan:** `~/.hermes/plans/2026-10-24_weft-memory-system-full-plan.md`
-**Current HEAD:** `a4b4fa0` (Phase 7 alpha artifacts + checklist update)
+**Current HEAD:** `3ca1aa8` (Phase 7 E5 gold answer aligned with actual abstention)
 
 ## Gates
 

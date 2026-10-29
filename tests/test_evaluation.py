@@ -289,7 +289,7 @@ class TestPhase7Evaluation:
                 )
 
                 # Synthesis must abstain because the content-conflicted record is excluded.
-                with pytest.raises(Abstention):
+                with pytest.raises(Abstention, match="no scoped evidence available for synthesis"):
                     synthesize(sub, ctx, case["query"], layer)
 
                 # E5 gold answer is the synthesis abstention reason when content_conflict
