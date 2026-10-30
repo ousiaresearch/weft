@@ -126,9 +126,7 @@ Answer:"""
 JUDGE_PROMPT = """You are an impartial judge evaluating whether a generated answer correctly addresses a question based on the provided context.
 
 Question: {question}
-
 Gold Answer: {gold_answer}
-
 Generated Answer: {generated_answer}
 
 Instructions:
@@ -212,12 +210,38 @@ def judge_answer(question: str, gold_answer: str, generated_answer: str) -> dict
             time.sleep(1)
     return {"correct": False, "score": 0.0, "reason": "Max retries exceeded"}
 
+# Checkpointing for resumability
+CHECKPOINT_PATH = REPO / "benchmarks" / "judge-results-checkpoint.json"
+FINAL_RESULTS_PATH = REPO / "benchmarks" / "judge-results.json"
+TOTAL_QA = 1986
+
+def load_checkpoint() -> tuple[list[dict], set[str]]:
+    if CHECKPOINT_PATH.exists():
+        try:
+            data = json.loads(CHECKPOINT_PATH.read_text())
+            scores = data.get("scores", [])
+            done = set(data.get("done_ids", []))
+            print(f"[checkpoint] Loaded {len(scores)}/{TOTAL_QA} scores ({len(done)} done ids)", flush=True)
+            return scores, done
+        except Exception:
+            pass
+    return [], set()
+
+def save_checkpoint(scores: list[dict], done_ids: set[str]) -> None:
+    try:
+        CHECKPOINT_PATH.write_text(json.dumps({
+            "scores": scores,
+            "done_ids": list(done_ids),
+        }, indent=2) + "\n")
+    except Exception as e:
+        print(f"[checkpoint] Save failed: {e}", flush=True)
+
 # Run generative QA + judge on ALL QA pairs
 print("\n[run] Starting generative QA + judge scoring (FULL: all 1,986 QA pairs)...", flush=True)
 print(f"[run] Mode: {'hybrid' if embedder else 'lexical'} + extraction + generative QA", flush=True)
 
-scores = []
-t0 = time.time()
+scores, done_ids = load_checkpoint()
+t0 = time.time() if not scores else time.time()
 
 for i, sample in enumerate(ds):
     conv_id, records, qa_pairs = convert_sample(sample)
@@ -255,6 +279,9 @@ for i, sample in enumerate(ds):
                 print(f"[run] Conv {conv_id}: extraction failed: {e}", flush=True)
         
         for qa in qa_pairs:
+            if qa.question_id in done_ids:
+                continue
+            
             # Get recall results
             result = run_recall(sub, qa.question, embedder=recall_embedder)
             context = "\n".join(result.selected_texts[:10])
@@ -271,11 +298,13 @@ for i, sample in enumerate(ds):
                 "judge_score": judge_result.get("score", 0.0),
                 "judge_reason": judge_result.get("reason", ""),
             })
+            done_ids.add(qa.question_id)
             
             if len(scores) % 100 == 0:
+                save_checkpoint(scores, done_ids)
                 elapsed = time.time() - t0
                 correct = sum(1 for s in scores[:len(scores)] if s["judge_correct"])
-                print(f"[run] Processed {len(scores)}/{1986} QA pairs ({elapsed:.1f}s, ~{len(scores)/elapsed:.1f}/s, accuracy={correct/len(scores):.1%})", flush=True)
+                print(f"[run] Processed {len(scores)}/{TOTAL_QA} QA pairs ({elapsed:.1f}s, ~{len(scores)/elapsed:.1f}/s, accuracy={correct/len(scores):.1%})", flush=True)
     finally:
         sub.close()
 
@@ -299,6 +328,13 @@ results = {
     "samples": scores[:10]
 }
 
-(REPO / "benchmarks" / "judge-results.json").write_text(json.dumps(results, indent=2) + "\n")
+FINAL_RESULTS_PATH.write_text(json.dumps(results, indent=2) + "\n")
 print(json.dumps(results, indent=2), flush=True)
 print("\n[Done] judge-results.json written", flush=True)
+
+# Clean up checkpoint on success
+try:
+    if CHECKPOINT_PATH.exists():
+        CHECKPOINT_PATH.unlink()
+except Exception:
+    pass
