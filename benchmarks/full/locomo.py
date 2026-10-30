@@ -6,6 +6,7 @@ Dataset: 10 multi-session conversations, ~5,900 turns, 1,986 QA pairs.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 from benchmarks.full.common import (
@@ -25,6 +26,9 @@ from weft.substrate import Record
 def _load_dataset():
     from datasets import load_dataset
 
+    token = os.environ.get("HF_TOKEN")
+    if token:
+        return load_dataset("CodyTonn/LoCoMo", split="train", token=token)
     return load_dataset("CodyTonn/LoCoMo", split="train")
 
 
