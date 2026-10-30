@@ -104,9 +104,9 @@ def test_F3_acs_content_refused_under_memory_scope_on_write(sub):
 def test_F3_acs_content_under_memory_scope_not_returned_to_memory_reader(sub, tmp_path):
     # Bypass the write gate to simulate a record that already exists in the store.
     sub._conn.execute(
-        "INSERT INTO records (record_id, record_type, scope, epistemic_status, payload, created_at, effective_at, supersedes, source_ids, provenance) VALUES (?,?,?,?,?,?,?,?,?,?)",
+        "INSERT INTO records (record_id, record_type, scope, epistemic_status, payload, created_at, effective_at, supersedes, source_ids, provenance, valid_from, valid_to) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
         ("legacy", "Observation", "memory-providers", "stated",
-         '{"text": "The Listening Commonwealth released RC-05."}', 0.0, None, None, "[]", "{}"),
+         '{"text": "The Listening Commonwealth released RC-05."}', 0.0, None, None, "[]", "{}", None, None),
     )
     assert sub.get("legacy", MEM_ONLY) is None
     readable, _ = sub.query(MEM_ONLY)
@@ -300,8 +300,8 @@ def test_F20_empty_id_rejected_without_validation(sub):
 def _legacy_dependent(sub, rid, scope, supersedes):
     """Insert a row directly, as a pre-existing legacy record would appear."""
     sub._conn.execute(
-        "INSERT INTO records (record_id, record_type, scope, epistemic_status, payload, created_at, effective_at, supersedes, source_ids, provenance) VALUES (?,?,?,?,?,?,?,?,?,?)",
-        (rid, "Observation", scope, "stated", '{"text": "correction"}', 0.0, None, supersedes, "[]", "{}"),
+        "INSERT INTO records (record_id, record_type, scope, epistemic_status, payload, created_at, effective_at, supersedes, source_ids, provenance, valid_from, valid_to) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+        (rid, "Observation", scope, "stated", '{"text": "correction"}', 0.0, None, supersedes, "[]", "{}", None, None),
     )
 
 
@@ -550,8 +550,8 @@ def test_G2_unmanaged_file_with_projected_name_is_not_overwritten(sub, tmp_path)
 # G3: an id that is unsafe for a file name must never reach the filesystem.
 def test_G3_unsafe_stored_id_never_written_outside_projection(sub, tmp_path):
     sub._conn.execute(
-        "INSERT INTO records (record_id, record_type, scope, epistemic_status, payload, created_at, effective_at, supersedes, source_ids, provenance) VALUES (?,?,?,?,?,?,?,?,?,?)",
-        ("../escape", "Observation", "memory-providers", "stated", '{"text": "x"}', 0.0, None, None, "[]", "{}"),
+        "INSERT INTO records (record_id, record_type, scope, epistemic_status, payload, created_at, effective_at, supersedes, source_ids, provenance, valid_from, valid_to) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+        ("../escape", "Observation", "memory-providers", "stated", '{"text": "x"}', 0.0, None, None, "[]", "{}", None, None),
     )
     out = tmp_path / "proj"
     sub.write_projection(out, MEM_ONLY)

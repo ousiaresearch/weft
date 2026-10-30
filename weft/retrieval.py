@@ -15,6 +15,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+from weft.entity_link import entity_boost
+
 ABSTRACT_CHARS = 400  # L0 abstract (D3-11)
 OVERVIEW_CHARS = 2000  # L1 overview
 _TIER_ORDER = {"L0": 0, "L1": 1, "L2": 2}
@@ -156,6 +158,14 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
         if use_vector:
             ranked.append(sub.vector_candidates(query_embedding, ctx, pool, scopes=readable, model_id=embedder.model_id))
         candidate_ids = ranked[0] if len(ranked) == 1 else _fuse(ranked, pool)
+
+        # Phase 12: graph boost — reorder candidates by entity overlap with query.
+        try:
+            graph_scores = entity_boost(sub, ctx, query, candidate_ids)
+            if graph_scores:
+                candidate_ids.sort(key=lambda rid: (-graph_scores.get(rid, 0.0), rid))
+        except Exception:
+            pass
 
         items: list[Item] = []
         seen_documents: set = set()  # one result per document: a note is not five paragraphs

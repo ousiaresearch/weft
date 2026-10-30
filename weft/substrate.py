@@ -75,6 +75,9 @@ class Record:
     provenance: dict[str, Any] = field(default_factory=dict)
     # Phase 2 (D2-2): required on every new write; enforced by the knowledge rules.
     attribution: str | None = None
+    # Phase 12 (P12): bi-temporal validity window.
+    valid_from: float | None = None
+    valid_to: float | None = None
 
     def to_row(self) -> tuple:
         return (
@@ -89,6 +92,8 @@ class Record:
             json.dumps(self.source_ids, sort_keys=True),
             json.dumps(self.provenance, sort_keys=True),
             self.attribution,
+            self.valid_from,
+            self.valid_to,
         )
 
     @classmethod
@@ -105,10 +110,12 @@ class Record:
             source_ids=json.loads(row[8]),
             provenance=json.loads(row[9]),
             attribution=row[10] if len(row) > 10 else None,
+            valid_from=row[11] if len(row) > 11 else None,
+            valid_to=row[12] if len(row) > 12 else None,
         )
 
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 VEC_DIM = 1024  # embedding dimension of the alpha embedding adapter
 
 _SCHEMA = """
@@ -123,7 +130,9 @@ CREATE TABLE IF NOT EXISTS records (
     supersedes       TEXT,
     source_ids       TEXT NOT NULL DEFAULT '[]',
     provenance       TEXT NOT NULL DEFAULT '{}',
-    attribution      TEXT
+    attribution      TEXT,
+    valid_from       REAL,
+    valid_to         REAL
 );
 CREATE TABLE IF NOT EXISTS verifiers (
     actor_id      TEXT PRIMARY KEY,
@@ -354,6 +363,7 @@ class Substrate:
 
         Version 2 (Phase 2): records.attribution, backfilled to 'system' for rows
         written before attribution existed. A failure rolls the whole step back.
+        Version 5 (Phase 12): entity_links table, valid_from/valid_to columns.
         """
         version = self._conn.execute("PRAGMA user_version").fetchone()[0]
         cols = {r[1] for r in self._conn.execute("PRAGMA table_info(records)")}
@@ -380,6 +390,27 @@ class Substrate:
                     "source_id TEXT NOT NULL, stage TEXT NOT NULL, content_hash TEXT NOT NULL, "
                     "state TEXT NOT NULL, reason TEXT, UNIQUE (scope, source_id, stage, content_hash))"
                 )
+            if version < 5:
+                # Version 5 (Phase 12): bi-temporal columns and entity_links table.
+                if "valid_from" not in cols:
+                    self._conn.execute("ALTER TABLE records ADD COLUMN valid_from REAL")
+                if "valid_to" not in cols:
+                    self._conn.execute("ALTER TABLE records ADD COLUMN valid_to REAL")
+                self._conn.execute("""
+                    CREATE TABLE IF NOT EXISTS entity_links (
+                        source_id   TEXT NOT NULL,
+                        target_id   TEXT NOT NULL,
+                        relation    TEXT NOT NULL,
+                        valid_from  REAL,
+                        valid_to    REAL,
+                        scope       TEXT NOT NULL,
+                        PRIMARY KEY (source_id, target_id, relation),
+                        FOREIGN KEY (source_id) REFERENCES records(record_id) ON DELETE CASCADE
+                    )
+                """)
+                self._conn.execute("CREATE INDEX IF NOT EXISTS idx_entity_links_source ON entity_links(source_id)")
+                self._conn.execute("CREATE INDEX IF NOT EXISTS idx_entity_links_target ON entity_links(target_id)")
+                self._conn.execute("CREATE INDEX IF NOT EXISTS idx_entity_links_scope ON entity_links(scope)")
             if version < 3:
                 self._conn.execute("DELETE FROM fts")
                 for row in self._conn.execute("SELECT * FROM records").fetchall():
@@ -986,8 +1017,9 @@ class Substrate:
             self._conn.execute(
                 """INSERT OR REPLACE INTO records
                    (record_id, record_type, scope, epistemic_status, payload,
-                    created_at, effective_at, supersedes, source_ids, provenance, attribution)
-                   VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+                    created_at, effective_at, supersedes, source_ids, provenance, attribution,
+                    valid_from, valid_to)
+                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                 record.to_row(),
             )
             # Index the serialized record representation, so rebuilds and integrity
@@ -1303,8 +1335,9 @@ class Substrate:
                     self._conn.execute(
                         "INSERT OR REPLACE INTO records "
                         "(record_id, record_type, scope, epistemic_status, payload, "
-                        "created_at, effective_at, supersedes, source_ids, provenance, attribution) "
-                        "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                        "created_at, effective_at, supersedes, source_ids, provenance, attribution, "
+                        "valid_from, valid_to) "
+                        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
                         rec.to_row(),
                     )
                     self._fts_index(rec)

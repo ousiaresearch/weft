@@ -73,9 +73,9 @@ def test_get_at_denies_cross_scope_supersession(tmp_path):
         sub._write(r1, ctx_both, validate_schema=True, overwrite=False)
         # Insert a cross-scope correction directly (bypassing correct()'s scope check).
         sub._conn.execute(
-            "INSERT INTO records (record_id, record_type, scope, epistemic_status, payload, created_at, effective_at, supersedes, source_ids, provenance, attribution) "
-            "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-            ("r2", "Correction", "s2", "stated", '{"text": "v2"}', time.time(), 200.0, "r1", "[]", "{}", "user"),
+            "INSERT INTO records (record_id, record_type, scope, epistemic_status, payload, created_at, effective_at, supersedes, source_ids, provenance, attribution, valid_from, valid_to) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            ("r2", "Correction", "s2", "stated", '{"text": "v2"}', time.time(), 200.0, "r1", "[]", "{}", "user", None, None),
         )
         sub._conn.commit()
         # caller with s1 access sees original, not cross-scope supersession

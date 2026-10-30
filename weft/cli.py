@@ -50,6 +50,14 @@ def _parser() -> argparse.ArgumentParser:
     
     consolidate = commands.add_parser("consolidate", help="deduplicate Claims in a scope")
     consolidate.add_argument("--scope", required=True)
+
+    link_entities = commands.add_parser("link-entities", help="extract entity links from records")
+    link_entities.add_argument("--scope", required=True)
+    link_entities.add_argument("--limit", type=int, default=100, help="max records to scan")
+
+    temporal = commands.add_parser("temporal", help="query records valid at a given timestamp")
+    temporal.add_argument("--scope", required=True)
+    temporal.add_argument("--at", type=float, required=True, help="Unix timestamp")
     return parser
 
 
@@ -191,6 +199,49 @@ def _run_consolidate(args) -> int:
         sub.close()
 
 
+def _run_link_entities(args) -> int:
+    from weft.entity_link import link_entities
+    db_path = Path(args.db).expanduser()
+    if not db_path.is_file():
+        raise FileNotFoundError(f"Weft database not found: {db_path}")
+    engine, ctx = _context(args.scope)
+    sub = Substrate(db_path, engine)
+    try:
+        result = link_entities(sub, ctx, args.scope, limit=args.limit)
+        print(json.dumps({
+            "status": "linked",
+            "scope": args.scope,
+            **result,
+        }))
+        return 0
+    finally:
+        sub.close()
+
+
+def _run_temporal(args) -> int:
+    from weft.temporal import effective_at
+    db_path = Path(args.db).expanduser()
+    if not db_path.is_file():
+        raise FileNotFoundError(f"Weft database not found: {db_path}")
+    engine, ctx = _context(args.scope)
+    sub = Substrate(db_path, engine)
+    try:
+        records = effective_at(sub, ctx, args.scope, args.at)
+        print(json.dumps({
+            "status": "effective_at",
+            "scope": args.scope,
+            "at": args.at,
+            "count": len(records),
+            "records": [
+                {"record_id": r.record_id, "type": r.record_type, "text": r.payload.get("text", "")}
+                for r in records
+            ],
+        }, ensure_ascii=False))
+        return 0
+    finally:
+        sub.close()
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = _parser()
     args = parser.parse_args(argv)
@@ -205,6 +256,10 @@ def main(argv: list[str] | None = None) -> int:
             return _run_extract(args)
         if args.command == "consolidate":
             return _run_consolidate(args)
+        if args.command == "link-entities":
+            return _run_link_entities(args)
+        if args.command == "temporal":
+            return _run_temporal(args)
         return _run_recall(args)
     except (OSError, RuntimeError, ValueError, ImportError, sqlite3.Error, SubstrateError) as exc:
         print(f"weft: {exc}", file=sys.stderr)
