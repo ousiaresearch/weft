@@ -249,6 +249,7 @@ def judge_answer(question: str, gold_answer: str, generated_answer: str) -> dict
 # Checkpointing for resumability
 CHECKPOINT_PATH = REPO / "benchmarks" / "judge-results-checkpoint.json"
 FINAL_RESULTS_PATH = REPO / "benchmarks" / "judge-results.json"
+PROGRESS_PATH = REPO / "benchmarks" / "judge-progress.json"
 TOTAL_QA = 1986
 
 def load_checkpoint() -> tuple[list[dict], set[str]]:
@@ -271,6 +272,23 @@ def save_checkpoint(scores: list[dict], done_ids: set[str]) -> None:
         }, indent=2) + "\n")
     except Exception as e:
         print(f"[checkpoint] Save failed: {e}", flush=True)
+
+def save_progress(conv_idx: int, scores: list[dict], t0: float) -> None:
+    """Write lightweight progress file for polling."""
+    try:
+        elapsed = time.time() - t0
+        correct = sum(1 for s in scores if s.get("judge_correct"))
+        PROGRESS_PATH.write_text(json.dumps({
+            "conversation": conv_idx,
+            "processed": len(scores),
+            "total": TOTAL_QA,
+            "correct": correct,
+            "accuracy": correct / len(scores) if scores else 0.0,
+            "elapsed_s": elapsed,
+            "rate_per_s": len(scores) / elapsed if elapsed > 0 else 0.0,
+        }, indent=2) + "\n")
+    except Exception:
+        pass
 
 def process_qa_pair(qa, context):
     """Process a single QA pair: generate answer and judge it."""
@@ -362,6 +380,7 @@ for i, sample in enumerate(ds):
             elapsed = time.time() - t0
             correct = sum(1 for s in scores[:len(scores)] if s["judge_correct"])
             print(f"[run] Processed {len(scores)}/{TOTAL_QA} QA pairs ({elapsed:.1f}s, ~{len(scores)/elapsed:.1f}/s, accuracy={correct/len(scores):.1%})", flush=True)
+        save_progress(i + 1, scores, t0)
     finally:
         sub.close()
 
