@@ -11,7 +11,9 @@ import os
 import subprocess
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
+from threading import Lock
 
 REPO = Path("/content/weft")
 
@@ -236,12 +238,27 @@ def save_checkpoint(scores: list[dict], done_ids: set[str]) -> None:
     except Exception as e:
         print(f"[checkpoint] Save failed: {e}", flush=True)
 
+def process_qa_pair(qa, context):
+    """Process a single QA pair: generate answer and judge it."""
+    generated = generate_answer(qa.question, context)
+    judge_result = judge_answer(qa.question, qa.gold_answer, generated)
+    return {
+        "question_id": qa.question_id,
+        "generated_answer": generated,
+        "judge_correct": judge_result.get("correct", False),
+        "judge_score": judge_result.get("score", 0.0),
+        "judge_reason": judge_result.get("reason", ""),
+    }
+
 # Run generative QA + judge on ALL QA pairs
 print("\n[run] Starting generative QA + judge scoring (FULL: all 1,986 QA pairs)...", flush=True)
 print(f"[run] Mode: {'hybrid' if embedder else 'lexical'} + extraction + generative QA", flush=True)
 
 scores, done_ids = load_checkpoint()
 t0 = time.time() if not scores else time.time()
+scores_lock = Lock()
+
+MAX_WORKERS = 10
 
 for i, sample in enumerate(ds):
     conv_id, records, qa_pairs = convert_sample(sample)
@@ -278,33 +295,39 @@ for i, sample in enumerate(ds):
             except Exception as e:
                 print(f"[run] Conv {conv_id}: extraction failed: {e}", flush=True)
         
+        # Pre-fetch recall contexts sequentially to avoid substrate contention
+        tasks = []
         for qa in qa_pairs:
             if qa.question_id in done_ids:
                 continue
-            
-            # Get recall results
-            result = run_recall(sub, qa.question, embedder=recall_embedder)
-            context = "\n".join(result.selected_texts[:10])
-            
-            # Generate answer
-            generated = generate_answer(qa.question, context)
-            
-            # Judge answer
-            judge_result = judge_answer(qa.question, qa.gold_answer, generated)
-            scores.append({
-                "question_id": qa.question_id,
-                "generated_answer": generated,
-                "judge_correct": judge_result.get("correct", False),
-                "judge_score": judge_result.get("score", 0.0),
-                "judge_reason": judge_result.get("reason", ""),
-            })
-            done_ids.add(qa.question_id)
-            
-            if len(scores) % 100 == 0:
-                save_checkpoint(scores, done_ids)
-                elapsed = time.time() - t0
-                correct = sum(1 for s in scores[:len(scores)] if s["judge_correct"])
-                print(f"[run] Processed {len(scores)}/{TOTAL_QA} QA pairs ({elapsed:.1f}s, ~{len(scores)/elapsed:.1f}/s, accuracy={correct/len(scores):.1%})", flush=True)
+            try:
+                result = run_recall(sub, qa.question, embedder=recall_embedder)
+                context = "\n".join(result.selected_texts[:10])
+                tasks.append((qa, context))
+            except Exception as e:
+                print(f"[run] Conv {conv_id}: recall failed for {qa.question_id}: {e}", flush=True)
+        
+        # Process QA pairs in parallel
+        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            futures = {
+                executor.submit(process_qa_pair, qa, context): qa
+                for qa, context in tasks
+            }
+            for future in as_completed(futures):
+                qa = futures[future]
+                try:
+                    result = future.result()
+                    with scores_lock:
+                        scores.append(result)
+                        done_ids.add(qa.question_id)
+                except Exception as e:
+                    print(f"[run] Conv {conv_id}: QA {qa.question_id} failed: {e}", flush=True)
+        
+        if len(scores) % 100 == 0:
+            save_checkpoint(scores, done_ids)
+            elapsed = time.time() - t0
+            correct = sum(1 for s in scores[:len(scores)] if s["judge_correct"])
+            print(f"[run] Processed {len(scores)}/{TOTAL_QA} QA pairs ({elapsed:.1f}s, ~{len(scores)/elapsed:.1f}/s, accuracy={correct/len(scores):.1%})", flush=True)
     finally:
         sub.close()
 
