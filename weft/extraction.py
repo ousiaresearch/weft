@@ -118,15 +118,15 @@ def _fact_to_claim(fact: dict[str, Any], source_id: str, scope: str, index: int)
 
 
 def extract_facts(sub: Substrate, ctx: ScopeContext, scope: str, limit: int = 100) -> list[Record]:
-    """Extract facts from Observations in a scope.
+    """Extract facts from Observations and Sources in a scope.
     
     Returns list of new Claim records. Does not write to substrate.
     Fail-closed: returns [] on any error.
     """
     try:
-        observations = [
+        records = [
             row for row in sub._conn.execute(
-                "SELECT record_id, payload FROM records WHERE scope = ? AND record_type = 'Observation'",
+                "SELECT record_id, payload FROM records WHERE scope = ? AND record_type IN ('Observation', 'Source')",
                 (scope,)
             ).fetchall()
         ]
@@ -136,7 +136,7 @@ def extract_facts(sub: Substrate, ctx: ScopeContext, scope: str, limit: int = 10
     claims: list[Record] = []
     seen_hashes: set[str] = set()
     
-    for obs_id, payload_json in observations[:limit]:
+    for obs_id, payload_json in records[:limit]:
         try:
             payload = json.loads(payload_json)
             text = payload.get("text", "")

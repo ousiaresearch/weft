@@ -1,0 +1,72 @@
+{
+  "generated": "2026-10-30T06:44:17Z",
+  "judge_model": "deepseek-v4.1-flash",
+  "recall_mode": "hybrid",
+  "total_judged": 1986,
+  "correct": 446,
+  "accuracy": 0.22457200402819738,
+  "avg_score": 0.26957200402819737,
+  "elapsed_s": 7800.770147562027,
+  "samples": [
+    {
+      "question_id": "locomo-conv-26-qa-0",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The context says Caroline attended an LGBTQ support group recently, but it does not provide the date 7 May 2023 or any specific date."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-1",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The context mentions Melanie painted a lake sunrise last year, but it does not provide any year or date, so it cannot support the gold answer 2022."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-2",
+      "judge_correct": false,
+      "judge_score": 0.6,
+      "judge_reason": "Context mentions counseling or mental health, supporting part of the gold answer, but does not explicitly mention psychology or counseling certification."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-3",
+      "judge_correct": true,
+      "judge_score": 1.0,
+      "judge_reason": "The context mentions Caroline applying to adoption agencies and attending an adoption advice/assistance group, which supports the gold answer of Adoption agencies."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-4",
+      "judge_correct": true,
+      "judge_score": 1.0,
+      "judge_reason": "The context states Caroline transitioned, is part of the transgender community, and is a trans person; with female pronouns/name, this supports the identity 'transgender woman'."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-5",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The retrieved context does not mention Melanie running a charity race or any date related to it."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-6",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The context mentions Melanie enjoys camping and past camping trips, but does not state when she plans to go camping, nor does it mention June 2023."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-7",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The context mentions Caroline's relationships changing and some friends being unable to handle changes, but it does not state her relationship status or that she is single."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-8",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The retrieved context contains no information about Caroline giving a speech at a school or any date related to such an event."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-9",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The context does not mention any date or a meetup with friends, family, and mentors; it only describes general interactions and support."
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Full LLM judge scoring for LoCoMo benchmark via TokenHarbor.
 
-Uses hybrid recall (lexical + vector) with sentence-transformers,
-and optionally runs extraction to improve recall quality.
+Uses generative QA: generates answers from retrieved context, then judges
+correctness against gold answers. This matches competitor evaluation methods.
 """
 from __future__ import annotations
 
@@ -112,29 +112,60 @@ print("\n[run] Loading LoCoMo dataset...", flush=True)
 ds = _load_dataset()
 print(f"[run] Loaded {len(ds)} conversations", flush=True)
 
-# Judge prompt template
-JUDGE_PROMPT = """You are an impartial judge evaluating whether a retrieved context contains the information needed to answer a question.
+# Generative QA prompt
+QA_PROMPT = """Answer the question based ONLY on the provided context. If the context does not contain sufficient information to answer the question, respond with "I don't know."
+
+Context:
+{context}
+
+Question: {question}
+
+Answer:"""
+
+# Judge prompt
+JUDGE_PROMPT = """You are an impartial judge evaluating whether a generated answer correctly addresses a question based on the provided context.
 
 Question: {question}
 
 Gold Answer: {gold_answer}
 
-Retrieved Context:
-{context}
+Generated Answer: {generated_answer}
 
 Instructions:
-- Determine if the retrieved context contains sufficient information to answer the question correctly.
+- Determine if the generated answer is correct given the context and gold answer.
 - Consider paraphrases, synonyms, and equivalent expressions as correct.
 - Answer with ONLY a JSON object: {{"correct": true/false, "score": 0.0-1.0, "reason": "brief explanation"}}
-- "correct": true if the context supports the gold answer, false otherwise.
+- "correct": true if the generated answer matches the gold answer, false otherwise.
 - "score": 1.0 if fully correct, 0.0 if completely incorrect, or a fractional value for partial matches.
 """
 
-def judge_answer(question: str, gold_answer: str, context: str) -> dict:
+def generate_answer(question: str, context: str) -> str:
+    """Generate an answer given the question and context."""
+    prompt = QA_PROMPT.format(context=context[:4000], question=question)
+    try:
+        resp = requests.post(
+            f"{BASE_URL}/chat/completions",
+            headers=HEADERS,
+            json={
+                "model": JUDGE_MODEL,
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": 100,
+                "temperature": 0.0
+            },
+            timeout=30
+        )
+        if resp.status_code != 200:
+            return ""
+        return resp.json()["choices"][0]["message"]["content"].strip()
+    except Exception:
+        return ""
+
+def judge_answer(question: str, gold_answer: str, generated_answer: str) -> dict:
+    """Judge whether the generated answer is correct."""
     prompt = JUDGE_PROMPT.format(
         question=question,
-        gold_answer=gold_answer,
-        context=context[:4000]  # Truncate to avoid token limits
+        gold_answer=str(gold_answer),
+        generated_answer=generated_answer
     )
     
     for attempt in range(3):
@@ -181,9 +212,9 @@ def judge_answer(question: str, gold_answer: str, context: str) -> dict:
             time.sleep(1)
     return {"correct": False, "score": 0.0, "reason": "Max retries exceeded"}
 
-# Run judge scoring on ALL QA pairs
-print("\n[run] Starting LLM judge scoring (FULL: all 1,986 QA pairs)...", flush=True)
-print(f"[run] Mode: {'hybrid' if embedder else 'lexical'} + extraction + graph boost", flush=True)
+# Run generative QA + judge on ALL QA pairs
+print("\n[run] Starting generative QA + judge scoring (FULL: all 1,986 QA pairs)...", flush=True)
+print(f"[run] Mode: {'hybrid' if embedder else 'lexical'} + extraction + generative QA", flush=True)
 
 scores = []
 t0 = time.time()
@@ -195,14 +226,11 @@ for i, sample in enumerate(ds):
     
     scopes = {r.scope for r in records}
     engine = ScopeEngine(known_scopes=scopes)
-    
-    # Phase 12: graph boost is integrated into recall(), no separate step needed
-    # Phase 11: extraction creates Claims from Observations
     sub = create_substrate(conv_id, records, engine=engine, embedder=embedder)
     ctx = make_ctx()
     
     try:
-        # Phase 11: run extraction to create Claims from Observations
+        # Run extraction
         if embedder is not None:
             try:
                 claims = extract_facts(sub, ctx, "benchmark", limit=50)
@@ -213,14 +241,18 @@ for i, sample in enumerate(ds):
                 print(f"[run] Conv {conv_id}: extraction failed: {e}", flush=True)
         
         for qa in qa_pairs:
-            # Get recall results (hybrid if embedder available)
+            # Get recall results
             result = run_recall(sub, qa.question, embedder=embedder)
             context = "\n".join(result.selected_texts[:10])
             
-            # Judge
-            judge_result = judge_answer(qa.question, qa.gold_answer, context)
+            # Generate answer
+            generated = generate_answer(qa.question, context)
+            
+            # Judge answer
+            judge_result = judge_answer(qa.question, qa.gold_answer, generated)
             scores.append({
                 "question_id": qa.question_id,
+                "generated_answer": generated,
                 "judge_correct": judge_result.get("correct", False),
                 "judge_score": judge_result.get("score", 0.0),
                 "judge_reason": judge_result.get("reason", ""),
@@ -229,12 +261,12 @@ for i, sample in enumerate(ds):
             if len(scores) % 100 == 0:
                 elapsed = time.time() - t0
                 correct = sum(1 for s in scores[:len(scores)] if s["judge_correct"])
-                print(f"[run] Judged {len(scores)}/{1986} QA pairs ({elapsed:.1f}s, ~{len(scores)/elapsed:.1f}/s, accuracy={correct/len(scores):.1%})", flush=True)
+                print(f"[run] Processed {len(scores)}/{1986} QA pairs ({elapsed:.1f}s, ~{len(scores)/elapsed:.1f}/s, accuracy={correct/len(scores):.1%})", flush=True)
     finally:
         sub.close()
 
 elapsed = time.time() - t0
-print(f"\n[run] Judged {len(scores)} QA pairs in {elapsed:.1f}s", flush=True)
+print(f"\n[run] Processed {len(scores)} QA pairs in {elapsed:.1f}s", flush=True)
 
 # Aggregate
 correct = sum(1 for s in scores if s["judge_correct"])
@@ -244,12 +276,13 @@ results = {
     "generated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     "judge_model": JUDGE_MODEL,
     "recall_mode": "hybrid" if embedder else "lexical",
+    "eval_method": "generative_qa",
     "total_judged": len(scores),
     "correct": correct,
     "accuracy": correct / len(scores) if scores else 0.0,
     "avg_score": avg_score,
     "elapsed_s": elapsed,
-    "samples": scores[:10]  # Sample for verification
+    "samples": scores[:10]
 }
 
 (REPO / "benchmarks" / "judge-results.json").write_text(json.dumps(results, indent=2) + "\n")
