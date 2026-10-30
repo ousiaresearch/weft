@@ -119,8 +119,12 @@ def _rerank(query: str, items, embedder, top_k: int):
         return items[:top_k]
 
 
+from weft.reranking import CrossEncoderReranker  # noqa: E402
+
+
 def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
-           mode: str = "hybrid", embedder=None, rerank: bool | None = None):
+           mode: str = "hybrid", embedder=None, rerank: bool | None = None,
+           use_cross_encoder: bool = False, token_getter=None):
     """Recall over the caller's readable scopes. Returns (items, receipt)."""
     if mode not in MODES:
         raise ValueError(f"unknown recall mode: {mode!r}")
@@ -129,6 +133,21 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
     # None means "auto": rerank is on for hybrid/vector where we have an embedder.
     if rerank is None:
         rerank = mode in ("vector", "hybrid") and embedder is not None
+    cross_encoder = None
+    if use_cross_encoder:
+        try:
+            cross_encoder = CrossEncoderReranker()
+        except Exception:
+            pass
+    
+    # Optional query expansion: generate alternative phrasings and fuse results.
+    expanded_queries = [query]
+    if token_getter is not None and mode in ("hybrid", "lexical"):
+        try:
+            from weft.query_expansion import expand_query
+            expanded_queries = expand_query(token_getter, query, n=2)
+        except Exception:
+            pass
     engine = sub.scope_engine
     readable = sorted(
         s for s in engine.known_scopes if engine.authorize_read(s, ctx, "").allowed
@@ -145,9 +164,24 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
             sub.record_receipt("recall", readable, {"selected": 0, "excluded": 0}, ctx)
         return [], receipt
 
+    def _recall_one(q: str):
+        """Core recall for a single query string. Returns candidate_ids list."""
+        q_terms = re.findall(r"\w+", (q or "").lower())
+        q_content = [t for t in q_terms if t not in STOPWORDS]
+        q_lexical = mode in ("lexical", "hybrid") and bool(q_content)
+        q_vector = mode in ("vector", "hybrid")
+        q_embedding = embedder.embed_query(q) if q_vector and embedder else None
+        q_pool = limit * 4
+        ranked = []
+        if q_lexical:
+            match = " OR ".join(f'"{t}"' for t in q_content)
+            ranked.append(sub.fts_candidates(match, ctx, q_pool, scopes=readable))
+        if q_vector and embedder is not None:
+            ranked.append(sub.vector_candidates(q_embedding, ctx, q_pool, scopes=readable, model_id=embedder.model_id))
+        return ranked[0] if len(ranked) == 1 else _fuse(ranked, q_pool)
+
     # D3-1: embedding computed outside the database transaction so long-running
     # model inference does not pin a WAL snapshot or hold the connection lock.
-    query_embedding = embedder.embed_query(query) if use_vector else None
     pool = limit * 4
     # Snapshot-time consistency: completeness check, candidate selection, and
     # per-record reads must observe one view (review G-P3-7). record_receipt
@@ -162,13 +196,18 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
             for scope in readable:
                 if not sub.vector_index_complete(scope, ctx, model_id=embedder.model_id):
                     raise ValueError("hybrid/vector recall requires a complete vector index for every readable scope")
-        ranked = []
-        if use_lexical:
-            match = " OR ".join(f'"{t}"' for t in content_terms)
-            ranked.append(sub.fts_candidates(match, ctx, pool, scopes=readable))
-        if use_vector:
-            ranked.append(sub.vector_candidates(query_embedding, ctx, pool, scopes=readable, model_id=embedder.model_id))
-        candidate_ids = ranked[0] if len(ranked) == 1 else _fuse(ranked, pool)
+        
+        # Run recall for each expanded query and fuse candidate IDs.
+        all_ranked = []
+        for q in expanded_queries:
+            try:
+                all_ranked.append(_recall_one(q))
+            except Exception:
+                pass
+        if all_ranked:
+            candidate_ids = _fuse(all_ranked, pool) if len(all_ranked) > 1 else all_ranked[0]
+        else:
+            candidate_ids = []
 
         # Phase 12: graph boost — reorder candidates by entity overlap with query.
         try:
@@ -222,6 +261,10 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
         # Rerank over the full pool before truncation to limit.
         if rerank and len(items) > limit:
             items = _rerank(query, items, embedder, limit)
+        
+        # Cross-encoder rerank on the pooled candidates before final truncation.
+        if use_cross_encoder and cross_encoder is not None and len(items) > limit:
+            items = cross_encoder.rerank(query, items, top_k=limit)
 
     # Final truncation + receipt recording happens outside the read transaction.
     selected = items[:limit]
