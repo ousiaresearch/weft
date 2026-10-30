@@ -76,14 +76,20 @@ def create_substrate(conv_id: str, records: list[Record], engine: ScopeEngine | 
     ctx = make_ctx()
     for rec in records:
         sub.put(rec, ctx)
-        if embedder is not None:
-            try:
-                vector = embedder.embed_document(
-                    rec.payload.get("text", "") if isinstance(rec.payload, dict) else str(rec.payload)
-                )
-                sub.vector_put(rec.record_id, rec.scope, vector, ctx, model_id=embedder.model_id)
-            except Exception:
-                pass
+    if embedder is not None:
+        try:
+            texts = [
+                rec.payload.get("text", "") if isinstance(rec.payload, dict) else str(rec.payload)
+                for rec in records
+            ]
+            vectors = embedder.embed_documents(texts)
+            for rec, vector in zip(records, vectors):
+                try:
+                    sub.vector_put(rec.record_id, rec.scope, vector, ctx, model_id=embedder.model_id)
+                except Exception:
+                    pass
+        except Exception:
+            pass
     try:
         sub.rebuild_fts("benchmark", ctx)
     except Exception:

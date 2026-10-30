@@ -1,0 +1,41 @@
+{
+  "generated": "2026-10-30T01:22:18Z",
+  "judge_model": "deepseek-v4.1-flash",
+  "total_judged": 50,
+  "correct": 17,
+  "accuracy": 0.34,
+  "avg_score": 0.4482,
+  "elapsed_s": 235.98147630691528,
+  "samples": [
+    {
+      "question_id": "locomo-conv-26-qa-0",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The context does not state the exact date Caroline went to the LGBTQ support group; it only mentions a conversation on 8 May 2023 where she said she attended recently."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-1",
+      "judge_correct": true,
+      "judge_score": 1.0,
+      "judge_reason": "The context says Melanie painted a lake sunrise 'last year,' and surrounding events are dated 2023, so this supports the answer 2022."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-2",
+      "judge_correct": false,
+      "judge_score": 0.5,
+      "judge_reason": "The context mentions Caroline's motivation to pursue counseling or mental health work, which partially aligns with the gold answer, but it does not explicitly mention psychology or a counseling certification."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-3",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "Parse error: "
+    },
+    {
+      "question_id": "locomo-conv-26-qa-4",
+      "judge_correct": true,
+      "judge_score": 1.0,
+      "judge_reason": "Context identifies Caroline as a trans person and uses female pronouns, supporting that she is a transgender woman."
+    }
+  ]
+}

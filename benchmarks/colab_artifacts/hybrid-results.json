@@ -1,0 +1,28 @@
+{
+  "generated": "2026-10-30T01:12:00Z",
+  "embedder": "SentenceTransformer(BAAI/bge-m3)",
+  "suites": {
+    "locomo-lexical": {
+      "total": 1986,
+      "exact": 1098,
+      "substring": 1098,
+      "exact_rate": 0.552870090634441,
+      "substring_rate": 0.552870090634441,
+      "f1_mean": 0.3562263476492168,
+      "mrr_mean": 0.3561869595102224,
+      "p50_ms": 61.453281000012794,
+      "p95_ms": 84.97320200012837
+    },
+    "locomo-hybrid": {
+      "total": 1986,
+      "exact": 1129,
+      "substring": 1129,
+      "exact_rate": 0.5684793554884189,
+      "substring_rate": 0.5684793554884189,
+      "f1_mean": 0.3744111748052479,
+      "mrr_mean": 0.3743735913297847,
+      "p50_ms": 195.0888329999998,
+      "p95_ms": 242.51651800000218
+    }
+  }
+}
