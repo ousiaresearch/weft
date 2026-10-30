@@ -229,10 +229,9 @@ for i, sample in enumerate(ds):
     sub = create_substrate(conv_id, records, engine=engine, embedder=embedder)
     ctx = make_ctx()
     
-    # Defensive: if embedder was provided but vector index is incomplete,
-    # fall back to lexical-only for this conversation.
     recall_embedder = embedder
     if recall_embedder is not None:
+        # Initial check before extraction
         try:
             incomplete = any(
                 not sub.vector_index_complete(r.scope, ctx, model_id=recall_embedder.model_id)
@@ -241,7 +240,7 @@ for i, sample in enumerate(ds):
         except Exception:
             incomplete = True
         if incomplete:
-            print(f"[run] Conv {conv_id}: vector index incomplete, falling back to lexical", flush=True)
+            print(f"[run] Conv {conv_id}: vector index incomplete before extraction, falling back to lexical", flush=True)
             recall_embedder = None
     
     try:
@@ -252,6 +251,17 @@ for i, sample in enumerate(ds):
                 written = write_claims(sub, ctx, claims)
                 if written > 0:
                     print(f"[run] Conv {conv_id}: extracted {written} claims", flush=True)
+                    # Re-check vector index after extraction added new records
+                    try:
+                        incomplete = any(
+                            not sub.vector_index_complete(r.scope, ctx, model_id=recall_embedder.model_id)
+                            for r in records
+                        )
+                    except Exception:
+                        incomplete = True
+                    if incomplete:
+                        print(f"[run] Conv {conv_id}: vector index incomplete after extraction, falling back to lexical", flush=True)
+                        recall_embedder = None
             except Exception as e:
                 print(f"[run] Conv {conv_id}: extraction failed: {e}", flush=True)
         
