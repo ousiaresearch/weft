@@ -1,0 +1,26 @@
+{
+  "run_id": "judge-gen-v3-partial-300",
+  "dataset": "locomo10",
+  "total_qa_pairs": 1986,
+  "processed": 300,
+  "accuracy": 0.123,
+  "mode": "lexical-only-fallback",
+  "note": "Vector index incomplete after extraction; hybrid recall disabled. Stopped per user request.",
+  "samples": [
+    {
+      "processed": 100,
+      "elapsed_s": 1116.1,
+      "accuracy": 0.07
+    },
+    {
+      "processed": 200,
+      "elapsed_s": 2579.1,
+      "accuracy": 0.11
+    },
+    {
+      "processed": 300,
+      "elapsed_s": 3220.7,
+      "accuracy": 0.123
+    }
+  ]
+}
