@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Full LLM judge scoring for LoCoMo benchmark via TokenHarbor."""
+"""Full LLM judge scoring for LoCoMo benchmark via TokenHarbor.
+
+Uses hybrid recall (lexical + vector) with sentence-transformers,
+and optionally runs extraction to improve recall quality.
+"""
 from __future__ import annotations
 
 import json
@@ -30,6 +34,7 @@ sys.path.insert(0, str(REPO))
 run("pip install -e . -q")
 run("pip install datasets pytest -q")
 run("pip install requests -q")
+run("pip install sentence-transformers -q")
 
 import requests  # noqa: E402
 
@@ -70,9 +75,38 @@ if test_resp.status_code != 200:
     print(f"[setup] Judge test failed: {test_resp.text[:200]}", flush=True)
     sys.exit(1)
 
+# Load embedder for hybrid recall
+print("[setup] Loading sentence-transformers embedder...", flush=True)
+from sentence_transformers import SentenceTransformer  # noqa: E402
+
+class STEmbedder:
+    """Wrapper for sentence-transformers to match Weft's embedder interface."""
+    def __init__(self, model_name: str = "BAAI/bge-m3"):
+        self.model = SentenceTransformer(model_name)
+        self.model_id = f"sentence-transformers/{model_name}"
+        self._dim = self.model.get_sentence_embedding_dimension()
+    
+    def embed_query(self, text: str) -> list[float]:
+        return self.model.encode(f"query: {text}", normalize_embeddings=True).tolist()
+    
+    def embed_document(self, text: str) -> list[float]:
+        return self.model.encode(text, normalize_embeddings=True).tolist()
+    
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        return self.model.encode(texts, normalize_embeddings=True).tolist()
+
+try:
+    embedder = STEmbedder("BAAI/bge-m3")
+    print(f"[setup] Embedder loaded (dim={embedder._dim})", flush=True)
+except Exception as e:
+    print(f"[setup] Failed to load BAAI/bge-m3: {e}", flush=True)
+    print("[setup] Falling back to lexical-only recall", flush=True)
+    embedder = None
+
 from benchmarks.full.locomo import _load_dataset, convert_sample  # noqa: E402
 from benchmarks.full.common import make_engine, make_ctx, create_substrate, run_recall  # noqa: E402
 from weft.scope import ScopeEngine  # noqa: E402
+from weft.extraction import extract_facts, write_claims  # noqa: E402
 
 print("\n[run] Loading LoCoMo dataset...", flush=True)
 ds = _load_dataset()
@@ -130,17 +164,15 @@ def judge_answer(question: str, gold_answer: str, context: str) -> dict:
             
             # Extract JSON from response
             try:
-                # Try to parse as JSON directly
                 result = json.loads(text)
                 return result
             except json.JSONDecodeError:
-                # Try to extract JSON from markdown code block or text
                 import re
                 json_match = re.search(r'\{[^}]+\}', text)
                 if json_match:
                     try:
                         return json.loads(json_match.group())
-                    except:
+                    except Exception:
                         pass
                 return {"correct": False, "score": 0.0, "reason": f"Parse error: {text[:100]}"}
         except Exception as e:
@@ -151,9 +183,9 @@ def judge_answer(question: str, gold_answer: str, context: str) -> dict:
 
 # Run judge scoring on ALL QA pairs
 print("\n[run] Starting LLM judge scoring (FULL: all 1,986 QA pairs)...", flush=True)
+print(f"[run] Mode: {'hybrid' if embedder else 'lexical'} + extraction + graph boost", flush=True)
 
 scores = []
-total_cost = 0.0
 t0 = time.time()
 
 for i, sample in enumerate(ds):
@@ -163,13 +195,26 @@ for i, sample in enumerate(ds):
     
     scopes = {r.scope for r in records}
     engine = ScopeEngine(known_scopes=scopes)
-    sub = create_substrate(conv_id, records, engine=engine)
+    
+    # Phase 12: graph boost is integrated into recall(), no separate step needed
+    # Phase 11: extraction creates Claims from Observations
+    sub = create_substrate(conv_id, records, engine=engine, embedder=embedder)
     ctx = make_ctx()
     
     try:
+        # Phase 11: run extraction to create Claims from Observations
+        if embedder is not None:
+            try:
+                claims = extract_facts(sub, ctx, "benchmark", limit=50)
+                written = write_claims(sub, ctx, claims)
+                if written > 0:
+                    print(f"[run] Conv {conv_id}: extracted {written} claims", flush=True)
+            except Exception as e:
+                print(f"[run] Conv {conv_id}: extraction failed: {e}", flush=True)
+        
         for qa in qa_pairs:
-            # Get hybrid recall results
-            result = run_recall(sub, qa.question, embedder=None)
+            # Get recall results (hybrid if embedder available)
+            result = run_recall(sub, qa.question, embedder=embedder)
             context = "\n".join(result.selected_texts[:10])
             
             # Judge
@@ -183,7 +228,8 @@ for i, sample in enumerate(ds):
             
             if len(scores) % 100 == 0:
                 elapsed = time.time() - t0
-                print(f"[run] Judged {len(scores)}/{1986} QA pairs ({elapsed:.1f}s, ~{len(scores)/elapsed:.1f}/s)", flush=True)
+                correct = sum(1 for s in scores[:len(scores)] if s["judge_correct"])
+                print(f"[run] Judged {len(scores)}/{1986} QA pairs ({elapsed:.1f}s, ~{len(scores)/elapsed:.1f}/s, accuracy={correct/len(scores):.1%})", flush=True)
     finally:
         sub.close()
 
@@ -197,6 +243,7 @@ avg_score = sum(s["judge_score"] for s in scores) / len(scores) if scores else 0
 results = {
     "generated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     "judge_model": JUDGE_MODEL,
+    "recall_mode": "hybrid" if embedder else "lexical",
     "total_judged": len(scores),
     "correct": correct,
     "accuracy": correct / len(scores) if scores else 0.0,
