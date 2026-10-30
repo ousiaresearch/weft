@@ -244,24 +244,13 @@ for i, sample in enumerate(ds):
             recall_embedder = None
     
     try:
-        # Run extraction
+        # Run extraction + vectorize new claims
         if recall_embedder is not None:
             try:
                 claims = extract_facts(sub, ctx, "benchmark", limit=50)
-                written = write_claims(sub, ctx, claims)
+                written = write_claims(sub, ctx, claims, embedder=recall_embedder)
                 if written > 0:
-                    print(f"[run] Conv {conv_id}: extracted {written} claims", flush=True)
-                    # Re-check vector index after extraction added new records
-                    try:
-                        incomplete = any(
-                            not sub.vector_index_complete(r.scope, ctx, model_id=recall_embedder.model_id)
-                            for r in records
-                        )
-                    except Exception:
-                        incomplete = True
-                    if incomplete:
-                        print(f"[run] Conv {conv_id}: vector index incomplete after extraction, falling back to lexical", flush=True)
-                        recall_embedder = None
+                    print(f"[run] Conv {conv_id}: extracted {written} claims with vectors", flush=True)
             except Exception as e:
                 print(f"[run] Conv {conv_id}: extraction failed: {e}", flush=True)
         

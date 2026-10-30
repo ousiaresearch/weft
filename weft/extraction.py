@@ -162,8 +162,12 @@ def extract_facts(sub: Substrate, ctx: ScopeContext, scope: str, limit: int = 10
     return claims
 
 
-def write_claims(sub: Substrate, ctx: ScopeContext, claims: list[Record]) -> int:
-    """Write extracted claims to substrate. Returns count written."""
+def write_claims(sub: Substrate, ctx: ScopeContext, claims: list[Record], embedder=None) -> int:
+    """Write extracted claims to substrate. Returns count written.
+    
+    If embedder is provided, also populates the vector index for new claims
+    so that vector_index_complete remains true after extraction.
+    """
     written = 0
     for claim in claims:
         try:
@@ -171,6 +175,14 @@ def write_claims(sub: Substrate, ctx: ScopeContext, claims: list[Record]) -> int
             if reason is None:
                 sub.put(claim, ctx)
                 written += 1
+                if embedder is not None:
+                    try:
+                        text = claim.payload.get("text", "") if isinstance(claim.payload, dict) else str(claim.payload)
+                        if text:
+                            vector = embedder.embed_document(text)
+                            sub.vector_put(claim.record_id, claim.scope, vector, ctx, model_id=embedder.model_id)
+                    except Exception:
+                        pass
         except Exception:
             continue
     return written
