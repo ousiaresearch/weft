@@ -43,6 +43,13 @@ def _parser() -> argparse.ArgumentParser:
     serve.add_argument("--port", type=int, default=8765, help="bind port (default: 8765)")
     rebuild = commands.add_parser("rebuild-fts", help="rebuild one scope's local text index")
     rebuild.add_argument("--scope", required=True)
+    
+    extract = commands.add_parser("extract", help="extract facts from Observations into Claims")
+    extract.add_argument("--scope", required=True)
+    extract.add_argument("--limit", type=int, default=100, help="max Observations to process")
+    
+    consolidate = commands.add_parser("consolidate", help="deduplicate Claims in a scope")
+    consolidate.add_argument("--scope", required=True)
     return parser
 
 
@@ -144,6 +151,46 @@ def _run_serve(args) -> int:
     return 0
 
 
+def _run_extract(args) -> int:
+    from weft.extraction import extract_facts, write_claims
+    db_path = Path(args.db).expanduser()
+    if not db_path.is_file():
+        raise FileNotFoundError(f"Weft database not found: {db_path}")
+    engine, ctx = _context(args.scope)
+    sub = Substrate(db_path, engine)
+    try:
+        claims = extract_facts(sub, ctx, args.scope, limit=args.limit)
+        written = write_claims(sub, ctx, claims)
+        print(json.dumps({
+            "status": "extracted",
+            "scope": args.scope,
+            "claims_generated": len(claims),
+            "claims_written": written,
+        }))
+        return 0
+    finally:
+        sub.close()
+
+
+def _run_consolidate(args) -> int:
+    from weft.extraction import consolidate_scope
+    db_path = Path(args.db).expanduser()
+    if not db_path.is_file():
+        raise FileNotFoundError(f"Weft database not found: {db_path}")
+    engine, ctx = _context(args.scope)
+    sub = Substrate(db_path, engine)
+    try:
+        result = consolidate_scope(sub, ctx, args.scope)
+        print(json.dumps({
+            "status": "consolidated",
+            "scope": args.scope,
+            **result,
+        }))
+        return 0
+    finally:
+        sub.close()
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = _parser()
     args = parser.parse_args(argv)
@@ -154,6 +201,10 @@ def main(argv: list[str] | None = None) -> int:
             return _run_rebuild_fts(args)
         if args.command == "serve":
             return _run_serve(args)
+        if args.command == "extract":
+            return _run_extract(args)
+        if args.command == "consolidate":
+            return _run_consolidate(args)
         return _run_recall(args)
     except (OSError, RuntimeError, ValueError, ImportError, sqlite3.Error, SubstrateError) as exc:
         print(f"weft: {exc}", file=sys.stderr)
