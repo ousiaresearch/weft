@@ -1,0 +1,35 @@
+{
+  "sample_size": 50,
+  "baseline_recall": 0.22,
+  "enhanced_recall": 0.22,
+  "recall_lift": 0.0,
+  "baseline_avg_selected": 10.0,
+  "enhanced_avg_selected": 10.0,
+  "samples": [
+    {
+      "question_id": "locomo-conv-26-qa-0",
+      "has_gold": true,
+      "selected": 10
+    },
+    {
+      "question_id": "locomo-conv-26-qa-1",
+      "has_gold": false,
+      "selected": 10
+    },
+    {
+      "question_id": "locomo-conv-26-qa-2",
+      "has_gold": false,
+      "selected": 10
+    },
+    {
+      "question_id": "locomo-conv-26-qa-3",
+      "has_gold": false,
+      "selected": 10
+    },
+    {
+      "question_id": "locomo-conv-26-qa-4",
+      "has_gold": false,
+      "selected": 10
+    }
+  ]
+}
