@@ -110,6 +110,7 @@ def _load_payload(raw: Any) -> dict[str, Any]:
 def entity_boost(sub: Substrate, ctx: ScopeContext, query: str, candidate_ids: list[str], boost: float = 0.1) -> dict[str, float]:
     """Score candidate records by how many query entities they mention.
 
+    Uses the precomputed entity_links table instead of re-parsing text.
     Returns {record_id: boost_score}. Scores are additive fractions of *boost*.
     Fail-closed: returns {} on any error.
     """
@@ -117,20 +118,20 @@ def entity_boost(sub: Substrate, ctx: ScopeContext, query: str, candidate_ids: l
         query_entities = set(extract_entities(query))
         if not query_entities:
             return {}
+        src_placeholders = ",".join("?" for _ in candidate_ids)
+        tgt_placeholders = ",".join("?" for _ in query_entities)
+        rows = sub._conn.execute(
+            f"SELECT source_id, target_id FROM entity_links "
+            f"WHERE source_id IN ({src_placeholders}) "
+            f"AND target_id IN ({tgt_placeholders})",
+            tuple(candidate_ids) + tuple(query_entities),
+        ).fetchall()
         scores: dict[str, float] = {}
-        for record_id in candidate_ids:
-            try:
-                rec = sub.get(record_id, ctx)
-                if rec is None:
-                    continue
-                payload = _load_payload(rec.payload)
-                text = payload.get("text", "")
-                record_entities = set(extract_entities(text))
-                overlap = query_entities & record_entities
-                if overlap:
-                    scores[record_id] = boost * (len(overlap) / len(query_entities))
-            except Exception:
-                continue
+        for source_id, target_id in rows:
+            if source_id in scores:
+                scores[source_id] += boost / len(query_entities)
+            else:
+                scores[source_id] = boost / len(query_entities)
         return scores
     except Exception:
         return {}

@@ -25,7 +25,7 @@ def test_export_scope_returns_portable_dict(tmp_path):
                           source_ids=["src-1-s"], payload={"text": "v1"}, effective_at=100.0),
                     ctx, validate_schema=True, overwrite=False)
         data = sub.export_scope("s", ctx)
-        assert data["schema_version"] == 5
+        assert data["schema_version"] == 6
         assert data["scope"] == "s"
         assert len(data["records"]) == 2  # Source + Observation
         texts = {r["payload"]["text"] for r in data["records"]}
@@ -76,7 +76,7 @@ def test_import_scope_requires_context(tmp_path):
     sub = Substrate(tmp_path / "a.db", ScopeEngine(known_scopes=KNOWN))
     try:
         with pytest.raises(ValueError, match="context required"):
-            sub.import_scope({"schema_version": 5, "scope": "s", "records": []}, None)
+            sub.import_scope({"schema_version": 6, "scope": "s", "records": []}, None)
     finally:
         sub.close()
 
@@ -88,7 +88,7 @@ def test_import_scope_rejects_unverified_claim_without_verification(tmp_path):
         sub._conn.execute("INSERT INTO verifiers (actor_id, registered_at) VALUES (?, ?)", ("verifier", 0.0))
         sub._conn.commit()
         data = {
-            "schema_version": 5,
+            "schema_version": 6,
             "scope": "s",
             "records": [
                 {

@@ -70,6 +70,7 @@ def test_link_entities_idempotent(substrate):
 def test_entity_boost_scores_overlap(substrate):
     _seed(substrate)
     ctx = ScopeContext(granted_scopes=frozenset({"test"}), user_authored=True)
+    link_entities(substrate, ctx, "test", limit=10)
     scores = entity_boost(substrate, ctx, "Melanie painted", ["r1", "r2"])
     assert scores.get("r1", 0) > 0
     assert scores.get("r2", 0) == 0

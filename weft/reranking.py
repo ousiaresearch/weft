@@ -40,7 +40,7 @@ class CrossEncoderReranker:
             if self._model in (None, "error"):
                 return list(items)[:top_k]
 
-            pairs = [(query, item.selected_texts[0] if item.selected_texts else "") for item in items]
+            pairs = [(query, item.text) for item in items]
             scores = self._model.predict(pairs, show_progress_bar=False)
             scored = sorted(zip(scores, items), key=lambda x: (-x[0], x[1].record_id))
             return [item for _, item in scored[:top_k]]

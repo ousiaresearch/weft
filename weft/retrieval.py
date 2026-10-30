@@ -213,7 +213,7 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
         try:
             graph_scores = entity_boost(sub, ctx, query, candidate_ids)
             if graph_scores:
-                candidate_ids.sort(key=lambda rid: (-graph_scores.get(rid, 0.0), rid))
+                candidate_ids.sort(key=lambda rid: (-graph_scores.get(rid, 0.0), candidate_ids.index(rid)))
         except Exception:
             pass
 
@@ -229,15 +229,18 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
                     except (TypeError, ValueError):
                         pass
             if conf_scores:
-                candidate_ids.sort(key=lambda rid: (-conf_scores.get(rid, 0.0), rid))
+                candidate_ids.sort(key=lambda rid: (-conf_scores.get(rid, 0.0), candidate_ids.index(rid)))
         except Exception:
             pass
 
         items: list[Item] = []
-        seen_documents: set = set()  # one result per document: a note is not five paragraphs
+        seen_record_ids: set = set()
         for rid in candidate_ids:
             if len(items) >= pool:
                 break
+            if rid in seen_record_ids:
+                continue
+            seen_record_ids.add(rid)
             rec = sub.get(rid, ctx)  # gated again: defence in depth
             if rec is None:
                 receipt.exclusions.append("withheld by content rule")
@@ -245,11 +248,6 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
             if rec.record_type in ("Summary", "RecallReceipt"):
                 receipt.exclusions.append("composite artifact")
                 continue
-            document = rec.provenance.get("document") if isinstance(rec.provenance, dict) else None
-            key = document if document else f"record:{rid}"
-            if key in seen_documents:
-                continue
-            seen_documents.add(key)
             text = rec.payload.get("text", "") if isinstance(rec.payload, dict) else ""
             tier, shown = _pick_tier(text, terms)
             derived = bool(isinstance(rec.provenance, dict) and rec.provenance.get("machine_derived"))

@@ -115,7 +115,7 @@ class Record:
         )
 
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 VEC_DIM = 1024  # embedding dimension of the alpha embedding adapter
 
 _SCHEMA = """
@@ -138,7 +138,7 @@ CREATE TABLE IF NOT EXISTS verifiers (
     actor_id      TEXT PRIMARY KEY,
     registered_at REAL NOT NULL
 );
-CREATE VIRTUAL TABLE IF NOT EXISTS fts USING fts5(record_id UNINDEXED, scope UNINDEXED, text);
+CREATE VIRTUAL TABLE IF NOT EXISTS fts USING fts5(record_id UNINDEXED, scope UNINDEXED, text, tokenize='porter unicode61');
 CREATE TABLE IF NOT EXISTS jobs (
     job_id       INTEGER PRIMARY KEY AUTOINCREMENT,
     scope        TEXT NOT NULL,
@@ -413,6 +413,14 @@ class Substrate:
                 self._conn.execute("CREATE INDEX IF NOT EXISTS idx_entity_links_scope ON entity_links(scope)")
             if version < 3:
                 self._conn.execute("DELETE FROM fts")
+                for row in self._conn.execute("SELECT * FROM records").fetchall():
+                    self._fts_index(Record.from_row(row))
+            if version < 6:
+                # Version 6: switch FTS5 to porter stemming tokenizer.
+                self._conn.execute("DROP TABLE IF EXISTS fts")
+                self._conn.execute(
+                    "CREATE VIRTUAL TABLE fts USING fts5(record_id UNINDEXED, scope UNINDEXED, text, tokenize='porter unicode61')"
+                )
                 for row in self._conn.execute("SELECT * FROM records").fetchall():
                     self._fts_index(Record.from_row(row))
             self._conn.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
