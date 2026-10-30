@@ -34,7 +34,7 @@ def _get_token() -> str:
 def _extract_facts(text: str, scope: str) -> list[dict[str, Any]]:
     """Use TokenHarbor LLM to extract discrete facts from observation text.
     
-    Returns list of {subject, predicate, object, confidence}.
+    Returns list of {subject, predicate, object, fact_type, confidence}.
     Fail-closed: returns [] on any error.
     """
     token = _get_token()
@@ -42,10 +42,21 @@ def _extract_facts(text: str, scope: str) -> list[dict[str, Any]]:
         return []
     
     prompt = f"""Extract discrete factual claims from the following observation text.
+Each claim must be a simple (subject, predicate, object) triple.
+
+Rules:
+- Only extract claims that are explicitly stated or directly implied.
+- Ignore opinions, emotions, or speculative statements.
+- Prefer specific entities over pronouns.
+- Use concise predicates (e.g., "painted", "attended", "lived in").
+- Assign fact_type: event, attribute, relation, location, or temporal.
+- Assign confidence: 0.0-1.0 based on explicitness.
+
 Return ONLY a JSON array of objects with these fields:
-- subject: the entity the claim is about
-- predicate: the relationship or property
-- object: the value or target
+- subject: entity the claim is about
+- predicate: relationship or property
+- object: value or target
+- fact_type: one of [event, attribute, relation, location, temporal]
 - confidence: 0.0-1.0
 
 Observation: {text[:2000]}
@@ -59,7 +70,7 @@ Return empty array [] if no extractable facts."""
             data=json.dumps({
                 "model": _JUDGE_MODEL,
                 "messages": [{"role": "user", "content": prompt}],
-                "max_tokens": 500,
+                "max_tokens": 800,
                 "temperature": 0.0
             }).encode(),
             headers={
@@ -78,7 +89,7 @@ Return empty array [] if no extractable facts."""
         end = text_out.rfind(']') + 1
         if start >= 0 and end > start:
             facts = json.loads(text_out[start:end])
-            return [f for f in facts if isinstance(f, dict) and f.get("subject")]
+            return [f for f in facts if isinstance(f, dict) and f.get("subject") and f.get("predicate")]
     except Exception:
         pass
     return []
@@ -96,6 +107,7 @@ def _fact_to_claim(fact: dict[str, Any], source_id: str, scope: str, index: int)
             "subject": fact["subject"],
             "predicate": fact["predicate"],
             "object": fact["object"],
+            "fact_type": fact.get("fact_type", "attribute"),
             "confidence": fact.get("confidence", 0.5),
         },
         epistemic_status="derived",
