@@ -41,31 +41,43 @@ run("pip install sentence-transformers -q")
 import requests  # noqa: E402
 
 # TokenHarbor config
-TOKEN = os.environ.get("TOKENHARBOR_API_KEY", "")
-if not TOKEN:
+TOKENS = [
+    os.environ.get("TOKENHARBOR_API_KEY_1", ""),
+    os.environ.get("TOKENHARBOR_API_KEY_2", ""),
+]
+TOKENS = [t for t in TOKENS if t]
+if not TOKENS:
     token_path = Path.home() / ".config/vireth/th_token"
     if token_path.exists():
-        TOKEN = token_path.read_text().strip()
+        TOKENS = [token_path.read_text().strip()]
 
-if not TOKEN:
-    print("[ERROR] No TokenHarbor token found", flush=True)
+if not TOKENS:
+    print("[ERROR] No TokenHarbor tokens found", flush=True)
     sys.exit(1)
 
-HEADERS = {
-    "Authorization": f"Bearer {TOKEN}",
+_token_idx = 0
+_token_lock = Lock()
+
+def next_token() -> str:
+    global _token_idx
+    with _token_lock:
+        token = TOKENS[_token_idx % len(TOKENS)]
+        _token_idx += 1
+        return token
+
+HEADERS_FACTORY = lambda: {
+    "Authorization": f"Bearer {next_token()}",
     "Content-Type": "application/json"
 }
 JUDGE_MODEL = "deepseek-v4.1-flash"
 BASE_URL = "https://tokenharbor.ai/v1"
 
-print(f"[setup] TokenHarbor token loaded (length {len(TOKEN)})", flush=True)
+print(f"[setup] Loaded {len(TOKENS)} TokenHarbor token(s)", flush=True)
 print(f"[setup] Judge model: {JUDGE_MODEL}", flush=True)
-
-# Verify judge model works
 print("[setup] Testing judge model...", flush=True)
 test_resp = requests.post(
     f"{BASE_URL}/chat/completions",
-    headers=HEADERS,
+    headers=HEADERS_FACTORY(),
     json={
         "model": JUDGE_MODEL,
         "messages": [{"role": "user", "content": "Say 'ok'"}],
@@ -145,7 +157,7 @@ def generate_answer(question: str, context: str) -> str:
     try:
         resp = requests.post(
             f"{BASE_URL}/chat/completions",
-            headers=HEADERS,
+            headers=HEADERS_FACTORY(),
             json={
                 "model": JUDGE_MODEL,
                 "messages": [{"role": "user", "content": prompt}],
@@ -172,7 +184,7 @@ def judge_answer(question: str, gold_answer: str, generated_answer: str) -> dict
         try:
             resp = requests.post(
                 f"{BASE_URL}/chat/completions",
-                headers=HEADERS,
+                headers=HEADERS_FACTORY(),
                 json={
                     "model": JUDGE_MODEL,
                     "messages": [{"role": "user", "content": prompt}],
