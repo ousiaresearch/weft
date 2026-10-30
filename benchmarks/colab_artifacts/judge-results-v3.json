@@ -1,0 +1,83 @@
+{
+  "generated": "2026-10-30T17:21:56Z",
+  "judge_model": "deepseek-v4.1-flash",
+  "recall_mode": "hybrid",
+  "eval_method": "generative_qa",
+  "total_judged": 1986,
+  "correct": 369,
+  "accuracy": 0.18580060422960726,
+  "avg_score": 0.22358006042296072,
+  "elapsed_s": 2320.440970182419,
+  "samples": [
+    {
+      "question_id": "locomo-conv-26-qa-5",
+      "generated_answer": "I don't know.",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The generated answer does not provide the requested date and instead says it does not know, so it is completely incorrect."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-6",
+      "generated_answer": "I don't know.",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The generated answer says it does not know, but the gold answer specifies June 2023."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-8",
+      "generated_answer": "I don't know.",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The generated answer does not provide the requested date and instead says it does not know."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-7",
+      "generated_answer": "I don't know.",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The generated answer does not provide Caroline's relationship status; it says it doesn't know, while the gold answer is Single."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-0",
+      "generated_answer": "Recently.",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The generated answer 'Recently' does not provide the specific date '7 May 2023' from the gold answer."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-1",
+      "generated_answer": "last year",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The gold answer is 2022, while 'last year' is relative and, as of 2026, would refer to 2025, not 2022."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-9",
+      "generated_answer": "I don't know.",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The generated answer says 'I don't know' and does not provide the gold answer date."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-4",
+      "generated_answer": "Caroline is a trans person.",
+      "judge_correct": false,
+      "judge_score": 0.5,
+      "judge_reason": "The generated answer correctly identifies Caroline as transgender but omits the specific identity 'woman,' so it is only partially correct."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-3",
+      "generated_answer": "I don't know.",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The generated answer does not provide the requested information and says 'I don't know,' while the gold answer is 'Adoption agencies.'"
+    },
+    {
+      "question_id": "locomo-conv-26-qa-2",
+      "generated_answer": "Counseling or mental health.",
+      "judge_correct": false,
+      "judge_score": 0.5,
+      "judge_reason": "Generated answer includes counseling, which matches part of the gold answer, and mental health is related to psychology, but it omits the explicit psychology field."
+    }
+  ]
+}
