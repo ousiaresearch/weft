@@ -112,7 +112,7 @@ def run_recall(
         limit=limit,
         mode="hybrid" if embedder is not None else "lexical",
         embedder=embedder,
-        rerank=False,
+        rerank=None,  # auto: on for hybrid/vector when embedder present
     )
     latency_ms = (time.perf_counter() - start) * 1000.0
     selected_ids = [item.record_id for item in items]

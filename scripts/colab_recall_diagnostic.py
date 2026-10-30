@@ -74,26 +74,28 @@ HEADERS_FACTORY = lambda: {
 }
 
 # Use strongest available model for diagnosis
-JUDGE_MODEL = "deepseek-v4.1-flash"
+JUDGE_MODEL = os.environ.get("TOKENHARBOR_JUDGE_MODEL", "deepseek-v4.1-flash")
+ANSWER_MODEL = os.environ.get("TOKENHARBOR_ANSWER_MODEL", JUDGE_MODEL)
 BASE_URL = "https://tokenharbor.ai/v1"
 
 print(f"[setup] Loaded {len(TOKENS)} TokenHarbor token(s)", flush=True)
-print(f"[setup] Diagnostic model: {JUDGE_MODEL}", flush=True)
+print(f"[setup] Diagnostic model (answer): {ANSWER_MODEL}", flush=True)
+print(f"[setup] Judge model: {JUDGE_MODEL}", flush=True)
 
-# Verify model works
-print("[setup] Testing model...", flush=True)
-test_resp = requests.post(
+# Verify answer model works
+print("[setup] Testing models...", flush=True)
+ans_test = requests.post(
     f"{BASE_URL}/chat/completions",
     headers=HEADERS_FACTORY(),
     json={
-        "model": JUDGE_MODEL,
+        "model": ANSWER_MODEL,
         "messages": [{"role": "user", "content": "Say 'ok'"}],
         "max_tokens": 10
     }
 )
-print(f"[setup] Model test: {test_resp.status_code}", flush=True)
-if test_resp.status_code != 200:
-    print(f"[setup] Model test failed: {test_resp.text[:200]}", flush=True)
+print(f"[setup] Answer model test: {ans_test.status_code}", flush=True)
+if ans_test.status_code != 200:
+    print(f"[setup] Answer model test failed: {ans_test.text[:200]}", flush=True)
     sys.exit(1)
 
 from benchmarks.full.locomo import _load_dataset, convert_sample  # noqa: E402
@@ -134,7 +136,7 @@ def generate_answer(question: str, context: str) -> str:
             f"{BASE_URL}/chat/completions",
             headers=HEADERS_FACTORY(),
             json={
-                "model": JUDGE_MODEL,
+                "model": ANSWER_MODEL,
                 "messages": [{"role": "user", "content": prompt}],
                 "max_tokens": 150,
                 "temperature": 0.0
@@ -246,7 +248,8 @@ avg_score = sum(s["judge_score"] for s in scores) / len(scores) if scores else 0
 
 results = {
     "diagnostic": "recall_accuracy_with_strong_model",
-    "model": JUDGE_MODEL,
+    "answer_model": ANSWER_MODEL,
+    "judge_model": JUDGE_MODEL,
     "sample_size": len(scores),
     "correct": correct,
     "accuracy": correct / len(scores) if scores else 0.0,

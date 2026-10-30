@@ -69,11 +69,15 @@ HEADERS_FACTORY = lambda: {
     "Authorization": f"Bearer {next_token()}",
     "Content-Type": "application/json"
 }
-JUDGE_MODEL = "deepseek-v4.1-flash"
+JUDGE_MODEL = os.environ.get("TOKENHARBOR_JUDGE_MODEL", "deepseek-v4.1-flash")
+ANSWER_MODEL = os.environ.get("TOKENHARBOR_ANSWER_MODEL", JUDGE_MODEL)
 BASE_URL = "https://tokenharbor.ai/v1"
 
 print(f"[setup] Loaded {len(TOKENS)} TokenHarbor token(s)", flush=True)
 print(f"[setup] Judge model: {JUDGE_MODEL}", flush=True)
+print(f"[setup] Answer model: {ANSWER_MODEL}", flush=True)
+
+# Verify judge model works
 print("[setup] Testing judge model...", flush=True)
 test_resp = requests.post(
     f"{BASE_URL}/chat/completions",
@@ -88,6 +92,24 @@ print(f"[setup] Judge test: {test_resp.status_code}", flush=True)
 if test_resp.status_code != 200:
     print(f"[setup] Judge test failed: {test_resp.text[:200]}", flush=True)
     sys.exit(1)
+
+# Verify answer model works (may be same as judge)
+if ANSWER_MODEL != JUDGE_MODEL:
+    print(f"[setup] Testing answer model...", flush=True)
+    ans_test = requests.post(
+        f"{BASE_URL}/chat/completions",
+        headers=HEADERS_FACTORY(),
+        json={
+            "model": ANSWER_MODEL,
+            "messages": [{"role": "user", "content": "Say 'ok'"}],
+            "max_tokens": 10
+        }
+    )
+    print(f"[setup] Answer model test: {ans_test.status_code}", flush=True)
+    if ans_test.status_code != 200:
+        print(f"[setup] Answer model test failed: {ans_test.text[:200]}", flush=True)
+        print("[setup] Falling back to judge model for answers", flush=True)
+        ANSWER_MODEL = JUDGE_MODEL
 
 # Load embedder for hybrid recall
 print("[setup] Loading sentence-transformers embedder...", flush=True)
@@ -159,7 +181,7 @@ def generate_answer(question: str, context: str) -> str:
             f"{BASE_URL}/chat/completions",
             headers=HEADERS_FACTORY(),
             json={
-                "model": JUDGE_MODEL,
+                "model": ANSWER_MODEL,
                 "messages": [{"role": "user", "content": prompt}],
                 "max_tokens": 100,
                 "temperature": 0.0
@@ -353,6 +375,7 @@ avg_score = sum(s["judge_score"] for s in scores) / len(scores) if scores else 0
 results = {
     "generated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
     "judge_model": JUDGE_MODEL,
+    "answer_model": ANSWER_MODEL,
     "recall_mode": "hybrid" if embedder else "lexical",
     "eval_method": "generative_qa",
     "total_judged": len(scores),

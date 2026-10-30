@@ -32,37 +32,38 @@ def _get_token() -> str:
 
 
 def _extract_facts(text: str, scope: str) -> list[dict[str, Any]]:
-    """Use TokenHarbor LLM to extract discrete facts from observation text.
-    
-    Returns list of {subject, predicate, object, fact_type, confidence}.
+    """Use TokenHarbor LLM to extract discrete factual claims from observation text.
+
+    Returns list of {subject, predicate, object, fact_type, confidence, context}.
     Fail-closed: returns [] on any error.
     """
     token = _get_token()
     if not token:
         return []
-    
+
     prompt = f"""Extract discrete factual claims from the following observation text.
 Each claim must be a simple (subject, predicate, object) triple.
 
 Rules:
-- Only extract claims that are explicitly stated or directly implied.
-- Ignore opinions, emotions, or speculative statements.
-- Prefer specific entities over pronouns.
-- Use concise predicates (e.g., "painted", "attended", "lived in").
-- Assign fact_type: event, attribute, relation, location, or temporal.
-- Assign confidence: 0.0-1.0 based on explicitness.
+- Extract ALL factual claims that are explicitly stated or directly implied.
+- Prefer specific named entities over pronouns (resolve "he/she/they" to names if clear).
+- Use concise, specific predicates (e.g., "painted", "attended", "lived in", "earned", "married").
+- If the text mentions a date, location, quantity, or affiliation, capture it as a separate claim.
+- Do not merge unrelated facts into one claim.
+- Assign fact_type: event, attribute, relation, location, temporal, or identity.
+- Assign confidence: 0.95-1.0 for explicit statements, 0.7-0.94 for direct implications, 0.3-0.69 for inferred but uncertain.
+- If context is ambiguous, prefer lower confidence rather than skipping.
 
 Return ONLY a JSON array of objects with these fields:
-- subject: entity the claim is about
-- predicate: relationship or property
+- subject: entity the claim is about (specific name, not "the user")
+- predicate: relationship or property (concise verb phrase)
 - object: value or target
-- fact_type: one of [event, attribute, relation, location, temporal]
+- fact_type: one of [event, attribute, relation, location, temporal, identity]
 - confidence: 0.0-1.0
 
-Observation: {text[:2000]}
+Observation: {text[:3000]}
 
 Return empty array [] if no extractable facts."""
-    
     try:
         import urllib.request
         req = urllib.request.Request(
@@ -70,7 +71,7 @@ Return empty array [] if no extractable facts."""
             data=json.dumps({
                 "model": _JUDGE_MODEL,
                 "messages": [{"role": "user", "content": prompt}],
-                "max_tokens": 800,
+                "max_tokens": 1200,
                 "temperature": 0.0
             }).encode(),
             headers={
@@ -78,12 +79,12 @@ Return empty array [] if no extractable facts."""
                 "Content-Type": "application/json"
             }
         )
-        
+
         with urllib.request.urlopen(req, timeout=30) as resp:
             result = json.loads(resp.read().decode())
-        
+
         text_out = result["choices"][0]["message"]["content"].strip()
-        
+
         # Extract JSON array from response
         start = text_out.find('[')
         end = text_out.rfind(']') + 1

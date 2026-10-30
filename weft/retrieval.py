@@ -92,7 +92,7 @@ def _cosine(a, b):
 
 
 def _rerank(query: str, items, embedder, top_k: int):
-    """Re-score fused candidates by query–candidate cosine similarity."""
+    """Re-score fused candidates by query–candidate cosine similarity with min-max normalisation."""
     if embedder is None or not items:
         return items[:top_k]
     try:
@@ -105,6 +105,14 @@ def _rerank(query: str, items, embedder, top_k: int):
         if len(cand_embs) != len(items):
             return items[:top_k]
         scored = [(_cosine(q_emb, emb), it) for it, emb in zip(items, cand_embs)]
+        # Min-max normalise so a weak absolute cosine still yields a meaningful spread
+        if scored:
+            vals = [s for s, _ in scored]
+            lo, hi = min(vals), max(vals)
+            if hi > lo:
+                scored = [((s - lo) / (hi - lo), it) for s, it in scored]
+            else:
+                scored = [(1.0, it) for _, it in scored]
         scored.sort(key=lambda x: (-x[0], x[1].record_id))
         return [it for _, it in scored[:top_k]]
     except Exception:
@@ -112,12 +120,15 @@ def _rerank(query: str, items, embedder, top_k: int):
 
 
 def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
-           mode: str = "hybrid", embedder=None, rerank: bool = False):
+           mode: str = "hybrid", embedder=None, rerank: bool | None = None):
     """Recall over the caller's readable scopes. Returns (items, receipt)."""
     if mode not in MODES:
         raise ValueError(f"unknown recall mode: {mode!r}")
     if mode != "lexical" and embedder is None:
         raise ValueError(f"mode {mode!r} needs an embedder")
+    # None means "auto": rerank is on for hybrid/vector where we have an embedder.
+    if rerank is None:
+        rerank = mode in ("vector", "hybrid") and embedder is not None
     engine = sub.scope_engine
     readable = sorted(
         s for s in engine.known_scopes if engine.authorize_read(s, ctx, "").allowed
@@ -167,11 +178,25 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
         except Exception:
             pass
 
+        # Confidence tiebreaker for Claims: higher-confidence claims rank higher
+        # without overriding strong lexical/vector matches.
+        try:
+            conf_scores: dict[str, float] = {}
+            for rid in candidate_ids:
+                rec = sub._lookup_record(rid)
+                if rec and rec.record_type == "Claim" and isinstance(rec.payload, dict):
+                    try:
+                        conf_scores[rid] = float(rec.payload.get("confidence", 0.5))
+                    except (TypeError, ValueError):
+                        pass
+            if conf_scores:
+                candidate_ids.sort(key=lambda rid: (-conf_scores.get(rid, 0.0), rid))
+        except Exception:
+            pass
+
         items: list[Item] = []
         seen_documents: set = set()  # one result per document: a note is not five paragraphs
         for rid in candidate_ids:
-            if len(items) >= limit and not rerank:
-                break
             if len(items) >= pool:
                 break
             rec = sub.get(rid, ctx)  # gated again: defence in depth
@@ -194,7 +219,7 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
             if _TIER_ORDER[tier] > _TIER_ORDER[receipt.tier]:
                 receipt.tier = tier
 
-        # Optional reranking over the full pool before truncation to limit.
+        # Rerank over the full pool before truncation to limit.
         if rerank and len(items) > limit:
             items = _rerank(query, items, embedder, limit)
 
