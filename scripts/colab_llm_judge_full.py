@@ -335,7 +335,7 @@ for i, sample in enumerate(ds):
             if qa.question_id in done_ids:
                 continue
             try:
-                result = run_recall(sub, qa.question, embedder=recall_embedder)
+                result = run_recall(sub, qa.question, embedder=recall_embedder, use_cross_encoder=True, token_getter=lambda: TOKENS[_token_idx % len(TOKENS)])
                 context = "\n".join(result.selected_texts[:10])
                 tasks.append((qa, context))
             except Exception as e:

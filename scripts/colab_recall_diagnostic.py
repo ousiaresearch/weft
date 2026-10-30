@@ -214,7 +214,7 @@ for i, sample in enumerate(ds):
                 break
             
             # Get recall results
-            result = run_recall(sub, qa.question, embedder=None)
+            result = run_recall(sub, qa.question, embedder=None, use_cross_encoder=False, token_getter=lambda: TOKENS[_token_idx % len(TOKENS)])
             context = "\n".join(result.selected_texts[:10])
             
             # Strong model answers from retrieved context

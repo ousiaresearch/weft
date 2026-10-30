@@ -102,6 +102,8 @@ def run_recall(
     question: str,
     embedder=None,
     limit: int = 10,
+    use_cross_encoder: bool = False,
+    token_getter=None,
 ) -> RecallResult:
     ctx = make_ctx()
     start = time.perf_counter()
@@ -113,6 +115,8 @@ def run_recall(
         mode="hybrid" if embedder is not None else "lexical",
         embedder=embedder,
         rerank=None,  # auto: on for hybrid/vector when embedder present
+        use_cross_encoder=use_cross_encoder,
+        token_getter=token_getter,
     )
     latency_ms = (time.perf_counter() - start) * 1000.0
     selected_ids = [item.record_id for item in items]
