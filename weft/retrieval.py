@@ -175,7 +175,19 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
         q_pool = limit * 4
         ranked = []
         if q_lexical:
-            match = " OR ".join(f'"{t}"' for t in q_content)
+            # P1: preserve exact phrases from the original query for FTS5 phrase matching.
+            quoted = re.findall(r'"([^"]+)"', q)
+            if quoted:
+                phrase_parts = [f'"{phrase}"' for phrase in quoted]
+                if q_content:
+                    phrase_parts.append(" OR ".join(q_content))
+                match = " OR ".join(phrase_parts)
+            else:
+                # For multi-word queries, use NEAR to require proximity.
+                if len(q_content) > 1:
+                    match = f"{' NEAR/5 '.join(q_content)}"
+                else:
+                    match = f'"{q_content[0]}"'
             ranked.append(sub.fts_candidates(match, ctx, q_pool, scopes=readable))
         if q_vector and embedder is not None:
             ranked.append(sub.vector_candidates(q_embedding, ctx, q_pool, scopes=readable, model_id=embedder.model_id))
