@@ -1,28 +1,30 @@
 {
-  "generated": "2026-10-31T17:39:40Z",
+  "generated": "2026-10-31T17:55:06Z",
   "sample_size": 200,
   "baseline": {
     "processed": 200,
     "hit_at_k": 0.625,
     "mrr": 0.45541269841269844,
-    "p50_latency_ms": 38.18988800048828,
-    "p95_latency_ms": 38.93303871154785,
+    "p50_latency_ms": 38.137197494506836,
+    "p95_latency_ms": 38.93876075744629,
     "layer_counts": {
-      "lexical": 200
+      "lexical": 200,
+      "graph_boost": 200
     },
-    "elapsed_s": 22.224677324295044
+    "elapsed_s": 21.457648754119873
   },
   "enhanced": {
     "processed": 200,
     "hit_at_k": 0.705,
     "mrr": 0.5305714285714286,
-    "p50_latency_ms": 168.23911666870117,
-    "p95_latency_ms": 192.1699047088623,
+    "p50_latency_ms": 167.39320755004883,
+    "p95_latency_ms": 186.58995628356934,
     "layer_counts": {
       "lexical": 200,
       "vector": 200,
-      "cross_encoder": 200
+      "cross_encoder": 200,
+      "graph_boost": 200
     },
-    "elapsed_s": 48.870919942855835
+    "elapsed_s": 47.64961218833923
   }
 }
