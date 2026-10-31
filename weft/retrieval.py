@@ -110,6 +110,7 @@ class Item:
     text: str
     tier: str
     derived: bool = False  # R-P3-12: machine-derived text (OCR, transcript, description)
+    is_summary: bool = False
 
     def render(self) -> str:
         """The only form recalled text may take when handed back to a model (D3-5).
@@ -301,7 +302,14 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
         for q in expanded_queries:
             try:
                 all_ranked.append(_recall_one(q))
+            except ValueError:
+                # Re-raise dimension and other validation errors — they
+                # indicate a misconfigured embedder, not a recoverable
+                # retrieval failure.
+                raise
             except Exception:
+                # Swallow transient/query-expansion errors so one bad
+                # expansion does not abort the whole recall.
                 pass
         if all_ranked:
             candidate_ids = _fuse(all_ranked, pool) if len(all_ranked) > 1 else all_ranked[0]
@@ -358,7 +366,8 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
             text = rec.payload.get("text", "") if isinstance(rec.payload, dict) else ""
             tier, shown = _pick_tier(text, terms)
             derived = bool(isinstance(rec.provenance, dict) and rec.provenance.get("machine_derived"))
-            items.append(Item(rid, rec.scope, text, tier, derived))
+            is_summary = rec.record_type == "Summary" or "-ss-" in rid or "summary" in rid.lower()
+            items.append(Item(rid, rec.scope, text, tier, derived, is_summary=is_summary))
             receipt.selected.append(rid)
             if _TIER_ORDER[tier] > _TIER_ORDER[receipt.tier]:
                 receipt.tier = tier

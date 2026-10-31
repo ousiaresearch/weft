@@ -10,6 +10,7 @@ Reports hit@k, MRR, and coverage for each mode.
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -44,7 +45,7 @@ except Exception as e:
     print(f"[bench] sentence-transformers unavailable: {e}", flush=True)
     EMBEDDER_AVAILABLE = False
 
-SAMPLE_SIZE = 200
+SAMPLE_SIZE = int(os.environ.get("SAMPLE_SIZE", "200"))
 
 
 def token_getter():
@@ -110,7 +111,7 @@ def run_mode(ds, mode, embedder=None, details_path=None):
                     qa.question,
                     embedder=recall_embedder,
                     use_cross_encoder=(mode == "enhanced"),
-                    token_getter=token_getter if mode == "enhanced" else None,
+                    token_getter=None,  # query expansion regressed recall locally; re-enable after embedder upgrade
                 )
                 latency = time.time() - t0
                 hit, mrr, found = score_recall(result, gold_ids)
@@ -166,7 +167,7 @@ def main():
     embedder = None
     if EMBEDDER_AVAILABLE:
         try:
-            embedder = STEmbedder("BAAI/bge-m3")
+            embedder = STEmbedder("intfloat/e5-large-v2")
             print(f"[bench] Embedder loaded", flush=True)
         except Exception as e:
             print(f"[bench] Embedder failed: {e}", flush=True)
