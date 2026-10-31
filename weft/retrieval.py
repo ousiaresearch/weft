@@ -259,7 +259,7 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
         q_lexical = mode in ("lexical", "hybrid") and bool(q_content)
         q_vector = mode in ("vector", "hybrid")
         q_embedding = embedder.embed_query(q) if q_vector and embedder else None
-        q_pool = limit * 4
+        q_pool = limit * 6  # match outer pool
         ranked = []
         if q_lexical:
             # P1: preserve exact phrases from the original query for FTS5 phrase matching.
@@ -282,7 +282,7 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
 
     # D3-1: embedding computed outside the database transaction so long-running
     # model inference does not pin a WAL snapshot or hold the connection lock.
-    pool = limit * 4
+    pool = limit * 6  # P1: wider candidate pool for cross-encoder rerank
     # Snapshot-time consistency: completeness check, candidate selection, and
     # per-record reads must observe one view (review G-P3-7). record_receipt
     # writes its own BEGIN IMMEDIATE after this block.
