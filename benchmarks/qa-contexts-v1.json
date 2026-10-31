@@ -1,0 +1,97 @@
+{
+  "generated": "2026-10-31T20:45:00Z",
+  "samples": [
+    {
+      "question_id": "locomo-conv-26-qa-0",
+      "question": "When did Caroline go to the LGBTQ support group?",
+      "gold_answer": "7 May 2023",
+      "context": "caroline attends an lgbtq support group for the first time.\ncaroline attended an lgbtq support group recently and found the transgender stories inspiring.\ncaroline joined a new lgbtq activist group called 'connected lgbtq activists' last tuesday.\ncaroline attended an lgbtq conference recently and felt accepted and supported, emphasizing the importance of fighting for trans rights and spreading awareness.\ncaroline had the opportunity to volunteer at an lgbtq+ youth center and found it gratifying to support and guide the young people there.\ncaroline and her lgbtq activist group plan events and campaigns to support each other and positive changes.\ncaroline attended an lgbtq+ counseling workshop focused on therapeutic methods and supporting trans individuals, finding it enlightening and inspiring.\ncaroline attended a pride parade recently and felt inspired by the community's energy and support for lgbtq rights.\ncaroline joined a mentorship program for lgbtq youth over the weekend.\ncaroline joins a group of connected lgbtq activists.",
+      "evidence_ids": [
+        "locomo-conv-26-d1-3"
+      ]
+    },
+    {
+      "question_id": "locomo-conv-26-qa-1",
+      "question": "When did Melanie paint a sunrise?",
+      "gold_answer": "2022",
+      "context": "melanie painted a lake sunrise last year which holds special meaning to her.\nmelanie created a painting inspired by autumn.\nmelanie enjoys expressing emotions through art, like painting inspired by sunsets and abstract art.\nmelanie continued expressing herself through reading and painting during her break from pottery.\nmelanie and her kids finished a painting before the conversation.\nmelanie loves painting landscapes and still life.\nmelanie expresses herself through painting and values art for showing who we really are and getting in touch with ourselves.\nmelanie shared a photo of her horse painting that she recently did.\npainting is a fun way for melanie to express her feelings and get creative, helping her relax after a long day.\nmelanie has been into art for seven years, finding a passion for painting and pottery.",
+      "evidence_ids": [
+        "locomo-conv-26-d1-12"
+      ]
+    },
+    {
+      "question_id": "locomo-conv-26-qa-2",
+      "question": "What fields would Caroline be likely to pursue in her educaton?",
+      "gold_answer": "Psychology, counseling certification",
+      "context": "caroline is planning to continue her education and explore career options in counseling or mental health to support those with similar issues.\ncaroline is considering a career in counseling and mental health, particularly working with trans people to help them accept themselves and support their mental health.\ncaroline is considering a career in counseling and mental health to help others.\ncaroline's motivation to pursue counseling comes from her own journey, the support she received, and the positive impact counseling had on her life.\ncaroline is looking into counseling and mental health jobs to provide support to others, motivated by her own struggles with mental health and the help she received.\ncaroline has been looking into counseling or mental health work and is passionate about helping people and making a positive impact.\ncaroline speaks at her school and encourages students to get involved in the lgbtq community.\ncaroline joins a mentorship program for lgbtq youth.\ncaroline is very focused on making a difference for the lgbtq+ community through her work.\nmelanie reminds caroline to pursue her dreams and appreciates the power of books in guiding and motivating her.",
+      "evidence_ids": [
+        "locomo-conv-26-d1-9",
+        "locomo-conv-26-d1-11"
+      ]
+    },
+    {
+      "question_id": "locomo-conv-26-qa-3",
+      "question": "What did Caroline research?",
+      "gold_answer": "Adoption agencies",
+      "context": "caroline is researching adoption agencies with the dream of having a family and providing a loving home to kids in need.\ncaroline recommends doing research, preparing emotionally, and gathering necessary documents when starting the adoption process.\ncaroline is inspired by her supportive friends and mentors to start researching adoption agencies.\ncaroline is very focused on making a difference for the lgbtq+ community through her work.\ncaroline has been looking into counseling or mental health work and is passionate about helping people and making a positive impact.\ncaroline finds nature refreshing and discussed how it can bring peace.\ncaroline received invaluable help from friends, family, and role models during the process of finding acceptance.\ncaroline attended an lgbtq support group recently and found the transgender stories inspiring.\ncaroline is planning to continue her education and explore career options in counseling or mental health to support those with similar issues.\ncaroline transitioned and joined the transgender community seeking acceptance and support.",
+      "evidence_ids": [
+        "locomo-conv-26-d2-8"
+      ]
+    },
+    {
+      "question_id": "locomo-conv-26-qa-4",
+      "question": "What is Caroline's identity?",
+      "gold_answer": "Transgender woman",
+      "context": "caroline's painting 'embracing identity' symbolizes self-acceptance, love, and the journey to being oneself.\ncaroline believes conversations about gender identity and inclusion are necessary and is thankful for being able to give a voice to the trans community.\ncaroline uses art to express her feelings and explore her gender identity.\ncaroline expresses herself through painting and values art for exploring identity and being therapeutic.\ncaroline is inspired by freedom and being true to oneself.\ncaroline represents inclusivity and diversity in her art and uses it to advocate for the lgbtq+ community.\ncaroline values supportive people, promotes lgbtq rights, and aims to live authentically.\ncaroline is very focused on making a difference for the lgbtq+ community through her work.\ncaroline is inspired by her supportive friends and mentors to start researching adoption agencies.\ncaroline finds empowerment in making a positive difference in someone's life by offering love and support.",
+      "evidence_ids": [
+        "locomo-conv-26-d1-5"
+      ]
+    },
+    {
+      "question_id": "locomo-conv-26-qa-5",
+      "question": "When did Melanie run a charity race?",
+      "gold_answer": "The sunday before 25 May 2023",
+      "context": "melanie ran a charity race for mental health last saturday.\nmelanie begins running longer distances to destress.\nrunning has been great for melanie's mental health and mood.\nmelanie volunteered with her family at a homeless shelter to make a difference.\nmelanie got new running shoes for running, which she finds great for destressing and clearing her mind.\nmelanie went camping with her family two weekends ago.\nmelanie and her family volunteer at a local homeless shelter.\nmelanie's family has been supportive and loving during tough times and helped her through.\nmelanie supports caroline's drive to make a difference in lgbtq rights.\nmelanie values family time and finds it to be special and important.",
+      "evidence_ids": [
+        "locomo-conv-26-d2-1"
+      ]
+    },
+    {
+      "question_id": "locomo-conv-26-qa-6",
+      "question": "When is Melanie planning on going camping?",
+      "gold_answer": "June 2023",
+      "context": "melanie's kids are excited about summer break and they are considering going camping next month.\nmelanie went camping with her family two weekends ago.\nmelanie takes her family camping for a weekend to bond.\nmelanie went camping with her family in the mountains last week and had a great time exploring nature, roasting marshmallows, and hiking.\nmelanie suggests doing a family outing or planning something special for the summer with caroline to make awesome memories.\nmelanie enjoys camping with her kids, exploring the forest, and hiking.\nmelanie and her family enjoy camping at the beach as it brings them closer together.\nmelanie finds peace and serenity in nature, particularly during camping trips with her family.\nmelanie's family tradition includes a camping trip where they roast marshmallows and tell stories around the campfire.\nmelanie and her family watched the perseid meteor shower during a camping trip last year and it was a memorable experience.",
+      "evidence_ids": [
+        "locomo-conv-26-d2-7"
+      ]
+    },
+    {
+      "question_id": "locomo-conv-26-qa-7",
+      "question": "What is Caroline's relationship status?",
+      "gold_answer": "Single",
+      "context": "caroline's relationships have changed due to her journey, some friends were not able to handle the changes.\ncaroline finds empowerment in making a positive difference in someone's life by offering love and support.\ncaroline is considering a career in counseling and mental health to help others.\ncaroline is very focused on making a difference for the lgbtq+ community through her work.\ncaroline values supportive people, promotes lgbtq rights, and aims to live authentically.\ncaroline has been looking into counseling or mental health work and is passionate about helping people and making a positive impact.\ncaroline is researching adoption agencies with the dream of having a family and providing a loving home to kids in need.\ncaroline appreciates seeing melanie's love for her family and acknowledges that they are her rock.\ncaroline started transitioning three years ago.\ncaroline transitioned and joined the transgender community seeking acceptance and support.",
+      "evidence_ids": [
+        "locomo-conv-26-d3-13",
+        "locomo-conv-26-d2-14"
+      ]
+    },
+    {
+      "question_id": "locomo-conv-26-qa-8",
+      "question": "When did Caroline give a speech at a school?",
+      "gold_answer": "The week before 9 June 2023",
+      "context": "caroline speaks at her school and encourages students to get involved in the lgbtq community.\ncaroline started transitioning three years ago.\ncaroline used to go horseback riding with her dad when she was a kid.\ncaroline has been creating art since the age of 17.\ncaroline joined a mentorship program for lgbtq youth over the weekend.\ncaroline is inspired by freedom and being true to oneself.\ncaroline believes conversations about gender identity and inclusion are necessary and is thankful for being able to give a voice to the trans community.\ncaroline joins a mentorship program for lgbtq youth.\ncaroline recently went to a transgender poetry reading event that was empowering and celebrated self-expression.\ncaroline attends an lgbtq support group for the first time.",
+      "evidence_ids": [
+        "locomo-conv-26-d3-1"
+      ]
+    },
+    {
+      "question_id": "locomo-conv-26-qa-9",
+      "question": "When did Caroline meet up with her friends, family, and mentors?",
+      "gold_answer": "The week before 9 June 2023",
+      "context": "caroline's friends, family, and mentors are her rocks, motivating her and giving her strength to push on.\ncaroline's friends and family have been there for her every step of the way, providing love, guidance, and acceptance during her transition.\ncaroline is inspired by her supportive friends and mentors to start researching adoption agencies.\ncaroline has known her friends for 4 years, since moving from her home country, and values their love and help, especially after a tough breakup.\ncaroline received invaluable help from friends, family, and role models during the process of finding acceptance.\ncaroline joined a mentorship program for lgbtq youth over the weekend.\ncaroline calls on her mentor for adoption advice.\ncaroline joins a mentorship program for lgbtq youth.\ncaroline mentors a transgender teen and they work on building confidence and positive strategies.\ncaroline appreciates the importance of friendship and compassion in her life and is lucky to have friends and family helping with her transition.",
+      "evidence_ids": [
+        "locomo-conv-26-d3-11"
+      ]
+    }
+  ]
+}

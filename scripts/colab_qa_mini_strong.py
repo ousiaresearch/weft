@@ -70,6 +70,7 @@ for m in [JUDGE_MODEL, ANSWER_MODEL]:
 print("[run] Loading dataset...", flush=True)
 from benchmarks.full.locomo import _load_dataset, convert_sample
 from benchmarks.full.common import make_engine, make_ctx, create_substrate, run_recall
+from weft.scope import ScopeEngine
 
 class STEmbedder:
     def __init__(self, name="BAAI/bge-m3"):

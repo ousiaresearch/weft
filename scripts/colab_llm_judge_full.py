@@ -185,7 +185,7 @@ Scoring:
 - 0.7: Partially correct - captures key information but missing details or has minor inaccuracies.
 - 0.0: Incorrect, unsupported by context, or completely misses the question.
 
-Respond with ONLY a JSON object: {"correct": true/false, "score": float, "reason": "brief explanation"}"""
+Respond with ONLY a JSON object: {{"correct": true/false, "score": float, "reason": "brief explanation"}}"""
 
 def generate_answer(question: str, context: str) -> str:
     """Generate an answer given the question and context."""

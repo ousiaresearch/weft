@@ -1,0 +1,104 @@
+{
+  "generated": "2026-10-31T21:00:48Z",
+  "judge_model": "gpt-6-luna",
+  "answer_model": "gpt-6-luna",
+  "recall_mode": "hybrid",
+  "eval_method": "generative_qa",
+  "total_judged": 10,
+  "correct": 2,
+  "accuracy": 0.2,
+  "avg_score": 0.48,
+  "elapsed_s": 48.890727281570435,
+  "samples": [
+    {
+      "question_id": "locomo-conv-26-qa-0",
+      "question": "When did Caroline go to the LGBTQ support group?",
+      "gold_answer": "7 May 2023",
+      "generated_answer": "Caroline attended the LGBTQ support group recently.",
+      "judge_correct": false,
+      "judge_score": 0.7,
+      "judge_reason": "The answer gives only a vague timeframe (\u201crecently\u201d) and omits the specific date, 7 May 2023."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-1",
+      "question": "When did Melanie paint a sunrise?",
+      "gold_answer": "2022",
+      "generated_answer": "Last year.",
+      "judge_correct": true,
+      "judge_score": 1.0,
+      "judge_reason": "The context says Melanie painted the lake sunrise last year, which corresponds to 2022."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-2",
+      "question": "What fields would Caroline be likely to pursue in her educaton?",
+      "gold_answer": "Psychology, counseling certification",
+      "generated_answer": "Caroline would likely pursue counseling or mental health, particularly work supporting LGBTQ+ people.",
+      "judge_correct": false,
+      "judge_score": 0.7,
+      "judge_reason": "The answer correctly identifies counseling and mental health as likely fields, supported by the context, but omits psychology and counseling certification from the gold answer."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-3",
+      "question": "What did Caroline research?",
+      "gold_answer": "Adoption agencies",
+      "generated_answer": "Caroline researched adoption agencies.",
+      "judge_correct": true,
+      "judge_score": 1.0,
+      "judge_reason": "The answer correctly states that Caroline researched adoption agencies, as supported by the context."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-4",
+      "question": "What is Caroline's identity?",
+      "gold_answer": "Transgender woman",
+      "generated_answer": "Caroline is a member of the trans community.",
+      "judge_correct": false,
+      "judge_score": 0.7,
+      "judge_reason": "It correctly identifies Caroline as part of the trans community, but does not specify that she is a transgender woman."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-5",
+      "question": "When did Melanie run a charity race?",
+      "gold_answer": "The sunday before 25 May 2023",
+      "generated_answer": "Last Saturday.",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "Parse: "
+    },
+    {
+      "question_id": "locomo-conv-26-qa-6",
+      "question": "When is Melanie planning on going camping?",
+      "gold_answer": "June 2023",
+      "generated_answer": "Melanie is considering going camping next month.",
+      "judge_correct": false,
+      "judge_score": 0.7,
+      "judge_reason": "It reflects the context\u2019s statement that they are considering camping next month, but it does not give the specific month and year in the gold answer: June 2023."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-7",
+      "question": "What is Caroline's relationship status?",
+      "gold_answer": "Single",
+      "generated_answer": "I don't know.",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The generated answer does not provide the gold answer, \u201cSingle.\u201d"
+    },
+    {
+      "question_id": "locomo-conv-26-qa-8",
+      "question": "When did Caroline give a speech at a school?",
+      "gold_answer": "The week before 9 June 2023",
+      "generated_answer": "I don't know.",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The answer does not provide the timing given in the gold answer: the week before 9 June 2023."
+    },
+    {
+      "question_id": "locomo-conv-26-qa-9",
+      "question": "When did Caroline meet up with her friends, family, and mentors?",
+      "gold_answer": "The week before 9 June 2023",
+      "generated_answer": "I don't know.",
+      "judge_correct": false,
+      "judge_score": 0.0,
+      "judge_reason": "The answer does not provide the time given in the gold answer: the week before 9 June 2023."
+    }
+  ]
+}
