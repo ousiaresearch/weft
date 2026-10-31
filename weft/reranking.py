@@ -37,7 +37,14 @@ class CrossEncoderReranker:
                 self._model = "error"
 
     def rerank(self, query: str, items: Sequence, top_k: int = 10) -> list:
-        """Re-score items by query-candidate relevance, return top_k."""
+        """Re-score items by query-candidate relevance, return top_k.
+
+        Summary records are excluded from cross-encoder scoring because
+        small cross-encoders (MiniLM family) assign artificially high
+        relevance to comprehensive summaries over specific factual turns.
+        Summaries are appended after reranked non-summaries so factual
+        evidence can surface without summary contamination.
+        """
         if not items:
             return []
         try:
@@ -45,10 +52,25 @@ class CrossEncoderReranker:
             if self._model in (None, "error"):
                 return list(items)[:top_k]
 
-            pairs = [(query, item.text) for item in items]
+            factual = [it for it in items if not getattr(it, "is_summary", False)]
+            summaries = [it for it in items if getattr(it, "is_summary", False)]
+
+            if not factual:
+                return list(items)[:top_k]
+
+            pairs = [(query, item.text) for item in factual]
             scores = self._model.predict(pairs, show_progress_bar=False)
-            scored = sorted(zip(scores, items), key=lambda x: (-x[0], x[1].record_id))
-            return [item for _, item in scored[:top_k]]
+            scored = sorted(
+                zip(scores, factual),
+                key=lambda x: (-x[0], x[1].record_id),
+            )
+            reranked = [item for _, item in scored[:top_k]]
+
+            # Append summaries after factual items, preserving order.
+            remaining = top_k - len(reranked)
+            if remaining > 0:
+                reranked.extend(summaries[:remaining])
+            return reranked[:top_k]
         except Exception as e:
             logger.warning("Cross-encoder rerank failed: %s", e)
             return list(items)[:top_k]
