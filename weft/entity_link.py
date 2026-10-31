@@ -22,17 +22,28 @@ def _normalize(text: str) -> str:
 def extract_entities(text: str) -> list[str]:
     """Return candidate entity mentions from *text*.
 
-    Simple heuristic: capitalized words longer than 2 chars, including
-    sentence-start proper nouns. Multi-word sequences are also captured.
+    Simple heuristic: capitalized words longer than 2 chars, excluding
+    common interrogatives and question starters. Multi-word capitalized
+    sequences are also captured.
     """
     import re
+    STOP = {
+        "who", "what", "when", "where", "why", "how", "which", "whom",
+        "whose", "whether", "while", "after", "before", "since", "until",
+        "during", "through", "about", "against", "between", "under",
+        "over", "throughout", "within", "without", "again", "further",
+        "then", "once", "here", "there", "today", "tomorrow", "yesterday",
+    }
     entities: list[str] = []
-    # Single capitalized words (len > 2)
+    # Single capitalized words (len > 2), excluding stop words
     for w in re.findall(r"\b([A-Z][a-zA-Z]{2,})\b", text):
-        entities.append(w.lower())
+        if w.lower() not in STOP:
+            entities.append(w.lower())
     # Multi-word capitalized sequences
     for m in re.findall(r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\b", text):
-        entities.append(_normalize(m))
+        norm = _normalize(m)
+        if norm and norm not in STOP:
+            entities.append(norm)
     # Deduplicate preserving order
     seen: set[str] = set()
     result = []
@@ -107,7 +118,7 @@ def _load_payload(raw: Any) -> dict[str, Any]:
     return {}
 
 
-def entity_boost(sub: Substrate, ctx: ScopeContext, query: str, candidate_ids: list[str], boost: float = 0.1) -> dict[str, float]:
+def entity_boost(sub: Substrate, ctx: ScopeContext, query: str, candidate_ids: list[str], boost: float = 0.1, min_doc_freq: int = 3) -> dict[str, float]:
     """Score candidate records by how many query entities they mention.
 
     Uses the precomputed entity_links table instead of re-parsing text.
@@ -118,20 +129,33 @@ def entity_boost(sub: Substrate, ctx: ScopeContext, query: str, candidate_ids: l
         query_entities = set(extract_entities(query))
         if not query_entities:
             return {}
+        # Filter entities to those appearing in at least min_doc_freq records
+        # to reduce noise from common words extracted from sentence-initial text.
+        placeholders = ",".join("?" for _ in query_entities)
+        freq_rows = sub._conn.execute(
+            f"SELECT target_id, COUNT(DISTINCT source_id) FROM entity_links "
+            f"WHERE target_id IN ({placeholders}) "
+            f"GROUP BY target_id",
+            tuple(query_entities),
+        ).fetchall()
+        freq = {row[0]: row[1] for row in freq_rows}
+        kept = {e for e, cnt in freq.items() if cnt >= min_doc_freq}
+        if not kept:
+            return {}
         src_placeholders = ",".join("?" for _ in candidate_ids)
-        tgt_placeholders = ",".join("?" for _ in query_entities)
+        tgt_placeholders = ",".join("?" for _ in kept)
         rows = sub._conn.execute(
             f"SELECT source_id, target_id FROM entity_links "
             f"WHERE source_id IN ({src_placeholders}) "
             f"AND target_id IN ({tgt_placeholders})",
-            tuple(candidate_ids) + tuple(query_entities),
+            tuple(candidate_ids) + tuple(kept),
         ).fetchall()
         scores: dict[str, float] = {}
         for source_id, target_id in rows:
             if source_id in scores:
-                scores[source_id] += boost / len(query_entities)
+                scores[source_id] += boost / len(kept)
             else:
-                scores[source_id] = boost / len(query_entities)
+                scores[source_id] = boost / len(kept)
         return scores
     except Exception:
         return {}
