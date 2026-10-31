@@ -12,6 +12,7 @@ gate passes (see eval/recall_gate.py).
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass, field
 
@@ -45,7 +46,6 @@ def _neighbor_expand(sub, candidate_ids: list[str], limit: int) -> list[str]:
     expanded = list(candidate_ids)
     seen = set(expanded)
     conv_to_rids: dict[str, list[str]] = {}
-    rid_to_ts: dict[str, float] = {}
     
     for rid in candidate_ids:
         try:
@@ -55,8 +55,6 @@ def _neighbor_expand(sub, candidate_ids: list[str], limit: int) -> list[str]:
             conv_id = (rec.payload.get("provenance") or {}).get("conversation_id") if isinstance(rec.payload, dict) else None
             if not conv_id:
                 continue
-            ts = rec.created_at or 0
-            rid_to_ts[rid] = ts
             conv_to_rids.setdefault(conv_id, []).append(rid)
         except Exception:
             continue
@@ -64,37 +62,37 @@ def _neighbor_expand(sub, candidate_ids: list[str], limit: int) -> list[str]:
     if not conv_to_rids:
         return expanded
     
-    # For each conversation, fetch all records and find neighbors.
-    for conv_id, rids in conv_to_rids.items():
+    # P1 perf: build one in-memory index per scope instead of N LIKE queries.
+    conv_chain: dict[str, list[tuple[str, float]]] = {}
+    for scope in sub.scope_engine.known_scopes:
         try:
             rows = sub._conn.execute(
-                "SELECT record_id, created_at FROM records "
-                "WHERE scope IN ({}) AND payload LIKE ?".format(
-                    ",".join("?" * len(sub.scope_engine.known_scopes))
-                ),
-                tuple(s for s in sub.scope_engine.known_scopes) + (f"%{conv_id}%",)
+                "SELECT record_id, payload FROM records WHERE scope = ?", (scope,)
             ).fetchall()
         except Exception:
             continue
-        
-        if not rows:
-            continue
-        
-        # Sort by timestamp
-        sorted_rows = sorted(rows, key=lambda x: x[1] or 0)
-        rid_to_idx = {row[0]: i for i, row in enumerate(sorted_rows)}
-        
-        neighbors: set[str] = set()
-        for rid in rids:
-            idx = rid_to_idx.get(rid)
-            if idx is None:
+        for rid, payload_json in rows:
+            try:
+                payload = json.loads(payload_json)
+                conv_id = (payload.get("provenance") or {}).get("conversation_id")
+                if conv_id and conv_id in conv_to_rids:
+                    conv_chain.setdefault(conv_id, []).append((rid, payload.get("created_at") or 0))
+            except Exception:
                 continue
+    
+    for conv_id, chain in conv_chain.items():
+        chain.sort(key=lambda x: x[1])
+        rid_to_idx = {rid: i for i, (rid, _) in enumerate(chain)}
+        neighbors: set[str] = set()
+        for rid, _ in chain:
+            if rid not in conv_to_rids.get(conv_id, []):
+                continue
+            idx = rid_to_idx[rid]
             for offset in (-1, 1):
                 nidx = idx + offset
-                if 0 <= nidx < len(sorted_rows):
-                    neighbors.add(sorted_rows[nidx][0])
+                if 0 <= nidx < len(chain):
+                    neighbors.add(chain[nidx][0])
         
-        # Prepend neighbors that aren't already in the pool, up to limit.
         new_neighbors = [n for n in neighbors if n not in seen]
         expanded = new_neighbors + expanded
         seen.update(new_neighbors)
@@ -271,11 +269,12 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
                     phrase_parts.append(" OR ".join(q_content))
                 match = " OR ".join(phrase_parts)
             else:
-                # For multi-word queries, use NEAR to require proximity.
-                if len(q_content) > 1:
+                # For short queries (2-3 terms), use NEAR to require proximity.
+                # For longer queries, fall back to loose OR to avoid over-restriction.
+                if 1 < len(q_content) <= 3:
                     match = f"{' NEAR/5 '.join(q_content)}"
                 else:
-                    match = f'"{q_content[0]}"'
+                    match = " OR ".join(f'"{t}"' for t in q_content)
             ranked.append(sub.fts_candidates(match, ctx, q_pool, scopes=readable))
         if q_vector and embedder is not None:
             ranked.append(sub.vector_candidates(q_embedding, ctx, q_pool, scopes=readable, model_id=embedder.model_id))
