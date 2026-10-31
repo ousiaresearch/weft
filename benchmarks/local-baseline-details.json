@@ -10,7 +10,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 40.27080535888672,
+      "latency_ms": 39.613962173461914,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_1-Caroline-165",
         "locomo-conv-26-d1-3",
@@ -36,7 +36,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 41.80192947387695,
+      "latency_ms": 38.55705261230469,
       "selected_ids": [
         "locomo-conv-26-d1-14",
         "locomo-conv-26-d13-8",
@@ -62,7 +62,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 39.71600532531738,
+      "latency_ms": 38.56396675109863,
       "selected_ids": [
         "locomo-conv-26-d4-14",
         "locomo-conv-26-d7-8",
@@ -88,7 +88,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.25,
-      "latency_ms": 39.495229721069336,
+      "latency_ms": 38.437843322753906,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_2-Caroline-166",
         "locomo-conv-26-d17-7",
@@ -114,7 +114,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 38.62714767456055,
+      "latency_ms": 38.55586051940918,
       "selected_ids": [
         "locomo-conv-26-d11-12",
         "locomo-conv-26-d16-9",
@@ -140,7 +140,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.77003288269043,
+      "latency_ms": 38.38610649108887,
       "selected_ids": [
         "locomo-conv-26-d2-1",
         "locomo-conv-26-d2-2",
@@ -166,7 +166,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.82463073730469,
+      "latency_ms": 38.30695152282715,
       "selected_ids": [
         "locomo-conv-26-d2-7",
         "locomo-conv-26-d9-1",
@@ -192,7 +192,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.86492347717285,
+      "latency_ms": 38.488149642944336,
       "selected_ids": [
         "locomo-conv-26-d16-15",
         "locomo-conv-26-d16-14",
@@ -218,7 +218,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.7650260925293,
+      "latency_ms": 38.41829299926758,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_3-Caroline-167",
         "locomo-conv-26-d18-10",
@@ -244,7 +244,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.99295425415039,
+      "latency_ms": 38.629770278930664,
       "selected_ids": [
         "locomo-conv-26-d3-11",
         "locomo-conv-26-evt-events_session_2-Caroline-166",
@@ -270,7 +270,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.928104400634766,
+      "latency_ms": 38.50889205932617,
       "selected_ids": [
         "locomo-conv-26-d12-1",
         "locomo-conv-26-d3-12",
@@ -296,7 +296,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 38.05899620056152,
+      "latency_ms": 38.48528861999512,
       "selected_ids": [
         "locomo-conv-26-d3-13",
         "locomo-conv-26-d3-1",
@@ -322,7 +322,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 38.08307647705078,
+      "latency_ms": 38.591861724853516,
       "selected_ids": [
         "locomo-conv-26-d4-5",
         "locomo-conv-26-d3-1",
@@ -348,7 +348,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.83297538757324,
+      "latency_ms": 38.4831428527832,
       "selected_ids": [
         "locomo-conv-26-d4-12",
         "locomo-conv-26-d14-12",
@@ -374,7 +374,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 39.8561954498291,
+      "latency_ms": 38.77997398376465,
       "selected_ids": [
         "locomo-conv-26-d4-15",
         "locomo-conv-26-ss-session_4_summary",
@@ -400,7 +400,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 40.6031608581543,
+      "latency_ms": 38.11478614807129,
       "selected_ids": [
         "locomo-conv-26-d2-5",
         "locomo-conv-26-d17-22",
@@ -426,7 +426,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 38.81502151489258,
+      "latency_ms": 38.18917274475098,
       "selected_ids": [
         "locomo-conv-26-d5-4",
         "locomo-conv-26-evt-events_session_5-Melanie-169",
@@ -452,7 +452,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 38.05398941040039,
+      "latency_ms": 38.13791275024414,
       "selected_ids": [
         "locomo-conv-26-d5-13",
         "locomo-conv-26-d7-2",
@@ -478,7 +478,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.2,
-      "latency_ms": 38.0551815032959,
+      "latency_ms": 39.52312469482422,
       "selected_ids": [
         "locomo-conv-26-d9-1",
         "locomo-conv-26-evt-events_session_4-Melanie-168",
@@ -504,7 +504,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 38.29479217529297,
+      "latency_ms": 40.33088684082031,
       "selected_ids": [
         "locomo-conv-26-d8-33",
         "locomo-conv-26-d13-9",
@@ -530,7 +530,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 38.01608085632324,
+      "latency_ms": 39.45183753967285,
       "selected_ids": [
         "locomo-conv-26-d6-4",
         "locomo-conv-26-d1-18",
@@ -556,7 +556,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.77790069580078,
+      "latency_ms": 40.71497917175293,
       "selected_ids": [
         "locomo-conv-26-d10-15",
         "locomo-conv-26-d15-13",
@@ -582,7 +582,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 39.070844650268555,
+      "latency_ms": 38.56086730957031,
       "selected_ids": [
         "locomo-conv-26-d6-9",
         "locomo-conv-26-d7-8",
@@ -608,7 +608,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.25,
-      "latency_ms": 38.552045822143555,
+      "latency_ms": 37.88900375366211,
       "selected_ids": [
         "locomo-conv-26-d6-9",
         "locomo-conv-26-d17-10",
@@ -634,7 +634,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 38.25712203979492,
+      "latency_ms": 37.99796104431152,
       "selected_ids": [
         "locomo-conv-26-d13-2",
         "locomo-conv-26-evt-events_session_7-Melanie-171",
@@ -660,7 +660,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 38.36989402770996,
+      "latency_ms": 38.1927490234375,
       "selected_ids": [
         "locomo-conv-26-d7-2",
         "locomo-conv-26-d7-1",
@@ -686,7 +686,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.25,
-      "latency_ms": 38.47908973693848,
+      "latency_ms": 38.52105140686035,
       "selected_ids": [
         "locomo-conv-26-d6-9",
         "locomo-conv-26-d17-10",
@@ -712,7 +712,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 38.33484649658203,
+      "latency_ms": 38.160085678100586,
       "selected_ids": [
         "locomo-conv-26-d1-9",
         "locomo-conv-26-d7-7",
@@ -738,7 +738,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 38.10715675354004,
+      "latency_ms": 38.18106651306152,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_8-Caroline-172",
         "locomo-conv-26-d8-9",
@@ -764,7 +764,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 38.14578056335449,
+      "latency_ms": 38.05112838745117,
       "selected_ids": [
         "locomo-conv-26-d8-2",
         "locomo-conv-26-d14-4",
@@ -790,7 +790,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.89997100830078,
+      "latency_ms": 38.092851638793945,
       "selected_ids": [
         "locomo-conv-26-d2-7",
         "locomo-conv-26-d9-1",
@@ -816,7 +816,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 38.57898712158203,
+      "latency_ms": 38.20490837097168,
       "selected_ids": [
         "locomo-conv-26-d7-2",
         "locomo-conv-26-d10-5",
@@ -842,7 +842,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.3333333333333333,
-      "latency_ms": 38.21110725402832,
+      "latency_ms": 38.233041763305664,
       "selected_ids": [
         "locomo-conv-26-d2-7",
         "locomo-conv-26-d8-21",
@@ -868,7 +868,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.94288635253906,
+      "latency_ms": 38.27691078186035,
       "selected_ids": [
         "locomo-conv-26-d10-7",
         "locomo-conv-26-d17-20",
@@ -894,7 +894,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 37.76192665100098,
+      "latency_ms": 38.0702018737793,
       "selected_ids": [
         "locomo-conv-26-d2-7",
         "locomo-conv-26-d9-1",
@@ -920,7 +920,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 37.89973258972168,
+      "latency_ms": 38.095951080322266,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_9-Caroline-173",
         "locomo-conv-26-d9-2",
@@ -946,7 +946,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.80508041381836,
+      "latency_ms": 38.04516792297363,
       "selected_ids": [
         "locomo-conv-26-d13-8",
         "locomo-conv-26-d13-11",
@@ -972,7 +972,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.3333333333333333,
-      "latency_ms": 37.72115707397461,
+      "latency_ms": 38.09309005737305,
       "selected_ids": [
         "locomo-conv-26-d2-5",
         "locomo-conv-26-d1-6",
@@ -998,7 +998,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.7810001373291,
+      "latency_ms": 38.140058517456055,
       "selected_ids": [
         "locomo-conv-26-d10-7",
         "locomo-conv-26-d16-5",
@@ -1024,7 +1024,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.25,
-      "latency_ms": 37.67704963684082,
+      "latency_ms": 38.09833526611328,
       "selected_ids": [
         "locomo-conv-26-d3-17",
         "locomo-conv-26-d10-10",
@@ -1050,7 +1050,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.85586357116699,
+      "latency_ms": 38.16413879394531,
       "selected_ids": [
         "locomo-conv-26-d10-3",
         "locomo-conv-26-evt-events_session_10-Caroline-174",
@@ -1076,7 +1076,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.93692588806152,
+      "latency_ms": 38.05994987487793,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_18-Melanie-188",
         "locomo-conv-26-evt-events_session_15-Melanie-183",
@@ -1102,7 +1102,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.827253341674805,
+      "latency_ms": 38.18798065185547,
       "selected_ids": [
         "locomo-conv-26-d17-22",
         "locomo-conv-26-d3-18",
@@ -1128,7 +1128,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.6739501953125,
+      "latency_ms": 38.89012336730957,
       "selected_ids": [
         "locomo-conv-26-d11-1",
         "locomo-conv-26-evt-events_session_11-Melanie-176",
@@ -1154,7 +1154,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 37.780046463012695,
+      "latency_ms": 39.38102722167969,
       "selected_ids": [
         "locomo-conv-26-d5-1",
         "locomo-conv-26-d11-4",
@@ -1180,7 +1180,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 37.69207000732422,
+      "latency_ms": 39.22295570373535,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_14-Caroline-181",
         "locomo-conv-26-d12-1",
@@ -1206,7 +1206,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.58120536804199,
+      "latency_ms": 39.225101470947266,
       "selected_ids": [
         "locomo-conv-26-d8-2",
         "locomo-conv-26-d14-4",
@@ -1232,7 +1232,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.9788875579834,
+      "latency_ms": 39.75391387939453,
       "selected_ids": [
         "locomo-conv-26-d10-10",
         "locomo-conv-26-d1-18",
@@ -1258,7 +1258,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.796974182128906,
+      "latency_ms": 39.81423377990723,
       "selected_ids": [
         "locomo-conv-26-d18-14",
         "locomo-conv-26-d18-7",
@@ -1284,7 +1284,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.3333333333333333,
-      "latency_ms": 37.65082359313965,
+      "latency_ms": 38.50388526916504,
       "selected_ids": [
         "locomo-conv-26-d14-30",
         "locomo-conv-26-d14-32",
@@ -1310,7 +1310,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.87875175476074,
+      "latency_ms": 37.8267765045166,
       "selected_ids": [
         "locomo-conv-26-d13-4",
         "locomo-conv-26-d7-17",
@@ -1336,7 +1336,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 38.07783126831055,
+      "latency_ms": 37.835121154785156,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_13-Caroline-179",
         "locomo-conv-26-d13-1",
@@ -1362,7 +1362,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.72687911987305,
+      "latency_ms": 37.963151931762695,
       "selected_ids": [
         "locomo-conv-26-d13-11",
         "locomo-conv-26-d14-29",
@@ -1388,7 +1388,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.14285714285714285,
-      "latency_ms": 38.35892677307129,
+      "latency_ms": 38.06614875793457,
       "selected_ids": [
         "locomo-conv-26-d8-8",
         "locomo-conv-26-d3-17",
@@ -1414,7 +1414,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 38.4221076965332,
+      "latency_ms": 37.95886039733887,
       "selected_ids": [
         "locomo-conv-26-d14-15",
         "locomo-conv-26-d11-12",
@@ -1440,7 +1440,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.3333333333333333,
-      "latency_ms": 38.462162017822266,
+      "latency_ms": 37.899017333984375,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_14-Caroline-181",
         "locomo-conv-26-d8-20",
@@ -1466,7 +1466,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 38.22827339172363,
+      "latency_ms": 37.85204887390137,
       "selected_ids": [
         "locomo-conv-26-d14-4",
         "locomo-conv-26-d14-3",
@@ -1492,7 +1492,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.2,
-      "latency_ms": 38.23208808898926,
+      "latency_ms": 37.88495063781738,
       "selected_ids": [
         "locomo-conv-26-d5-3",
         "locomo-conv-26-d18-7",
@@ -1518,7 +1518,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.25,
-      "latency_ms": 38.27667236328125,
+      "latency_ms": 37.72997856140137,
       "selected_ids": [
         "locomo-conv-26-d15-25",
         "locomo-conv-26-d17-22",
@@ -1544,7 +1544,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 39.216041564941406,
+      "latency_ms": 37.70804405212402,
       "selected_ids": [
         "locomo-conv-26-d15-13",
         "locomo-conv-26-d15-28",
@@ -1570,7 +1570,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.3333333333333333,
-      "latency_ms": 38.90180587768555,
+      "latency_ms": 37.76121139526367,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_15-Melanie-183",
         "locomo-conv-26-evt-events_session_18-Melanie-188",
@@ -1596,7 +1596,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 39.15691375732422,
+      "latency_ms": 37.87112236022949,
       "selected_ids": [
         "locomo-conv-26-d15-11",
         "locomo-conv-26-d15-9",
@@ -1622,7 +1622,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.95981407165527,
+      "latency_ms": 37.880897521972656,
       "selected_ids": [
         "locomo-conv-26-d15-28",
         "locomo-conv-26-d17-13",
@@ -1648,7 +1648,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.91403770446777,
+      "latency_ms": 37.8260612487793,
       "selected_ids": [
         "locomo-conv-26-d16-15",
         "locomo-conv-26-d6-13",
@@ -1674,7 +1674,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.83297538757324,
+      "latency_ms": 37.86492347717285,
       "selected_ids": [
         "locomo-conv-26-d13-2",
         "locomo-conv-26-d4-8",
@@ -1700,7 +1700,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.856101989746094,
+      "latency_ms": 37.90712356567383,
       "selected_ids": [
         "locomo-conv-26-d16-1",
         "locomo-conv-26-evt-events_session_16-Caroline-184",
@@ -1726,7 +1726,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.14285714285714285,
-      "latency_ms": 37.722110748291016,
+      "latency_ms": 37.76216506958008,
       "selected_ids": [
         "locomo-conv-26-d16-6",
         "locomo-conv-26-d15-20",
@@ -1752,7 +1752,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 38.24901580810547,
+      "latency_ms": 38.147926330566406,
       "selected_ids": [
         "locomo-conv-26-d10-1",
         "locomo-conv-26-d14-16",
@@ -1778,7 +1778,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.98413276672363,
+      "latency_ms": 37.76907920837402,
       "selected_ids": [
         "locomo-conv-26-d17-19",
         "locomo-conv-26-d1-3",
@@ -1804,7 +1804,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.25,
-      "latency_ms": 38.18488121032715,
+      "latency_ms": 38.30289840698242,
       "selected_ids": [
         "locomo-conv-26-d12-16",
         "locomo-conv-26-d7-9",
@@ -1830,7 +1830,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.903785705566406,
+      "latency_ms": 38.00010681152344,
       "selected_ids": [
         "locomo-conv-26-d10-20",
         "locomo-conv-26-evt-events_session_2-Caroline-166",
@@ -1856,7 +1856,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.648916244506836,
+      "latency_ms": 37.91999816894531,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_18-Melanie-187",
         "locomo-conv-26-d14-3",
@@ -1882,7 +1882,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 38.53893280029297,
+      "latency_ms": 37.877798080444336,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_18-Melanie-186",
         "locomo-conv-26-evt-events_session_18-Melanie-188",
@@ -1908,7 +1908,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.63890266418457,
+      "latency_ms": 37.71805763244629,
       "selected_ids": [
         "locomo-conv-26-d3-17",
         "locomo-conv-26-d17-22",
@@ -1934,7 +1934,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.25,
-      "latency_ms": 37.79196739196777,
+      "latency_ms": 37.755727767944336,
       "selected_ids": [
         "locomo-conv-26-d1-18",
         "locomo-conv-26-d4-18",
@@ -1960,7 +1960,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.6582145690918,
+      "latency_ms": 37.818193435668945,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_18-Melanie-186",
         "locomo-conv-26-evt-events_session_18-Melanie-187",
@@ -1986,7 +1986,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.661075592041016,
+      "latency_ms": 37.63580322265625,
       "selected_ids": [
         "locomo-conv-26-d19-2",
         "locomo-conv-26-d4-4",
@@ -2012,7 +2012,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 37.80102729797363,
+      "latency_ms": 37.92881965637207,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_19-Caroline-189",
         "locomo-conv-26-d19-1",
@@ -2038,7 +2038,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.64820098876953,
+      "latency_ms": 37.83392906188965,
       "selected_ids": [
         "locomo-conv-26-d19-2",
         "locomo-conv-26-d14-3",
@@ -2064,7 +2064,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.987709045410156,
+      "latency_ms": 38.20395469665527,
       "selected_ids": [
         "locomo-conv-26-d3-13",
         "locomo-conv-26-d19-5",
@@ -2090,7 +2090,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 36.73219680786133,
+      "latency_ms": 36.715030670166016,
       "selected_ids": [
         "locomo-conv-26-d2-2",
         "locomo-conv-26-d2-1",
@@ -2115,7 +2115,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.25,
-      "latency_ms": 37.81294822692871,
+      "latency_ms": 37.89114952087402,
       "selected_ids": [
         "locomo-conv-26-d2-1",
         "locomo-conv-26-d2-2",
@@ -2141,7 +2141,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 38.54680061340332,
+      "latency_ms": 37.811994552612305,
       "selected_ids": [
         "locomo-conv-26-d2-4",
         "locomo-conv-26-d2-3",
@@ -2167,7 +2167,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 38.23709487915039,
+      "latency_ms": 38.046836853027344,
       "selected_ids": [
         "locomo-conv-26-d12-16",
         "locomo-conv-26-d12-17",
@@ -2193,7 +2193,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 38.11812400817871,
+      "latency_ms": 38.26165199279785,
       "selected_ids": [
         "locomo-conv-26-d2-12",
         "locomo-conv-26-evt-events_session_2-Caroline-166",
@@ -2219,7 +2219,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.3333333333333333,
-      "latency_ms": 37.94574737548828,
+      "latency_ms": 38.19012641906738,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_19-Caroline-189",
         "locomo-conv-26-evt-events_session_13-Caroline-179",
@@ -2245,7 +2245,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.87398338317871,
+      "latency_ms": 38.08474540710449,
       "selected_ids": [
         "locomo-conv-26-d2-13",
         "locomo-conv-26-d19-1",
@@ -2271,7 +2271,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 38.436174392700195,
+      "latency_ms": 38.54703903198242,
       "selected_ids": [
         "locomo-conv-26-d12-20",
         "locomo-conv-26-d17-22",
@@ -2297,7 +2297,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.3333333333333333,
-      "latency_ms": 37.830352783203125,
+      "latency_ms": 37.930965423583984,
       "selected_ids": [
         "locomo-conv-26-d3-15",
         "locomo-conv-26-d6-1",
@@ -2323,7 +2323,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 39.07299041748047,
+      "latency_ms": 38.0702018737793,
       "selected_ids": [
         "locomo-conv-26-d4-3",
         "locomo-conv-26-d17-22",
@@ -2349,7 +2349,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 38.068294525146484,
+      "latency_ms": 38.2380485534668,
       "selected_ids": [
         "locomo-conv-26-d3-13",
         "locomo-conv-26-d6-14",
@@ -2375,7 +2375,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 38.84005546569824,
+      "latency_ms": 38.06114196777344,
       "selected_ids": [
         "locomo-conv-26-d4-3",
         "locomo-conv-26-d19-11",
@@ -2401,7 +2401,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 38.07783126831055,
+      "latency_ms": 38.25092315673828,
       "selected_ids": [
         "locomo-conv-26-d4-5",
         "locomo-conv-26-d5-8",
@@ -2427,7 +2427,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.16666666666666666,
-      "latency_ms": 38.6660099029541,
+      "latency_ms": 38.030147552490234,
       "selected_ids": [
         "locomo-conv-26-d9-1",
         "locomo-conv-26-evt-events_session_4-Melanie-168",
@@ -2453,7 +2453,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 39.14904594421387,
+      "latency_ms": 38.0401611328125,
       "selected_ids": [
         "locomo-conv-26-d4-12",
         "locomo-conv-26-d4-11",
@@ -2479,7 +2479,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.87422180175781,
+      "latency_ms": 38.08188438415527,
       "selected_ids": [
         "locomo-conv-26-d4-13",
         "locomo-conv-26-d1-3",
@@ -2505,7 +2505,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.634849548339844,
+      "latency_ms": 37.76884078979492,
       "selected_ids": [
         "locomo-conv-26-d4-13",
         "locomo-conv-26-d8-2",
@@ -2531,7 +2531,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.976980209350586,
+      "latency_ms": 38.09404373168945,
       "selected_ids": [
         "locomo-conv-26-d4-15",
         "locomo-conv-26-d4-14",
@@ -2557,7 +2557,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.89687156677246,
+      "latency_ms": 38.162946701049805,
       "selected_ids": [
         "locomo-conv-26-d4-12",
         "locomo-conv-26-d17-22",
@@ -2583,7 +2583,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 37.987709045410156,
+      "latency_ms": 38.172006607055664,
       "selected_ids": [
         "locomo-conv-26-d5-7",
         "locomo-conv-26-d5-8",
@@ -2609,7 +2609,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 38.916826248168945,
+      "latency_ms": 38.12289237976074,
       "selected_ids": [
         "locomo-conv-26-d6-8",
         "locomo-conv-26-d6-9",
@@ -2635,7 +2635,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 39.77704048156738,
+      "latency_ms": 38.00702095031738,
       "selected_ids": [
         "locomo-conv-26-d7-11",
         "locomo-conv-26-d7-10",
@@ -2661,7 +2661,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 40.50612449645996,
+      "latency_ms": 38.19704055786133,
       "selected_ids": [
         "locomo-conv-26-d17-7",
         "locomo-conv-26-d6-9",
@@ -2687,7 +2687,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 38.67483139038086,
+      "latency_ms": 38.23375701904297,
       "selected_ids": [
         "locomo-conv-26-d7-11",
         "locomo-conv-26-d7-13",
@@ -2713,7 +2713,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 39.144039154052734,
+      "latency_ms": 38.19894790649414,
       "selected_ids": [
         "locomo-conv-26-d7-20",
         "locomo-conv-26-d4-4",
@@ -2739,7 +2739,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 38.671016693115234,
+      "latency_ms": 38.114070892333984,
       "selected_ids": [
         "locomo-conv-26-d7-21",
         "locomo-conv-26-d7-24",
@@ -2765,7 +2765,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 38.36703300476074,
+      "latency_ms": 38.108110427856445,
       "selected_ids": [
         "locomo-conv-26-d7-24",
         "locomo-conv-26-d7-22",
@@ -2791,7 +2791,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.75787353515625,
+      "latency_ms": 38.14196586608887,
       "selected_ids": [
         "locomo-conv-26-d8-2",
         "locomo-conv-26-d17-10",
@@ -2817,7 +2817,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 37.77909278869629,
+      "latency_ms": 37.947893142700195,
       "selected_ids": [
         "locomo-conv-26-d8-2",
         "locomo-conv-26-d8-4",
@@ -2843,7 +2843,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.817955017089844,
+      "latency_ms": 37.96982765197754,
       "selected_ids": [
         "locomo-conv-26-d8-5",
         "locomo-conv-26-d8-33",
@@ -2869,7 +2869,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.654876708984375,
+      "latency_ms": 38.10405731201172,
       "selected_ids": [
         "locomo-conv-26-d8-6",
         "locomo-conv-26-ss-session_8_summary",
@@ -2895,7 +2895,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 37.63580322265625,
+      "latency_ms": 38.025856018066406,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_8-Caroline-172",
         "locomo-conv-26-d8-9",
@@ -2921,7 +2921,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.68014907836914,
+      "latency_ms": 38.011789321899414,
       "selected_ids": [
         "locomo-conv-26-d8-11",
         "locomo-conv-26-d7-13",
@@ -2947,7 +2947,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.51993179321289,
+      "latency_ms": 37.880659103393555,
       "selected_ids": [
         "locomo-conv-26-d8-12",
         "locomo-conv-26-d4-10",
@@ -2973,7 +2973,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.71686553955078,
+      "latency_ms": 38.08093070983887,
       "selected_ids": [
         "locomo-conv-26-d9-12",
         "locomo-conv-26-d9-14",
@@ -2999,7 +2999,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.580013275146484,
+      "latency_ms": 37.9948616027832,
       "selected_ids": [
         "locomo-conv-26-d10-10",
         "locomo-conv-26-d10-8",
@@ -3025,7 +3025,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.69993782043457,
+      "latency_ms": 38.05088996887207,
       "selected_ids": [
         "locomo-conv-26-d10-14",
         "locomo-conv-26-d18-19",
@@ -3051,7 +3051,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.6279354095459,
+      "latency_ms": 37.92285919189453,
       "selected_ids": [
         "locomo-conv-26-d10-14",
         "locomo-conv-26-d10-16",
@@ -3077,7 +3077,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.57905960083008,
+      "latency_ms": 37.85109519958496,
       "selected_ids": [
         "locomo-conv-26-d11-1",
         "locomo-conv-26-evt-events_session_11-Melanie-176",
@@ -3103,7 +3103,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.72687911987305,
+      "latency_ms": 37.90402412414551,
       "selected_ids": [
         "locomo-conv-26-d11-1",
         "locomo-conv-26-evt-events_session_11-Melanie-176",
@@ -3129,7 +3129,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.65988349914551,
+      "latency_ms": 38.04278373718262,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_12-Melanie-178",
         "locomo-conv-26-d12-2",
@@ -3155,7 +3155,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.69397735595703,
+      "latency_ms": 37.9030704498291,
       "selected_ids": [
         "locomo-conv-26-d13-2",
         "locomo-conv-26-d17-22",
@@ -3181,7 +3181,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 37.54019737243652,
+      "latency_ms": 37.82773017883301,
       "selected_ids": [
         "locomo-conv-26-d13-2",
         "locomo-conv-26-d13-4",
@@ -3207,7 +3207,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 36.61990165710449,
+      "latency_ms": 36.811113357543945,
       "selected_ids": [
         "locomo-conv-26-d13-6",
         "locomo-conv-26-d13-5",
@@ -3233,7 +3233,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 41.69321060180664,
+      "latency_ms": 38.21587562561035,
       "selected_ids": [
         "locomo-conv-26-d13-7",
         "locomo-conv-26-d7-12",
@@ -3259,7 +3259,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 43.76387596130371,
+      "latency_ms": 38.14816474914551,
       "selected_ids": [
         "locomo-conv-26-d14-28",
         "locomo-conv-26-d8-20",
@@ -3285,7 +3285,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.125,
-      "latency_ms": 43.784141540527344,
+      "latency_ms": 38.160085678100586,
       "selected_ids": [
         "locomo-conv-26-d18-19",
         "locomo-conv-26-d7-19",
@@ -3311,7 +3311,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.14285714285714285,
-      "latency_ms": 43.02406311035156,
+      "latency_ms": 37.99605369567871,
       "selected_ids": [
         "locomo-conv-26-d3-10",
         "locomo-conv-26-d15-22",
@@ -3337,7 +3337,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 44.83199119567871,
+      "latency_ms": 37.8870964050293,
       "selected_ids": [
         "locomo-conv-26-d15-28",
         "locomo-conv-26-d17-22",
@@ -3363,7 +3363,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 39.81900215148926,
+      "latency_ms": 37.70589828491211,
       "selected_ids": [
         "locomo-conv-26-d15-28",
         "locomo-conv-26-d5-6",
@@ -3389,7 +3389,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 40.048837661743164,
+      "latency_ms": 37.912845611572266,
       "selected_ids": [
         "locomo-conv-26-d16-6",
         "locomo-conv-26-d16-7",
@@ -3415,7 +3415,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.3333333333333333,
-      "latency_ms": 39.73507881164551,
+      "latency_ms": 37.93215751647949,
       "selected_ids": [
         "locomo-conv-26-d16-17",
         "locomo-conv-26-d15-13",
@@ -3441,7 +3441,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.16666666666666666,
-      "latency_ms": 38.1622314453125,
+      "latency_ms": 38.02919387817383,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_17-Caroline-185",
         "locomo-conv-26-d17-1",
@@ -3467,7 +3467,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 39.34621810913086,
+      "latency_ms": 37.93692588806152,
       "selected_ids": [
         "locomo-conv-26-d17-8",
         "locomo-conv-26-d9-10",
@@ -3493,7 +3493,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 40.678977966308594,
+      "latency_ms": 37.9338264465332,
       "selected_ids": [
         "locomo-conv-26-d17-10",
         "locomo-conv-26-d17-8",
@@ -3519,7 +3519,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 40.61293601989746,
+      "latency_ms": 38.28096389770508,
       "selected_ids": [
         "locomo-conv-26-d13-8",
         "locomo-conv-26-d9-12",
@@ -3545,7 +3545,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 40.025949478149414,
+      "latency_ms": 38.42020034790039,
       "selected_ids": [
         "locomo-conv-26-d13-8",
         "locomo-conv-26-ss-session_16_summary",
@@ -3571,7 +3571,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 38.27714920043945,
+      "latency_ms": 38.12599182128906,
       "selected_ids": [
         "locomo-conv-26-d17-19",
         "locomo-conv-26-d17-17",
@@ -3597,7 +3597,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 38.08999061584473,
+      "latency_ms": 37.133216857910156,
       "selected_ids": [
         "locomo-conv-26-d17-19",
         "locomo-conv-26-d17-17",
@@ -3622,7 +3622,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 39.88313674926758,
+      "latency_ms": 38.28310966491699,
       "selected_ids": [
         "locomo-conv-26-d17-22",
         "locomo-conv-26-d4-3",
@@ -3648,7 +3648,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 38.45405578613281,
+      "latency_ms": 38.462162017822266,
       "selected_ids": [
         "locomo-conv-26-d3-8",
         "locomo-conv-26-d8-5",
@@ -3674,7 +3674,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.87994384765625,
+      "latency_ms": 38.34891319274902,
       "selected_ids": [
         "locomo-conv-26-d18-1",
         "locomo-conv-26-d18-2",
@@ -3700,7 +3700,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 38.053035736083984,
+      "latency_ms": 38.117170333862305,
       "selected_ids": [
         "locomo-conv-26-d18-6",
         "locomo-conv-26-evt-events_session_18-Melanie-187",
@@ -3726,7 +3726,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.89687156677246,
+      "latency_ms": 38.343191146850586,
       "selected_ids": [
         "locomo-conv-26-d1-16",
         "locomo-conv-26-d18-1",
@@ -3752,7 +3752,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 38.742780685424805,
+      "latency_ms": 38.071632385253906,
       "selected_ids": [
         "locomo-conv-26-d18-6",
         "locomo-conv-26-evt-events_session_18-Melanie-187",
@@ -3778,7 +3778,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 38.57922554016113,
+      "latency_ms": 38.04588317871094,
       "selected_ids": [
         "locomo-conv-26-d18-6",
         "locomo-conv-26-d1-16",
@@ -3804,7 +3804,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 38.94805908203125,
+      "latency_ms": 38.23518753051758,
       "selected_ids": [
         "locomo-conv-26-d18-5",
         "locomo-conv-26-evt-events_session_18-Melanie-186",
@@ -3830,7 +3830,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 38.9561653137207,
+      "latency_ms": 38.12599182128906,
       "selected_ids": [
         "locomo-conv-26-d3-11",
         "locomo-conv-26-d3-10",
@@ -3856,7 +3856,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 39.06106948852539,
+      "latency_ms": 38.22207450866699,
       "selected_ids": [
         "locomo-conv-26-d15-4",
         "locomo-conv-26-ss-session_13_summary",
@@ -3882,7 +3882,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 38.6199951171875,
+      "latency_ms": 38.11383247375488,
       "selected_ids": [
         "locomo-conv-26-d18-17",
         "locomo-conv-26-d18-2",
@@ -3908,7 +3908,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.25,
-      "latency_ms": 38.207054138183594,
+      "latency_ms": 38.387298583984375,
       "selected_ids": [
         "locomo-conv-26-d2-1",
         "locomo-conv-26-d2-2",
@@ -3934,7 +3934,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.48893737792969,
+      "latency_ms": 38.197994232177734,
       "selected_ids": [
         "locomo-conv-26-d12-16",
         "locomo-conv-26-d19-8",
@@ -3960,7 +3960,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.50872611999512,
+      "latency_ms": 38.269758224487305,
       "selected_ids": [
         "locomo-conv-26-d2-12",
         "locomo-conv-26-evt-events_session_2-Caroline-166",
@@ -3986,7 +3986,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.3333333333333333,
-      "latency_ms": 37.61601448059082,
+      "latency_ms": 38.58804702758789,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_19-Caroline-189",
         "locomo-conv-26-evt-events_session_13-Caroline-179",
@@ -4012,7 +4012,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.49704360961914,
+      "latency_ms": 42.16909408569336,
       "selected_ids": [
         "locomo-conv-26-d19-1",
         "locomo-conv-26-d2-13",
@@ -4038,7 +4038,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.5208854675293,
+      "latency_ms": 40.434837341308594,
       "selected_ids": [
         "locomo-conv-26-d4-3",
         "locomo-conv-26-d17-22",
@@ -4064,7 +4064,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.551164627075195,
+      "latency_ms": 40.849924087524414,
       "selected_ids": [
         "locomo-conv-26-d3-13",
         "locomo-conv-26-d18-5",
@@ -4090,7 +4090,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 37.564992904663086,
+      "latency_ms": 38.271188735961914,
       "selected_ids": [
         "locomo-conv-26-d19-11",
         "locomo-conv-26-d4-3",
@@ -4116,7 +4116,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.821054458618164,
+      "latency_ms": 38.00082206726074,
       "selected_ids": [
         "locomo-conv-26-d4-3",
         "locomo-conv-26-d19-11",
@@ -4142,7 +4142,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.74595260620117,
+      "latency_ms": 38.13982009887695,
       "selected_ids": [
         "locomo-conv-26-d4-5",
         "locomo-conv-26-d5-8",
@@ -4168,7 +4168,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.14285714285714285,
-      "latency_ms": 37.78982162475586,
+      "latency_ms": 38.160085678100586,
       "selected_ids": [
         "locomo-conv-26-d9-1",
         "locomo-conv-26-evt-events_session_4-Melanie-168",
@@ -4194,7 +4194,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.35089302062988,
+      "latency_ms": 37.92691230773926,
       "selected_ids": [
         "locomo-conv-26-d4-12",
         "locomo-conv-26-d4-11",
@@ -4220,7 +4220,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.6131534576416,
+      "latency_ms": 38.02990913391113,
       "selected_ids": [
         "locomo-conv-26-d4-13",
         "locomo-conv-26-d13-8",
@@ -4246,7 +4246,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.38713264465332,
+      "latency_ms": 37.88328170776367,
       "selected_ids": [
         "locomo-conv-26-d4-15",
         "locomo-conv-26-d4-14",
@@ -4272,7 +4272,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.44077682495117,
+      "latency_ms": 37.960052490234375,
       "selected_ids": [
         "locomo-conv-26-d4-12",
         "locomo-conv-26-d19-5",
@@ -4298,7 +4298,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 37.78815269470215,
+      "latency_ms": 38.186073303222656,
       "selected_ids": [
         "locomo-conv-26-d5-7",
         "locomo-conv-26-d5-8",
@@ -4324,7 +4324,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 38.25116157531738,
+      "latency_ms": 38.29479217529297,
       "selected_ids": [
         "locomo-conv-26-d7-20",
         "locomo-conv-26-d4-4",
@@ -4350,7 +4350,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.86611557006836,
+      "latency_ms": 38.28096389770508,
       "selected_ids": [
         "locomo-conv-26-d7-21",
         "locomo-conv-26-d7-24",
@@ -4376,7 +4376,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 37.64510154724121,
+      "latency_ms": 38.09213638305664,
       "selected_ids": [
         "locomo-conv-26-d7-22",
         "locomo-conv-26-d7-24",
@@ -4402,7 +4402,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 37.42575645446777,
+      "latency_ms": 37.99295425415039,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_8-Caroline-172",
         "locomo-conv-26-d8-9",
@@ -4428,7 +4428,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.79721260070801,
+      "latency_ms": 38.23590278625488,
       "selected_ids": [
         "locomo-conv-26-d17-13",
         "locomo-conv-26-d9-14",
@@ -4454,7 +4454,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.709951400756836,
+      "latency_ms": 38.2230281829834,
       "selected_ids": [
         "locomo-conv-26-d9-12",
         "locomo-conv-26-d9-14",
@@ -4480,7 +4480,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.80722618103027,
+      "latency_ms": 38.11478614807129,
       "selected_ids": [
         "locomo-conv-26-d10-10",
         "locomo-conv-26-d10-9",
@@ -4506,7 +4506,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.88328170776367,
+      "latency_ms": 38.355112075805664,
       "selected_ids": [
         "locomo-conv-26-d10-14",
         "locomo-conv-26-d18-19",
@@ -4532,7 +4532,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.629127502441406,
+      "latency_ms": 38.07210922241211,
       "selected_ids": [
         "locomo-conv-26-d10-14",
         "locomo-conv-26-d10-16",
@@ -4558,7 +4558,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.75477409362793,
+      "latency_ms": 38.170814514160156,
       "selected_ids": [
         "locomo-conv-26-evt-events_session_12-Melanie-178",
         "locomo-conv-26-d12-5",
@@ -4584,7 +4584,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.70089149475098,
+      "latency_ms": 38.01321983337402,
       "selected_ids": [
         "locomo-conv-26-d13-3",
         "locomo-conv-26-d13-4",
@@ -4610,7 +4610,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 36.367177963256836,
+      "latency_ms": 36.73911094665527,
       "selected_ids": [
         "locomo-conv-26-d13-6",
         "locomo-conv-26-ss-session_13_summary",
@@ -4635,7 +4635,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.51873970031738,
+      "latency_ms": 38.10882568359375,
       "selected_ids": [
         "locomo-conv-26-d13-7",
         "locomo-conv-26-d7-12",
@@ -4661,7 +4661,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.48297691345215,
+      "latency_ms": 37.87803649902344,
       "selected_ids": [
         "locomo-conv-26-d14-3",
         "locomo-conv-26-evt-events_session_15-Melanie-183",
@@ -4687,7 +4687,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.62197494506836,
+      "latency_ms": 37.96815872192383,
       "selected_ids": [
         "locomo-conv-26-d18-19",
         "locomo-conv-26-d17-10",
@@ -4713,7 +4713,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.1111111111111111,
-      "latency_ms": 37.317752838134766,
+      "latency_ms": 37.91522979736328,
       "selected_ids": [
         "locomo-conv-26-d3-10",
         "locomo-conv-26-d14-16",
@@ -4739,7 +4739,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.125,
-      "latency_ms": 37.54019737243652,
+      "latency_ms": 37.9939079284668,
       "selected_ids": [
         "locomo-conv-26-d15-25",
         "locomo-conv-26-d15-18",
@@ -4765,7 +4765,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.41884231567383,
+      "latency_ms": 38.00487518310547,
       "selected_ids": [
         "locomo-conv-26-d15-28",
         "locomo-conv-26-d17-22",
@@ -4791,7 +4791,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.461042404174805,
+      "latency_ms": 37.99176216125488,
       "selected_ids": [
         "locomo-conv-26-d15-28",
         "locomo-conv-26-d5-6",
@@ -4817,7 +4817,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.3333333333333333,
-      "latency_ms": 37.50300407409668,
+      "latency_ms": 38.06591033935547,
       "selected_ids": [
         "locomo-conv-26-d16-17",
         "locomo-conv-26-d15-13",
@@ -4843,7 +4843,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.3333333333333333,
-      "latency_ms": 37.43791580200195,
+      "latency_ms": 38.03610801696777,
       "selected_ids": [
         "locomo-conv-26-d13-8",
         "locomo-conv-26-d9-10",
@@ -4869,7 +4869,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.731170654296875,
+      "latency_ms": 38.1770133972168,
       "selected_ids": [
         "locomo-conv-26-d17-10",
         "locomo-conv-26-d17-8",
@@ -4895,7 +4895,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.48297691345215,
+      "latency_ms": 37.87493705749512,
       "selected_ids": [
         "locomo-conv-26-d17-19",
         "locomo-conv-26-d17-17",
@@ -4921,7 +4921,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.67967224121094,
+      "latency_ms": 38.188934326171875,
       "selected_ids": [
         "locomo-conv-26-d18-1",
         "locomo-conv-26-d18-2",
@@ -4947,7 +4947,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.46485710144043,
+      "latency_ms": 38.23494911193848,
       "selected_ids": [
         "locomo-conv-26-d18-6",
         "locomo-conv-26-evt-events_session_18-Melanie-187",
@@ -4973,7 +4973,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.65392303466797,
+      "latency_ms": 38.214921951293945,
       "selected_ids": [
         "locomo-conv-26-d1-16",
         "locomo-conv-26-d18-1",
@@ -4999,7 +4999,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.574052810668945,
+      "latency_ms": 38.13791275024414,
       "selected_ids": [
         "locomo-conv-26-d18-6",
         "locomo-conv-26-d16-15",
@@ -5025,7 +5025,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.505149841308594,
+      "latency_ms": 38.205862045288086,
       "selected_ids": [
         "locomo-conv-26-d18-6",
         "locomo-conv-26-d8-20",
@@ -5051,7 +5051,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.78719902038574,
+      "latency_ms": 38.29002380371094,
       "selected_ids": [
         "locomo-conv-26-d18-5",
         "locomo-conv-26-evt-events_session_18-Melanie-186",
@@ -5077,7 +5077,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 37.412166595458984,
+      "latency_ms": 38.01608085632324,
       "selected_ids": [
         "locomo-conv-26-d18-17",
         "locomo-conv-26-d18-2",
@@ -5103,7 +5103,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 37.65416145324707,
+      "latency_ms": 38.23709487915039,
       "selected_ids": [
         "locomo-conv-26-d18-20",
         "locomo-conv-26-d9-1",
@@ -5129,7 +5129,7 @@
       "found": true,
       "hit": 1,
       "mrr": 1.0,
-      "latency_ms": 31.887292861938477,
+      "latency_ms": 33.37979316711426,
       "selected_ids": [
         "locomo-conv-30-d1-2",
         "locomo-conv-30-evt-events_session_1-Jon-152",
@@ -5155,7 +5155,7 @@
       "found": true,
       "hit": 1,
       "mrr": 0.5,
-      "latency_ms": 31.651973724365234,
+      "latency_ms": 32.588958740234375,
       "selected_ids": [
         "locomo-conv-30-d6-4",
         "locomo-conv-30-d1-3",
@@ -5181,7 +5181,7 @@
       "found": false,
       "hit": 0,
       "mrr": 0.0,
-      "latency_ms": 31.651735305786133,
+      "latency_ms": 33.07700157165527,
       "selected_ids": [
         "locomo-conv-30-d11-8",
         "locomo-conv-30-d6-15",
