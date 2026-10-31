@@ -137,6 +137,34 @@ def convert_sample(sample: dict) -> tuple[str, list[Record], list[QAPair]]:
                 )
             )
 
+    # Raw conversation turns -> Source records
+    # QA evidence references (e.g. D1:12) map directly to dia_ids here.
+    conv_data = json.loads(sample.get("conversation", "{}") or "{}")
+    if isinstance(conv_data, dict):
+        for session_key, turns in conv_data.items():
+            if not isinstance(turns, list):
+                continue
+            for turn in turns:
+                if not isinstance(turn, dict):
+                    continue
+                speaker = turn.get("speaker", "")
+                dia_id = turn.get("dia_id", "")
+                text = turn.get("text", "")
+                if not dia_id or not text:
+                    continue
+                normalized_dia = dia_id.lower().replace(":", "-")
+                _add_record(
+                    Record(
+                        record_id=f"{conv_id}-{normalized_dia}",
+                        record_type="Source",
+                        scope="benchmark",
+                        payload={"text": text},
+                        epistemic_status="stated",
+                        attribution="document",
+                        provenance={"session": session_key, "speaker": speaker, "dia_id": dia_id},
+                    )
+                )
+
     # QA pairs
     qa_data = json.loads(sample.get("qa", "[]") or "[]")
     for qa in qa_data:
