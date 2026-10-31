@@ -52,7 +52,7 @@ def link_entities(sub: Substrate, ctx: ScopeContext, scope: str, limit: int = 10
     """
     try:
         rows = sub._conn.execute(
-            "SELECT record_id, payload FROM records WHERE scope = ? AND record_type IN ('Observation', 'Claim')",
+            "SELECT record_id, payload FROM records WHERE scope = ? AND record_type IN ('Observation', 'Claim', 'Source')",
             (scope,),
         ).fetchall()
     except Exception:

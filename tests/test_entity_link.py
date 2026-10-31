@@ -55,7 +55,7 @@ def test_link_entities_creates_links(substrate):
     _seed(substrate)
     ctx = ScopeContext(granted_scopes=frozenset({"test"}), user_authored=True)
     result = link_entities(substrate, ctx, "test", limit=10)
-    assert result["records_scanned"] == 2
+    assert result["records_scanned"] == 3  # 2 Observation + 1 Source
     assert result["links_created"] >= 2  # at least melanie and caroline
 
 

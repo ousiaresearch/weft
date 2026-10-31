@@ -95,6 +95,11 @@ def create_substrate(conv_id: str, records: list[Record], engine: ScopeEngine | 
         sub.rebuild_fts("benchmark", ctx)
     except Exception:
         pass
+    try:
+        from weft.entity_link import link_entities
+        link_entities(sub, ctx, "benchmark", limit=500)
+    except Exception:
+        pass
     return sub
 
 
