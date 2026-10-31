@@ -359,18 +359,23 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
             text = rec.payload.get("text", "") if isinstance(rec.payload, dict) else ""
             tier, shown = _pick_tier(text, terms)
             derived = bool(isinstance(rec.provenance, dict) and rec.provenance.get("machine_derived"))
-            items.append(Item(rid, rec.scope, shown, tier, derived))
+            items.append(Item(rid, rec.scope, text, tier, derived))
             receipt.selected.append(rid)
             if _TIER_ORDER[tier] > _TIER_ORDER[receipt.tier]:
                 receipt.tier = tier
 
-        # Rerank over the full pool before truncation to limit.
-        if rerank and len(items) > limit:
-            items = _rerank(query, items, embedder, limit)
-        
-        # Cross-encoder rerank on the pooled candidates before final truncation.
+        # Cross-encoder rerank on the pooled candidates before truncation.
+        # Run before bi-encoder rerank so the cross-encoder sees the full pool.
+        cross_encoder_applied = False
         if use_cross_encoder and cross_encoder is not None and len(items) > limit:
-            items = cross_encoder.rerank(query, items, top_k=limit)
+            cross_encoder_applied = True
+            items = cross_encoder.rerank(query, items, top_k=len(items))
+
+        # Rerank over the full pool before truncation to limit.
+        # Skip when cross-encoder already reranked the same pool — it is more
+        # accurate than bi-encoder cosine, and both would hit the same latency.
+        if rerank and len(items) > limit and not cross_encoder_applied:
+            items = _rerank(query, items, embedder, limit)
 
     # Final truncation + receipt recording happens outside the read transaction.
     selected = items[:limit]
@@ -380,7 +385,7 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
             "lexical" if use_lexical else None,
             "vector" if use_vector else None,
             "query_expansion" if len(expanded_queries) > 1 else None,
-            "cross_encoder" if use_cross_encoder and cross_encoder is not None and len(items) > limit else None,
+            "cross_encoder" if cross_encoder_applied else None,
             "graph_boost" if graph_scores else None,
         ] if layer is not None
     ]

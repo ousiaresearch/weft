@@ -18,9 +18,14 @@ class CrossEncoderReranker:
     not the full corpus, to keep latency acceptable.
     """
 
-    def __init__(self, model_name: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"):
-        self.model_name = model_name
-        self._model = None
+    _instance: CrossEncoderReranker | None = None
+
+    def __new__(cls, model_name: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.model_name = model_name
+            cls._instance._model = None
+        return cls._instance
 
     def _load(self):
         if self._model is None:
