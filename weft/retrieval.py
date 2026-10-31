@@ -94,7 +94,7 @@ def _neighbor_expand(sub, candidate_ids: list[str], limit: int) -> list[str]:
                     neighbors.add(chain[nidx][0])
         
         new_neighbors = [n for n in neighbors if n not in seen]
-        expanded = new_neighbors + expanded
+        expanded = expanded + new_neighbors
         seen.update(new_neighbors)
         
         if len(expanded) >= limit * 4:
