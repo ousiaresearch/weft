@@ -219,8 +219,22 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
     expanded_queries = [query]
     if token_getter is not None and mode in ("hybrid", "lexical"):
         try:
-            from weft.query_expansion import expand_query
+            from weft.query_expansion import expand_query, expand_query_hyde, expand_query_multihop
             expanded_queries = expand_query(token_getter, query, n=2)
+            # P1: HyDE adds a hypothetical answer to the candidate pool.
+            hyde = expand_query_hyde(token_getter, query)
+            expanded_queries.extend(hyde[1:])
+            # P1: multi-hop adds sub-questions for compound queries.
+            multihop = expand_query_multihop(token_getter, query)
+            expanded_queries.extend(multihop[1:])
+            # Deduplicate while preserving order.
+            seen = set()
+            deduped = []
+            for q in expanded_queries:
+                if q not in seen:
+                    deduped.append(q)
+                    seen.add(q)
+            expanded_queries = deduped
         except Exception:
             pass
     engine = sub.scope_engine
