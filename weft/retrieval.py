@@ -59,6 +59,7 @@ class Receipt:
     selected: list = field(default_factory=list)
     exclusions: list = field(default_factory=list)
     mode: str = "lexical"
+    layers: list = field(default_factory=list)
 
 
 def _pick_tier(text: str, terms: list) -> tuple[str, str]:
@@ -210,6 +211,7 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
             candidate_ids = []
 
         # Phase 12: graph boost — reorder candidates by entity overlap with query.
+        graph_scores = {}
         try:
             graph_scores = entity_boost(sub, ctx, query, candidate_ids)
             if graph_scores:
@@ -267,6 +269,15 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
     # Final truncation + receipt recording happens outside the read transaction.
     selected = items[:limit]
     receipt.selected = [it.record_id for it in selected]
+    receipt.layers = [
+        layer for layer in [
+            "lexical" if use_lexical else None,
+            "vector" if use_vector else None,
+            "query_expansion" if len(expanded_queries) > 1 else None,
+            "cross_encoder" if use_cross_encoder and cross_encoder is not None and len(items) > limit else None,
+            "graph_boost" if graph_scores else None,
+        ] if layer is not None
+    ]
     if ctx is not None:
         sub.record_receipt("recall", readable,
                            {"selected": len(selected), "excluded": len(receipt.exclusions)}, ctx)

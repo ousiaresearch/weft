@@ -20,6 +20,7 @@ sys.path.insert(0, str(REPO))
 from benchmarks.full.locomo import _load_dataset, convert_sample
 from benchmarks.full.common import make_engine, make_ctx, create_substrate, run_recall
 from weft.scope import ScopeEngine
+from weft.extraction import _get_token
 
 try:
     from sentence_transformers import SentenceTransformer
@@ -30,7 +31,7 @@ try:
             self.model_id = f"sentence-transformers/{model_name}"
 
         def embed_query(self, text):
-            return self.model.encode(f"query: {text}", normalize_embeddings=True).tolist()
+            return self.model.encode(text, normalize_embeddings=True).tolist()
 
         def embed_document(self, text):
             return self.model.encode(text, normalize_embeddings=True).tolist()
@@ -47,7 +48,7 @@ SAMPLE_SIZE = 200
 
 
 def token_getter():
-    return "test-token"
+    return _get_token()
 
 
 def score_recall(result, gold_ids):
@@ -69,6 +70,7 @@ def run_mode(ds, mode, embedder=None):
     hits = []
     mrrs = []
     latencies = []
+    layer_counts = {}
     processed = 0
 
     for sample in ds:
@@ -111,6 +113,8 @@ def run_mode(ds, mode, embedder=None):
                 hits.append(hit)
                 mrrs.append(mrr)
                 latencies.append(latency)
+                for layer in result.layers:
+                    layer_counts[layer] = layer_counts.get(layer, 0) + 1
                 processed += 1
             except Exception as e:
                 print(f"[bench] {conv_id} {qa.question_id} failed: {e}", flush=True)
@@ -125,6 +129,7 @@ def run_mode(ds, mode, embedder=None):
         "mrr": sum(mrrs) / len(mrrs),
         "p50_latency_ms": sorted(latencies)[len(latencies) // 2] * 1000,
         "p95_latency_ms": sorted(latencies)[int(len(latencies) * 0.95)] * 1000,
+        "layer_counts": layer_counts,
     }
 
 

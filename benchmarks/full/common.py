@@ -46,6 +46,7 @@ class RecallResult:
     selected_texts: list[str]
     latency_ms: float
     abstained: bool
+    layers: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -132,6 +133,7 @@ def run_recall(
         selected_texts=selected_texts,
         latency_ms=latency_ms,
         abstained=abstained,
+        layers=receipt.layers,
     )
 
 
