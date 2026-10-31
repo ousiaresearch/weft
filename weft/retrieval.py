@@ -31,6 +31,80 @@ STOPWORDS = frozenset({
 })
 
 
+def _neighbor_expand(sub, candidate_ids: list[str], limit: int) -> list[str]:
+    """P1: add adjacent-turn neighbors from the same conversation.
+    
+    For each candidate that has a conversation_id in provenance, find the
+    immediately preceding and following records in that conversation and
+    prepend them to the candidate pool. This gives the ranker more context
+    without changing the recall modes.
+    """
+    if not candidate_ids:
+        return []
+    
+    expanded = list(candidate_ids)
+    seen = set(expanded)
+    conv_to_rids: dict[str, list[str]] = {}
+    rid_to_ts: dict[str, float] = {}
+    
+    for rid in candidate_ids:
+        try:
+            rec = sub._lookup_record(rid)
+            if not rec or rec.record_type not in ("Source", "Observation"):
+                continue
+            conv_id = (rec.payload.get("provenance") or {}).get("conversation_id") if isinstance(rec.payload, dict) else None
+            if not conv_id:
+                continue
+            ts = rec.created_at or 0
+            rid_to_ts[rid] = ts
+            conv_to_rids.setdefault(conv_id, []).append(rid)
+        except Exception:
+            continue
+    
+    if not conv_to_rids:
+        return expanded
+    
+    # For each conversation, fetch all records and find neighbors.
+    for conv_id, rids in conv_to_rids.items():
+        try:
+            rows = sub._conn.execute(
+                "SELECT record_id, created_at FROM records "
+                "WHERE scope IN ({}) AND payload LIKE ?".format(
+                    ",".join("?" * len(sub.scope_engine.known_scopes))
+                ),
+                tuple(s for s in sub.scope_engine.known_scopes) + (f"%{conv_id}%",)
+            ).fetchall()
+        except Exception:
+            continue
+        
+        if not rows:
+            continue
+        
+        # Sort by timestamp
+        sorted_rows = sorted(rows, key=lambda x: x[1] or 0)
+        rid_to_idx = {row[0]: i for i, row in enumerate(sorted_rows)}
+        
+        neighbors: set[str] = set()
+        for rid in rids:
+            idx = rid_to_idx.get(rid)
+            if idx is None:
+                continue
+            for offset in (-1, 1):
+                nidx = idx + offset
+                if 0 <= nidx < len(sorted_rows):
+                    neighbors.add(sorted_rows[nidx][0])
+        
+        # Prepend neighbors that aren't already in the pool, up to limit.
+        new_neighbors = [n for n in neighbors if n not in seen]
+        expanded = new_neighbors + expanded
+        seen.update(new_neighbors)
+        
+        if len(expanded) >= limit * 4:
+            break
+    
+    return expanded[:limit * 4]
+
+
 @dataclass(frozen=True)
 class Item:
     record_id: str
@@ -244,6 +318,13 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
                         pass
             if conf_scores:
                 candidate_ids.sort(key=lambda rid: (-conf_scores.get(rid, 0.0), candidate_ids.index(rid)))
+        except Exception:
+            pass
+        
+        # P1: neighbor expansion — add adjacent-turn neighbors from the same
+        # conversation to give the ranker more context.
+        try:
+            candidate_ids = _neighbor_expand(sub, candidate_ids, limit)
         except Exception:
             pass
 
