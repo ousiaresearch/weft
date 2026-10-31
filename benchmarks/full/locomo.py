@@ -58,7 +58,7 @@ def convert_sample(sample: dict) -> tuple[str, list[Record], list[QAPair]]:
 
     def _add_record(rec: Record) -> None:
         if rec.record_id in seen_ids:
-            rec.record_id = f"{rec.record_id}-{len(seen_ids)}"
+            return  # skip duplicate to preserve QA evidence ID mapping
         seen_ids.add(rec.record_id)
         records.append(rec)
 

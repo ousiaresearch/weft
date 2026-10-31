@@ -1,0 +1,5406 @@
+{
+  "mode": "enhanced",
+  "sample_size": 200,
+  "details": [
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-0",
+      "question": "When did Caroline go to the LGBTQ support group?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.25,
+      "latency_ms": 2817.483901977539,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-evt-events_session_1-Caroline-165",
+        "locomo-conv-26-d1-3",
+        "locomo-conv-26-d10-3",
+        "locomo-conv-26-d7-1",
+        "locomo-conv-26-d15-3",
+        "locomo-conv-26-d10-5",
+        "locomo-conv-26-d4-13",
+        "locomo-conv-26-d11-4"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-1",
+      "question": "When did Melanie paint a sunrise?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 317.40784645080566,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-d1-14",
+        "locomo-conv-26-d14-32",
+        "locomo-conv-26-d17-13",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-d17-10",
+        "locomo-conv-26-d9-17",
+        "locomo-conv-26-d14-30",
+        "locomo-conv-26-d13-14"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-2",
+      "question": "What fields would Caroline be likely to pursue in her educaton?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 207.0903778076172,
+      "selected_ids": [
+        "locomo-conv-26-d1-9",
+        "locomo-conv-26-d4-11",
+        "locomo-conv-26-d5-3",
+        "locomo-conv-26-d4-15",
+        "locomo-conv-26-d7-5",
+        "locomo-conv-26-d6-3",
+        "locomo-conv-26-evt-events_session_3-Caroline-167",
+        "locomo-conv-26-evt-events_session_9-Caroline-173",
+        "locomo-conv-26-d16-5",
+        "locomo-conv-26-d7-8"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-3",
+      "question": "What did Caroline research?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 543.1711673736572,
+      "selected_ids": [
+        "locomo-conv-26-d2-8",
+        "locomo-conv-26-d17-7",
+        "locomo-conv-26-evt-events_session_2-Caroline-166",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-d16-5",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-d6-3",
+        "locomo-conv-26-d18-18",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d13-13"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-4",
+      "question": "What is Caroline's identity?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 364.8700714111328,
+      "selected_ids": [
+        "locomo-conv-26-d11-12",
+        "locomo-conv-26-d3-3",
+        "locomo-conv-26-d16-9",
+        "locomo-conv-26-d13-13",
+        "locomo-conv-26-d17-23",
+        "locomo-conv-26-d11-8",
+        "locomo-conv-26-d13-15",
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-d16-5",
+        "locomo-conv-26-d19-7"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-5",
+      "question": "When did Melanie run a charity race?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 292.7839756011963,
+      "selected_ids": [
+        "locomo-conv-26-d2-1",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-evt-events_session_7-Melanie-171",
+        "locomo-conv-26-d7-24",
+        "locomo-conv-26-d14-10",
+        "locomo-conv-26-d7-20",
+        "locomo-conv-26-d18-1",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-evt-events_session_14-Melanie-182",
+        "locomo-conv-26-ss-session_7_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-6",
+      "question": "When is Melanie planning on going camping?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 207.90505409240723,
+      "selected_ids": [
+        "locomo-conv-26-d2-7",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-evt-events_session_4-Melanie-168",
+        "locomo-conv-26-d4-8",
+        "locomo-conv-26-d12-16",
+        "locomo-conv-26-d16-2",
+        "locomo-conv-26-d6-16",
+        "locomo-conv-26-d18-19"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-7",
+      "question": "What is Caroline's relationship status?",
+      "gold_count": 2,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 194.2300796508789,
+      "selected_ids": [
+        "locomo-conv-26-d16-15",
+        "locomo-conv-26-d19-7",
+        "locomo-conv-26-d5-3",
+        "locomo-conv-26-d6-13",
+        "locomo-conv-26-d16-5",
+        "locomo-conv-26-d13-15",
+        "locomo-conv-26-d6-3",
+        "locomo-conv-26-d2-8",
+        "locomo-conv-26-d18-12",
+        "locomo-conv-26-d3-1"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-8",
+      "question": "When did Caroline give a speech at a school?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.3333333333333333,
+      "latency_ms": 220.07489204406738,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_3_summary",
+        "locomo-conv-26-evt-events_session_3-Caroline-167",
+        "locomo-conv-26-d3-1",
+        "locomo-conv-26-d13-7",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d16-7",
+        "locomo-conv-26-d9-2",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d17-23",
+        "locomo-conv-26-d14-13"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-9",
+      "question": "When did Caroline meet up with her friends, family, and mentors?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 235.43715476989746,
+      "selected_ids": [
+        "locomo-conv-26-d3-11",
+        "locomo-conv-26-ss-session_3_summary",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d6-13",
+        "locomo-conv-26-evt-events_session_2-Caroline-166",
+        "locomo-conv-26-d3-13",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d19-9",
+        "locomo-conv-26-d9-2",
+        "locomo-conv-26-evt-events_session_17-Caroline-185"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-10",
+      "question": "How long has Caroline had her current group of friends for?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 260.3890895843506,
+      "selected_ids": [
+        "locomo-conv-26-d3-13",
+        "locomo-conv-26-d3-1",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-d6-13",
+        "locomo-conv-26-d12-15",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-d16-15",
+        "locomo-conv-26-evt-events_session_10-Caroline-174",
+        "locomo-conv-26-d10-3"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-11",
+      "question": "Where did Caroline move from 4 years ago?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 249.12023544311523,
+      "selected_ids": [
+        "locomo-conv-26-d3-13",
+        "locomo-conv-26-d3-1",
+        "locomo-conv-26-d15-21",
+        "locomo-conv-26-d8-19",
+        "locomo-conv-26-d14-13",
+        "locomo-conv-26-d16-15",
+        "locomo-conv-26-ss-session_3_summary",
+        "locomo-conv-26-d13-7",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-d10-3"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-12",
+      "question": "How long ago was Caroline's 18th birthday?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 219.44904327392578,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d4-5",
+        "locomo-conv-26-d3-1",
+        "locomo-conv-26-d15-21",
+        "locomo-conv-26-d8-19",
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-d16-7",
+        "locomo-conv-26-d13-7",
+        "locomo-conv-26-d3-11",
+        "locomo-conv-26-evt-events_session_1-Caroline-165"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-13",
+      "question": "What career path has Caroline decided to persue?",
+      "gold_count": 2,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 229.9048900604248,
+      "selected_ids": [
+        "locomo-conv-26-d4-11",
+        "locomo-conv-26-d5-3",
+        "locomo-conv-26-d1-9",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-d6-3",
+        "locomo-conv-26-d7-5",
+        "locomo-conv-26-evt-events_session_9-Caroline-173",
+        "locomo-conv-26-d13-1",
+        "locomo-conv-26-d9-2",
+        "locomo-conv-26-ss-session_4_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-14",
+      "question": "Would Caroline still want to pursue counseling as a career if she hadn't received support growing up?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 271.27718925476074,
+      "selected_ids": [
+        "locomo-conv-26-d4-15",
+        "locomo-conv-26-d7-5",
+        "locomo-conv-26-d1-9",
+        "locomo-conv-26-d4-11",
+        "locomo-conv-26-d5-3",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d6-3",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-ss-session_6_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-15",
+      "question": "What activities does Melanie partake in?",
+      "gold_count": 4,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.3333333333333333,
+      "latency_ms": 237.23983764648438,
+      "selected_ids": [
+        "locomo-conv-26-d2-5",
+        "locomo-conv-26-d16-2",
+        "locomo-conv-26-d5-4",
+        "locomo-conv-26-d15-26",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-evt-events_session_15-Melanie-183",
+        "locomo-conv-26-evt-events_session_4-Melanie-168",
+        "locomo-conv-26-d1-18",
+        "locomo-conv-26-d5-10",
+        "locomo-conv-26-d1-2"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-16",
+      "question": "When did Melanie sign up for a pottery class?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 212.6750946044922,
+      "selected_ids": [
+        "locomo-conv-26-d5-4",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-evt-events_session_5-Melanie-169",
+        "locomo-conv-26-d14-4",
+        "locomo-conv-26-d5-8",
+        "locomo-conv-26-d8-2",
+        "locomo-conv-26-d16-8",
+        "locomo-conv-26-evt-events_session_12-Melanie-178",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-d17-10"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-17",
+      "question": "When is Caroline going to the transgender conference?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 223.37913513183594,
+      "selected_ids": [
+        "locomo-conv-26-d5-13",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d7-1",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-ss-session_3_summary",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-d17-19",
+        "locomo-conv-26-d7-2",
+        "locomo-conv-26-d1-3",
+        "locomo-conv-26-evt-events_session_1-Caroline-165"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-18",
+      "question": "Where has Melanie camped?",
+      "gold_count": 3,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 222.58305549621582,
+      "selected_ids": [
+        "locomo-conv-26-d4-8",
+        "locomo-conv-26-d6-16",
+        "locomo-conv-26-d16-2",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-d10-12",
+        "locomo-conv-26-evt-events_session_4-Melanie-168",
+        "locomo-conv-26-d18-19",
+        "locomo-conv-26-d10-14",
+        "locomo-conv-26-d2-7",
+        "locomo-conv-26-ss-session_18_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-19",
+      "question": "What do Melanie's kids like?",
+      "gold_count": 2,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 277.77624130249023,
+      "selected_ids": [
+        "locomo-conv-26-d16-2",
+        "locomo-conv-26-d8-6",
+        "locomo-conv-26-d2-7",
+        "locomo-conv-26-d15-2",
+        "locomo-conv-26-d11-7",
+        "locomo-conv-26-d10-8",
+        "locomo-conv-26-d16-4",
+        "locomo-conv-26-evt-events_session_6-Melanie-170",
+        "locomo-conv-26-d3-14",
+        "locomo-conv-26-evt-events_session_15-Melanie-183"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-20",
+      "question": "When did Melanie go to the museum?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 243.70312690734863,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d6-4",
+        "locomo-conv-26-d16-8",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-d18-5",
+        "locomo-conv-26-d14-32",
+        "locomo-conv-26-d17-10",
+        "locomo-conv-26-evt-events_session_18-Melanie-188",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-evt-events_session_15-Melanie-183"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-21",
+      "question": "When did Caroline have a picnic?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 218.90592575073242,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-d8-19",
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-d12-15",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d12-1",
+        "locomo-conv-26-d13-7",
+        "locomo-conv-26-d3-1",
+        "locomo-conv-26-d14-1"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-22",
+      "question": "Would Caroline likely have Dr. Seuss books on her bookshelf?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 209.20276641845703,
+      "selected_ids": [
+        "locomo-conv-26-d6-9",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d6-7",
+        "locomo-conv-26-d7-8",
+        "locomo-conv-26-d7-11",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d13-3",
+        "locomo-conv-26-d17-23",
+        "locomo-conv-26-d18-10",
+        "locomo-conv-26-d3-11"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-23",
+      "question": "What books has Melanie read?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 216.0470485687256,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d7-8",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d17-10",
+        "locomo-conv-26-d19-2",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-d12-14",
+        "locomo-conv-26-d1-2",
+        "locomo-conv-26-d2-5",
+        "locomo-conv-26-d4-10"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-24",
+      "question": "What does Melanie do to destress?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.125,
+      "latency_ms": 216.26615524291992,
+      "selected_ids": [
+        "locomo-conv-26-d7-20",
+        "locomo-conv-26-evt-events_session_7-Melanie-171",
+        "locomo-conv-26-d18-21",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d15-26",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-d13-10",
+        "locomo-conv-26-d5-4",
+        "locomo-conv-26-d2-3",
+        "locomo-conv-26-d8-28"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-25",
+      "question": "When did Caroline go to the LGBTQ conference?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 229.36725616455078,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d7-1",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-d7-2",
+        "locomo-conv-26-d5-1",
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-d4-13",
+        "locomo-conv-26-evt-events_session_1-Caroline-165"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-26",
+      "question": "When did Melanie read the book \"nothing is impossible\"?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.25,
+      "latency_ms": 224.74384307861328,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d17-10",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d7-8",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-d3-4",
+        "locomo-conv-26-d14-10",
+        "locomo-conv-26-evt-events_session_7-Melanie-171",
+        "locomo-conv-26-d12-14",
+        "locomo-conv-26-d14-32"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-27",
+      "question": "Would Caroline pursue writing as a career option?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.125,
+      "latency_ms": 215.0290012359619,
+      "selected_ids": [
+        "locomo-conv-26-d1-9",
+        "locomo-conv-26-d5-3",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-d4-11",
+        "locomo-conv-26-d4-15",
+        "locomo-conv-26-d6-3",
+        "locomo-conv-26-d7-8",
+        "locomo-conv-26-d7-5",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d16-5"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-28",
+      "question": "When did Caroline go to the adoption meeting?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 241.61195755004883,
+      "selected_ids": [
+        "locomo-conv-26-d8-9",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-evt-events_session_8-Caroline-172",
+        "locomo-conv-26-evt-events_session_13-Caroline-180",
+        "locomo-conv-26-d19-1",
+        "locomo-conv-26-evt-events_session_19-Caroline-189",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-d2-12"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-29",
+      "question": "When did Melanie go to the pottery workshop?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 253.31997871398926,
+      "selected_ids": [
+        "locomo-conv-26-d8-2",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-evt-events_session_12-Melanie-178",
+        "locomo-conv-26-d5-4",
+        "locomo-conv-26-d12-8",
+        "locomo-conv-26-d14-4",
+        "locomo-conv-26-d17-10",
+        "locomo-conv-26-d12-2",
+        "locomo-conv-26-d16-8",
+        "locomo-conv-26-d17-8"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-31",
+      "question": "When did Melanie go camping in June?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 210.99400520324707,
+      "selected_ids": [
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-d4-8",
+        "locomo-conv-26-d2-7",
+        "locomo-conv-26-evt-events_session_4-Melanie-168",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-d6-16",
+        "locomo-conv-26-d10-14",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-d16-2"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-32",
+      "question": "What LGBTQ+ events has Caroline participated in?",
+      "gold_count": 4,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 206.21371269226074,
+      "selected_ids": [
+        "locomo-conv-26-d5-1",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-d10-7",
+        "locomo-conv-26-d7-2",
+        "locomo-conv-26-d11-4",
+        "locomo-conv-26-d4-13",
+        "locomo-conv-26-ss-session_9_summary",
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-d7-1",
+        "locomo-conv-26-d10-5"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-33",
+      "question": "When did Caroline go to a pride parade during the summer?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.25,
+      "latency_ms": 210.85596084594727,
+      "selected_ids": [
+        "locomo-conv-26-d8-19",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-d10-7",
+        "locomo-conv-26-d5-1",
+        "locomo-conv-26-d11-4",
+        "locomo-conv-26-d14-23",
+        "locomo-conv-26-d12-15",
+        "locomo-conv-26-d8-21",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-evt-events_session_1-Caroline-165"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-34",
+      "question": "What events has Caroline participated in to help children?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.1111111111111111,
+      "latency_ms": 214.7960662841797,
+      "selected_ids": [
+        "locomo-conv-26-d15-11",
+        "locomo-conv-26-d10-7",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-evt-events_session_8-Caroline-172",
+        "locomo-conv-26-d7-2",
+        "locomo-conv-26-d19-6",
+        "locomo-conv-26-d17-19",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-d9-2",
+        "locomo-conv-26-d19-9"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-35",
+      "question": "When did Melanie go camping in July?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 212.74900436401367,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-d4-8",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d2-7",
+        "locomo-conv-26-evt-events_session_4-Melanie-168",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-d10-14",
+        "locomo-conv-26-d6-16"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-36",
+      "question": "When did Caroline join a mentorship program?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 218.46294403076172,
+      "selected_ids": [
+        "locomo-conv-26-d9-2",
+        "locomo-conv-26-evt-events_session_9-Caroline-173",
+        "locomo-conv-26-ss-session_9_summary",
+        "locomo-conv-26-d9-6",
+        "locomo-conv-26-evt-events_session_2-Caroline-166",
+        "locomo-conv-26-evt-events_session_17-Caroline-185",
+        "locomo-conv-26-d3-1",
+        "locomo-conv-26-d14-13",
+        "locomo-conv-26-d10-3",
+        "locomo-conv-26-d3-11"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-37",
+      "question": "What did Melanie paint recently?",
+      "gold_count": 2,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 221.47011756896973,
+      "selected_ids": [
+        "locomo-conv-26-d13-8",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-d1-14",
+        "locomo-conv-26-d1-16",
+        "locomo-conv-26-d14-32",
+        "locomo-conv-26-d14-30",
+        "locomo-conv-26-d13-14",
+        "locomo-conv-26-d13-10"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-38",
+      "question": "What activities has Melanie done with her family?",
+      "gold_count": 6,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 201.28488540649414,
+      "selected_ids": [
+        "locomo-conv-26-d4-8",
+        "locomo-conv-26-evt-events_session_11-Melanie-176",
+        "locomo-conv-26-d18-19",
+        "locomo-conv-26-d10-12",
+        "locomo-conv-26-d2-5",
+        "locomo-conv-26-d14-10",
+        "locomo-conv-26-evt-events_session_4-Melanie-168",
+        "locomo-conv-26-d16-2",
+        "locomo-conv-26-d6-16",
+        "locomo-conv-26-evt-events_session_14-Melanie-182"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-39",
+      "question": "In what ways is Caroline participating in the LGBTQ community?",
+      "gold_count": 4,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.1111111111111111,
+      "latency_ms": 253.70001792907715,
+      "selected_ids": [
+        "locomo-conv-26-evt-events_session_3-Caroline-167",
+        "locomo-conv-26-evt-events_session_9-Caroline-173",
+        "locomo-conv-26-d16-5",
+        "locomo-conv-26-evt-events_session_10-Caroline-174",
+        "locomo-conv-26-d11-8",
+        "locomo-conv-26-d4-13",
+        "locomo-conv-26-evt-events_session_1-Caroline-165",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-d9-2",
+        "locomo-conv-26-d11-4"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-40",
+      "question": "How many times has Melanie gone to the beach in 2023?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 235.1820468902588,
+      "selected_ids": [
+        "locomo-conv-26-d10-8",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-evt-events_session_10-Melanie-175",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d6-16",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-ss-session_11_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-41",
+      "question": "When did Caroline join a new activist group?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 231.8871021270752,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-d10-3",
+        "locomo-conv-26-evt-events_session_10-Caroline-174",
+        "locomo-conv-26-d10-5",
+        "locomo-conv-26-d10-7",
+        "locomo-conv-26-d9-2",
+        "locomo-conv-26-d1-3",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-evt-events_session_1-Caroline-165",
+        "locomo-conv-26-d14-13"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-42",
+      "question": "Would Melanie be more interested in going to a national park or a theme park?",
+      "gold_count": 2,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 235.2139949798584,
+      "selected_ids": [
+        "locomo-conv-26-evt-events_session_18-Melanie-188",
+        "locomo-conv-26-d15-2",
+        "locomo-conv-26-evt-events_session_15-Melanie-183",
+        "locomo-conv-26-d16-2",
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-evt-events_session_10-Melanie-175",
+        "locomo-conv-26-d18-19",
+        "locomo-conv-26-d10-8",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-d3-4"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-43",
+      "question": "What kind of art does Caroline make?",
+      "gold_count": 3,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.2,
+      "latency_ms": 219.3129062652588,
+      "selected_ids": [
+        "locomo-conv-26-d13-13",
+        "locomo-conv-26-d16-13",
+        "locomo-conv-26-d11-10",
+        "locomo-conv-26-d4-5",
+        "locomo-conv-26-d11-8",
+        "locomo-conv-26-d16-7",
+        "locomo-conv-26-d9-16",
+        "locomo-conv-26-d14-33",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d16-9"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-44",
+      "question": "When is Melanie's daughter's birthday?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 230.09395599365234,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-d11-1",
+        "locomo-conv-26-evt-events_session_11-Melanie-176",
+        "locomo-conv-26-d10-20",
+        "locomo-conv-26-d2-7",
+        "locomo-conv-26-d19-6",
+        "locomo-conv-26-evt-events_session_15-Melanie-183",
+        "locomo-conv-26-d3-16",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-evt-events_session_18-Melanie-187"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-45",
+      "question": "When did Caroline attend a pride parade in August?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.2,
+      "latency_ms": 263.2882595062256,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-d8-19",
+        "locomo-conv-26-d5-1",
+        "locomo-conv-26-d10-7",
+        "locomo-conv-26-d11-4",
+        "locomo-conv-26-d8-21",
+        "locomo-conv-26-d14-23",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-d12-15",
+        "locomo-conv-26-ss-session_5_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-47",
+      "question": "Who supports Caroline when she has a negative experience?",
+      "gold_count": 2,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 264.17994499206543,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-d7-4",
+        "locomo-conv-26-evt-events_session_14-Caroline-181",
+        "locomo-conv-26-d1-7",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d7-5",
+        "locomo-conv-26-evt-events_session_1-Caroline-165",
+        "locomo-conv-26-d19-7",
+        "locomo-conv-26-ss-session_9_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-48",
+      "question": "What types of pottery have Melanie and her kids made?",
+      "gold_count": 3,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.16666666666666666,
+      "latency_ms": 216.58897399902344,
+      "selected_ids": [
+        "locomo-conv-26-d5-8",
+        "locomo-conv-26-d8-2",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-d14-4",
+        "locomo-conv-26-d12-8",
+        "locomo-conv-26-d5-6",
+        "locomo-conv-26-evt-events_session_12-Melanie-178",
+        "locomo-conv-26-d5-4",
+        "locomo-conv-26-d5-10",
+        "locomo-conv-26-d12-2"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-49",
+      "question": "When did Caroline and Melanie go to a pride fesetival together?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 244.82083320617676,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-d8-19",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-ss-session_9_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-50",
+      "question": "What would Caroline's political leaning likely be?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 180.83500862121582,
+      "selected_ids": [
+        "locomo-conv-26-d17-23",
+        "locomo-conv-26-d12-1",
+        "locomo-conv-26-evt-events_session_12-Caroline-177",
+        "locomo-conv-26-d11-8",
+        "locomo-conv-26-d16-5",
+        "locomo-conv-26-d13-15",
+        "locomo-conv-26-d19-7",
+        "locomo-conv-26-evt-events_session_10-Caroline-174",
+        "locomo-conv-26-d4-11",
+        "locomo-conv-26-d5-3"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-51",
+      "question": "What has Melanie painted?",
+      "gold_count": 3,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.1111111111111111,
+      "latency_ms": 217.20290184020996,
+      "selected_ids": [
+        "locomo-conv-26-d1-16",
+        "locomo-conv-26-d1-14",
+        "locomo-conv-26-d14-32",
+        "locomo-conv-26-d13-14",
+        "locomo-conv-26-d14-30",
+        "locomo-conv-26-d13-10",
+        "locomo-conv-26-d17-13",
+        "locomo-conv-26-d16-8",
+        "locomo-conv-26-d13-8",
+        "locomo-conv-26-ss-session_14_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-52",
+      "question": "What are Melanie's pets' names?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 276.6749858856201,
+      "selected_ids": [
+        "locomo-conv-26-d13-4",
+        "locomo-conv-26-d7-18",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-d13-10",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-evt-events_session_15-Melanie-183",
+        "locomo-conv-26-d3-14",
+        "locomo-conv-26-d8-32",
+        "locomo-conv-26-d11-7",
+        "locomo-conv-26-evt-events_session_18-Melanie-186"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-53",
+      "question": "When did Caroline apply to adoption agencies?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 265.18821716308594,
+      "selected_ids": [
+        "locomo-conv-26-evt-events_session_13-Caroline-179",
+        "locomo-conv-26-d13-1",
+        "locomo-conv-26-d2-12",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-d19-1",
+        "locomo-conv-26-evt-events_session_19-Caroline-189",
+        "locomo-conv-26-evt-events_session_2-Caroline-166",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-d2-8"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-54",
+      "question": "When did Caroline draw a self-portrait?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 255.9812068939209,
+      "selected_ids": [
+        "locomo-conv-26-d4-5",
+        "locomo-conv-26-d11-12",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-d16-7",
+        "locomo-conv-26-d16-13",
+        "locomo-conv-26-d9-16",
+        "locomo-conv-26-d13-13",
+        "locomo-conv-26-d11-13"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-55",
+      "question": "What subject have Caroline and Melanie both painted?",
+      "gold_count": 2,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 225.60977935791016,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-ss-session_9_summary",
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-d11-13",
+        "locomo-conv-26-d11-16"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-56",
+      "question": "What symbols are important to Caroline?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 223.97375106811523,
+      "selected_ids": [
+        "locomo-conv-26-d4-3",
+        "locomo-conv-26-d14-15",
+        "locomo-conv-26-d11-12",
+        "locomo-conv-26-d12-9",
+        "locomo-conv-26-d8-25",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d7-13",
+        "locomo-conv-26-d6-11",
+        "locomo-conv-26-d11-8",
+        "locomo-conv-26-d16-13"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-57",
+      "question": "When did Caroline encounter people on a hike and have a negative experience?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.25,
+      "latency_ms": 241.8050765991211,
+      "selected_ids": [
+        "locomo-conv-26-evt-events_session_14-Caroline-181",
+        "locomo-conv-26-d12-1",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-d14-1",
+        "locomo-conv-26-evt-events_session_12-Caroline-177",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-d15-5",
+        "locomo-conv-26-d16-1"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-58",
+      "question": "When did Melanie make a plate in pottery class?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 224.74908828735352,
+      "selected_ids": [
+        "locomo-conv-26-d14-4",
+        "locomo-conv-26-d5-8",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-evt-events_session_5-Melanie-169",
+        "locomo-conv-26-d5-4",
+        "locomo-conv-26-d8-2",
+        "locomo-conv-26-evt-events_session_12-Melanie-178",
+        "locomo-conv-26-d12-2",
+        "locomo-conv-26-d16-8"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-59",
+      "question": "Would Caroline be considered religious?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 267.44985580444336,
+      "selected_ids": [
+        "locomo-conv-26-evt-events_session_12-Caroline-177",
+        "locomo-conv-26-d12-1",
+        "locomo-conv-26-d17-23",
+        "locomo-conv-26-d11-8",
+        "locomo-conv-26-d13-15",
+        "locomo-conv-26-d16-5",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-evt-events_session_3-Caroline-167",
+        "locomo-conv-26-d4-11",
+        "locomo-conv-26-evt-events_session_1-Caroline-165"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-60",
+      "question": "What instruments does Melanie play?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 236.52386665344238,
+      "selected_ids": [
+        "locomo-conv-26-d15-26",
+        "locomo-conv-26-d2-5",
+        "locomo-conv-26-d15-28",
+        "locomo-conv-26-evt-events_session_5-Melanie-169",
+        "locomo-conv-26-d5-6",
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-d5-4",
+        "locomo-conv-26-d19-2",
+        "locomo-conv-26-evt-events_session_7-Melanie-171",
+        "locomo-conv-26-d15-2"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-61",
+      "question": "What musical artists/bands has Melanie seen?",
+      "gold_count": 2,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 254.0750503540039,
+      "selected_ids": [
+        "locomo-conv-26-d15-28",
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-d11-1",
+        "locomo-conv-26-d15-26",
+        "locomo-conv-26-d2-5",
+        "locomo-conv-26-d5-6",
+        "locomo-conv-26-d16-8",
+        "locomo-conv-26-d14-32",
+        "locomo-conv-26-d14-30",
+        "locomo-conv-26-d8-28"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-62",
+      "question": "When did Melanie go to the park?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 250.71215629577637,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-d15-2",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-evt-events_session_18-Melanie-188",
+        "locomo-conv-26-evt-events_session_15-Melanie-183",
+        "locomo-conv-26-d18-5",
+        "locomo-conv-26-evt-events_session_10-Melanie-175",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-evt-events_session_18-Melanie-186",
+        "locomo-conv-26-evt-events_session_6-Melanie-170"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-63",
+      "question": "When is Caroline's youth center putting on a talent show?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 260.6511116027832,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-d15-11",
+        "locomo-conv-26-ss-session_9_summary",
+        "locomo-conv-26-d15-3",
+        "locomo-conv-26-d15-9",
+        "locomo-conv-26-d15-5",
+        "locomo-conv-26-d14-33",
+        "locomo-conv-26-d9-2",
+        "locomo-conv-26-evt-events_session_9-Caroline-173",
+        "locomo-conv-26-d16-7"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-64",
+      "question": "Would Melanie likely enjoy the song \"The Four Seasons\" by Vivaldi?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 303.7688732147217,
+      "selected_ids": [
+        "locomo-conv-26-d15-28",
+        "locomo-conv-26-d6-16",
+        "locomo-conv-26-d16-2",
+        "locomo-conv-26-d15-2",
+        "locomo-conv-26-d10-8",
+        "locomo-conv-26-d18-5",
+        "locomo-conv-26-d13-10",
+        "locomo-conv-26-d17-13",
+        "locomo-conv-26-d8-28",
+        "locomo-conv-26-d8-6"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-65",
+      "question": "What are some changes Caroline has faced during her transition journey?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 116.8820858001709,
+      "selected_ids": [
+        "locomo-conv-26-d16-15",
+        "locomo-conv-26-d6-13",
+        "locomo-conv-26-evt-events_session_12-Caroline-177",
+        "locomo-conv-26-d14-19",
+        "locomo-conv-26-d14-13",
+        "locomo-conv-26-d3-1",
+        "locomo-conv-26-d6-11",
+        "locomo-conv-26-d11-14",
+        "locomo-conv-26-d4-15",
+        "locomo-conv-26-d10-5"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-66",
+      "question": "What does Melanie do with her family on hikes?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.2,
+      "latency_ms": 151.03483200073242,
+      "selected_ids": [
+        "locomo-conv-26-d4-8",
+        "locomo-conv-26-d18-19",
+        "locomo-conv-26-evt-events_session_4-Melanie-168",
+        "locomo-conv-26-d16-2",
+        "locomo-conv-26-d10-12",
+        "locomo-conv-26-d6-16",
+        "locomo-conv-26-d14-10",
+        "locomo-conv-26-evt-events_session_18-Melanie-188",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-d18-1"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-67",
+      "question": "When did Caroline go biking with friends?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 210.71100234985352,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-d16-1",
+        "locomo-conv-26-d13-7",
+        "locomo-conv-26-evt-events_session_16-Caroline-184",
+        "locomo-conv-26-d14-1",
+        "locomo-conv-26-d12-15",
+        "locomo-conv-26-d3-13",
+        "locomo-conv-26-d3-1",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d16-15"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-68",
+      "question": "How long has Melanie been practicing art?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 182.9700469970703,
+      "selected_ids": [
+        "locomo-conv-26-d16-8",
+        "locomo-conv-26-d3-16",
+        "locomo-conv-26-d1-16",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d17-13",
+        "locomo-conv-26-d17-10",
+        "locomo-conv-26-d13-14",
+        "locomo-conv-26-d13-10",
+        "locomo-conv-26-d14-30",
+        "locomo-conv-26-d5-4"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-69",
+      "question": "What personality traits might Melanie say Caroline has?",
+      "gold_count": 3,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 239.82787132263184,
+      "selected_ids": [
+        "locomo-conv-26-d19-10",
+        "locomo-conv-26-d14-16",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-ss-session_3_summary",
+        "locomo-conv-26-ss-session_19_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-70",
+      "question": "What transgender-specific events has Caroline attended?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 302.13308334350586,
+      "selected_ids": [
+        "locomo-conv-26-d5-1",
+        "locomo-conv-26-d17-19",
+        "locomo-conv-26-d11-4",
+        "locomo-conv-26-d7-2",
+        "locomo-conv-26-d4-13",
+        "locomo-conv-26-d7-1",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-d1-3",
+        "locomo-conv-26-d5-13"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-71",
+      "question": "What book did Melanie read from Caroline's suggestion?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.2,
+      "latency_ms": 241.75500869750977,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d7-8",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-d7-11",
+        "locomo-conv-26-d19-8",
+        "locomo-conv-26-d12-14",
+        "locomo-conv-26-d11-13",
+        "locomo-conv-26-d19-10",
+        "locomo-conv-26-d7-4"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-72",
+      "question": "When did Melanie's friend adopt a child?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 220.8869457244873,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-d10-20",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-d11-7",
+        "locomo-conv-26-evt-events_session_15-Melanie-183",
+        "locomo-conv-26-d19-6",
+        "locomo-conv-26-d8-32",
+        "locomo-conv-26-d3-14",
+        "locomo-conv-26-d11-1"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-73",
+      "question": "When did Melanie get hurt?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 263.430118560791,
+      "selected_ids": [
+        "locomo-conv-26-d17-8",
+        "locomo-conv-26-d18-1",
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-evt-events_session_18-Melanie-187",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-d8-32",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-d14-10",
+        "locomo-conv-26-d2-1"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-74",
+      "question": "When did Melanie's family go on a roadtrip?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 282.5939655303955,
+      "selected_ids": [
+        "locomo-conv-26-d18-1",
+        "locomo-conv-26-evt-events_session_18-Melanie-186",
+        "locomo-conv-26-evt-events_session_18-Melanie-188",
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-evt-events_session_18-Melanie-187",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-d10-12",
+        "locomo-conv-26-d18-5",
+        "locomo-conv-26-evt-events_session_10-Melanie-175",
+        "locomo-conv-26-d8-32"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-75",
+      "question": "How many children does Melanie have?",
+      "gold_count": 2,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 249.32003021240234,
+      "selected_ids": [
+        "locomo-conv-26-d10-8",
+        "locomo-conv-26-d3-14",
+        "locomo-conv-26-d3-16",
+        "locomo-conv-26-d1-2",
+        "locomo-conv-26-evt-events_session_15-Melanie-183",
+        "locomo-conv-26-d11-7",
+        "locomo-conv-26-d10-20",
+        "locomo-conv-26-evt-events_session_6-Melanie-170",
+        "locomo-conv-26-d16-2",
+        "locomo-conv-26-d8-6"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-76",
+      "question": "When did Melanie go on a hike after the roadtrip?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 270.7536220550537,
+      "selected_ids": [
+        "locomo-conv-26-d18-1",
+        "locomo-conv-26-evt-events_session_18-Melanie-188",
+        "locomo-conv-26-evt-events_session_18-Melanie-186",
+        "locomo-conv-26-d4-8",
+        "locomo-conv-26-evt-events_session_18-Melanie-187",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-d16-2",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-evt-events_session_7-Melanie-171"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-77",
+      "question": "Would Melanie go on another roadtrip soon?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 248.87967109680176,
+      "selected_ids": [
+        "locomo-conv-26-evt-events_session_18-Melanie-187",
+        "locomo-conv-26-d18-1",
+        "locomo-conv-26-evt-events_session_18-Melanie-188",
+        "locomo-conv-26-evt-events_session_18-Melanie-186",
+        "locomo-conv-26-evt-events_session_7-Melanie-171",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-d10-8",
+        "locomo-conv-26-evt-events_session_10-Melanie-175",
+        "locomo-conv-26-d18-19",
+        "locomo-conv-26-d2-7"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-78",
+      "question": "What items has Melanie bought?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 244.78387832641602,
+      "selected_ids": [
+        "locomo-conv-26-d19-2",
+        "locomo-conv-26-d7-20",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d5-6",
+        "locomo-conv-26-evt-events_session_5-Melanie-169",
+        "locomo-conv-26-d5-10",
+        "locomo-conv-26-d13-4",
+        "locomo-conv-26-d13-10",
+        "locomo-conv-26-d12-8",
+        "locomo-conv-26-evt-events_session_12-Melanie-178"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-79",
+      "question": "When did Caroline pass the adoption interview?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 238.10601234436035,
+      "selected_ids": [
+        "locomo-conv-26-d19-1",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-evt-events_session_19-Caroline-189",
+        "locomo-conv-26-d8-9",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-evt-events_session_13-Caroline-179",
+        "locomo-conv-26-d2-12",
+        "locomo-conv-26-evt-events_session_13-Caroline-180",
+        "locomo-conv-26-evt-events_session_8-Caroline-172",
+        "locomo-conv-26-d17-1"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-80",
+      "question": "When did Melanie buy the figurines?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 245.90110778808594,
+      "selected_ids": [
+        "locomo-conv-26-d19-2",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-d14-32",
+        "locomo-conv-26-evt-events_session_12-Melanie-178",
+        "locomo-conv-26-d17-10",
+        "locomo-conv-26-d5-6",
+        "locomo-conv-26-d5-4",
+        "locomo-conv-26-d16-8",
+        "locomo-conv-26-d12-8",
+        "locomo-conv-26-evt-events_session_5-Melanie-169"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-81",
+      "question": "Would Caroline want to move back to her home country soon?",
+      "gold_count": 2,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.16666666666666666,
+      "latency_ms": 218.40405464172363,
+      "selected_ids": [
+        "locomo-conv-26-d3-13",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-d3-1",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d17-3",
+        "locomo-conv-26-d19-3",
+        "locomo-conv-26-d2-14",
+        "locomo-conv-26-d6-13",
+        "locomo-conv-26-d1-9",
+        "locomo-conv-26-d15-9"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-82",
+      "question": "What did the charity race raise awareness for?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 249.70698356628418,
+      "selected_ids": [
+        "locomo-conv-26-d2-1",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d3-2",
+        "locomo-conv-26-d7-1",
+        "locomo-conv-26-ss-session_3_summary",
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d11-4",
+        "locomo-conv-26-d10-7",
+        "locomo-conv-26-d10-5"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-83",
+      "question": "What did Melanie realize after the charity race?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.3333333333333333,
+      "latency_ms": 225.64411163330078,
+      "selected_ids": [
+        "locomo-conv-26-d2-1",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d2-3",
+        "locomo-conv-26-d14-10",
+        "locomo-conv-26-d7-20",
+        "locomo-conv-26-d3-4",
+        "locomo-conv-26-d7-2",
+        "locomo-conv-26-d4-10",
+        "locomo-conv-26-d17-8",
+        "locomo-conv-26-d11-7"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-84",
+      "question": "How does Melanie prioritize self-care?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 235.89682579040527,
+      "selected_ids": [
+        "locomo-conv-26-d2-3",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d19-10",
+        "locomo-conv-26-d5-4",
+        "locomo-conv-26-d17-8",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-d11-13",
+        "locomo-conv-26-d18-21",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-ss-session_4_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-85",
+      "question": "What are Caroline's plans for the summer?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 276.65209770202637,
+      "selected_ids": [
+        "locomo-conv-26-d12-16",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d15-9",
+        "locomo-conv-26-d9-12",
+        "locomo-conv-26-d1-9",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-d19-3",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-d10-5",
+        "locomo-conv-26-ss-session_16_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-86",
+      "question": "What type of individuals does the adoption agency Caroline is considering support?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 254.51183319091797,
+      "selected_ids": [
+        "locomo-conv-26-d2-12",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-evt-events_session_2-Caroline-166",
+        "locomo-conv-26-d4-11",
+        "locomo-conv-26-d2-8",
+        "locomo-conv-26-evt-events_session_13-Caroline-180",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-evt-events_session_1-Caroline-165",
+        "locomo-conv-26-d19-1"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-87",
+      "question": "Why did Caroline choose the adoption agency?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 290.4021739959717,
+      "selected_ids": [
+        "locomo-conv-26-d2-12",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d2-8",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-evt-events_session_2-Caroline-166",
+        "locomo-conv-26-evt-events_session_13-Caroline-179",
+        "locomo-conv-26-d13-1",
+        "locomo-conv-26-d17-3",
+        "locomo-conv-26-d19-1",
+        "locomo-conv-26-evt-events_session_19-Caroline-189"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-88",
+      "question": "What is Caroline excited about in the adoption process?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.2,
+      "latency_ms": 282.5651168823242,
+      "selected_ids": [
+        "locomo-conv-26-d19-1",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d2-14",
+        "locomo-conv-26-d17-3",
+        "locomo-conv-26-d2-8",
+        "locomo-conv-26-evt-events_session_2-Caroline-166",
+        "locomo-conv-26-evt-events_session_13-Caroline-179",
+        "locomo-conv-26-d17-7"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-89",
+      "question": "What does Melanie think about Caroline's decision to adopt?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 230.29613494873047,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-d17-3",
+        "locomo-conv-26-d7-4",
+        "locomo-conv-26-ss-session_9_summary",
+        "locomo-conv-26-d19-10",
+        "locomo-conv-26-d19-8",
+        "locomo-conv-26-d2-12"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-90",
+      "question": "How long have Mel and her husband been married?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 218.39594841003418,
+      "selected_ids": [
+        "locomo-conv-26-d3-16",
+        "locomo-conv-26-ss-session_3_summary",
+        "locomo-conv-26-d8-16",
+        "locomo-conv-26-d3-14",
+        "locomo-conv-26-d16-8",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-d10-8",
+        "locomo-conv-26-evt-events_session_4-Melanie-168",
+        "locomo-conv-26-d8-32"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-91",
+      "question": "What does Caroline's necklace symbolize?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 183.29191207885742,
+      "selected_ids": [
+        "locomo-conv-26-d4-3",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d11-12",
+        "locomo-conv-26-d11-8",
+        "locomo-conv-26-d14-15",
+        "locomo-conv-26-d17-23",
+        "locomo-conv-26-d12-9",
+        "locomo-conv-26-d16-13",
+        "locomo-conv-26-d11-10",
+        "locomo-conv-26-d12-13"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-92",
+      "question": "What country is Caroline's grandma from?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 182.40690231323242,
+      "selected_ids": [
+        "locomo-conv-26-d4-3",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d3-13",
+        "locomo-conv-26-d13-3",
+        "locomo-conv-26-d3-11",
+        "locomo-conv-26-d6-13",
+        "locomo-conv-26-d13-7",
+        "locomo-conv-26-d2-8",
+        "locomo-conv-26-evt-events_session_2-Caroline-166",
+        "locomo-conv-26-d18-12"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-93",
+      "question": "What was grandma's gift to Caroline?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 229.45809364318848,
+      "selected_ids": [
+        "locomo-conv-26-d4-3",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-d3-11",
+        "locomo-conv-26-d13-7",
+        "locomo-conv-26-d6-13",
+        "locomo-conv-26-d19-3",
+        "locomo-conv-26-d18-10",
+        "locomo-conv-26-d12-13",
+        "locomo-conv-26-d19-6"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-94",
+      "question": "What is Melanie's hand-painted bowl a reminder of?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 214.0500545501709,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d4-5",
+        "locomo-conv-26-d5-8",
+        "locomo-conv-26-d7-2",
+        "locomo-conv-26-d19-2",
+        "locomo-conv-26-d1-16",
+        "locomo-conv-26-d1-14",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-d14-32"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-95",
+      "question": "What did Melanie and her family do while camping?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 207.3359489440918,
+      "selected_ids": [
+        "locomo-conv-26-d4-8",
+        "locomo-conv-26-d10-12",
+        "locomo-conv-26-d6-16",
+        "locomo-conv-26-d18-19",
+        "locomo-conv-26-evt-events_session_4-Melanie-168",
+        "locomo-conv-26-d10-14",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-d16-2",
+        "locomo-conv-26-evt-events_session_18-Melanie-188"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-96",
+      "question": "What kind of counseling and mental health services is Caroline interested in pursuing?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.14285714285714285,
+      "latency_ms": 212.4011516571045,
+      "selected_ids": [
+        "locomo-conv-26-d7-5",
+        "locomo-conv-26-d4-11",
+        "locomo-conv-26-d6-3",
+        "locomo-conv-26-d5-3",
+        "locomo-conv-26-d1-9",
+        "locomo-conv-26-d4-15",
+        "locomo-conv-26-d4-13",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-ss-session_1_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-97",
+      "question": "What workshop did Caroline attend recently?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 215.32607078552246,
+      "selected_ids": [
+        "locomo-conv-26-d4-13",
+        "locomo-conv-26-d7-1",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-d17-19",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d11-4",
+        "locomo-conv-26-d1-3",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-d7-2",
+        "locomo-conv-26-d8-9"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-98",
+      "question": "What was discussed in the LGBTQ+ counseling workshop?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 214.8580551147461,
+      "selected_ids": [
+        "locomo-conv-26-d4-13",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-ss-session_3_summary",
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-d15-3",
+        "locomo-conv-26-d16-5",
+        "locomo-conv-26-d15-5",
+        "locomo-conv-26-d7-2"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-99",
+      "question": "What motivated Caroline to pursue counseling?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 215.36898612976074,
+      "selected_ids": [
+        "locomo-conv-26-d4-15",
+        "locomo-conv-26-d7-5",
+        "locomo-conv-26-d4-13",
+        "locomo-conv-26-d6-3",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-d4-11",
+        "locomo-conv-26-d5-3",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d1-9"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-100",
+      "question": "What kind of place does Caroline want to create for people?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 262.7537250518799,
+      "selected_ids": [
+        "locomo-conv-26-d19-3",
+        "locomo-conv-26-d2-14",
+        "locomo-conv-26-d15-3",
+        "locomo-conv-26-d4-11",
+        "locomo-conv-26-d6-7",
+        "locomo-conv-26-d6-3",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d11-8",
+        "locomo-conv-26-d13-15",
+        "locomo-conv-26-d16-5"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-101",
+      "question": "Did Melanie make the black and white bowl in the photo?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 256.2270164489746,
+      "selected_ids": [
+        "locomo-conv-26-d5-8",
+        "locomo-conv-26-d14-32",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d13-8",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-d9-17",
+        "locomo-conv-26-d8-2",
+        "locomo-conv-26-d12-2",
+        "locomo-conv-26-d17-10",
+        "locomo-conv-26-evt-events_session_12-Melanie-178"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-102",
+      "question": "What kind of books does Caroline have in her library?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 242.65813827514648,
+      "selected_ids": [
+        "locomo-conv-26-d6-9",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d6-7",
+        "locomo-conv-26-d7-11",
+        "locomo-conv-26-d7-8",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d17-23",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d11-16",
+        "locomo-conv-26-d16-9"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-103",
+      "question": "What was Melanie's favorite book from her childhood?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 208.50086212158203,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d7-8",
+        "locomo-conv-26-d16-4",
+        "locomo-conv-26-d8-16",
+        "locomo-conv-26-d10-20",
+        "locomo-conv-26-d19-6",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d5-6",
+        "locomo-conv-26-d14-30",
+        "locomo-conv-26-d11-7"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-104",
+      "question": "What book did Caroline recommend to Melanie?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.1,
+      "latency_ms": 215.57974815368652,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d7-8",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d12-16",
+        "locomo-conv-26-d19-8",
+        "locomo-conv-26-d12-13",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d7-11"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-105",
+      "question": "What did Caroline take away from the book \"Becoming Nicole\"?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 236.20104789733887,
+      "selected_ids": [
+        "locomo-conv-26-d7-11",
+        "locomo-conv-26-d7-13",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d19-7",
+        "locomo-conv-26-d13-1",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-d17-23",
+        "locomo-conv-26-d3-1",
+        "locomo-conv-26-d19-9"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-106",
+      "question": "What are the new shoes that Melanie got used for?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 245.89109420776367,
+      "selected_ids": [
+        "locomo-conv-26-d7-20",
+        "locomo-conv-26-d17-16",
+        "locomo-conv-26-d19-2",
+        "locomo-conv-26-d17-8",
+        "locomo-conv-26-d7-24",
+        "locomo-conv-26-d16-4",
+        "locomo-conv-26-evt-events_session_7-Melanie-171",
+        "locomo-conv-26-evt-events_session_5-Melanie-169",
+        "locomo-conv-26-d1-2",
+        "locomo-conv-26-d2-5"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-107",
+      "question": "What is Melanie's reason for getting into running?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 240.30208587646484,
+      "selected_ids": [
+        "locomo-conv-26-d7-20",
+        "locomo-conv-26-d7-24",
+        "locomo-conv-26-evt-events_session_7-Melanie-171",
+        "locomo-conv-26-d2-5",
+        "locomo-conv-26-d2-1",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d3-4",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d7-4",
+        "locomo-conv-26-d18-21"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-108",
+      "question": "What does Melanie say running has been great for?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 213.06085586547852,
+      "selected_ids": [
+        "locomo-conv-26-d7-24",
+        "locomo-conv-26-d7-20",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d2-1",
+        "locomo-conv-26-d2-5",
+        "locomo-conv-26-evt-events_session_7-Melanie-171",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d4-8",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d4-10"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-109",
+      "question": "What did Mel and her kids make during the pottery workshop?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 214.6587371826172,
+      "selected_ids": [
+        "locomo-conv-26-d8-2",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-d5-8",
+        "locomo-conv-26-d14-4",
+        "locomo-conv-26-d12-8",
+        "locomo-conv-26-d17-10",
+        "locomo-conv-26-d5-4",
+        "locomo-conv-26-evt-events_session_12-Melanie-178",
+        "locomo-conv-26-d5-10",
+        "locomo-conv-26-d12-2"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-110",
+      "question": "What kind of pot did Mel and her kids make with clay?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 212.7668857574463,
+      "selected_ids": [
+        "locomo-conv-26-d8-2",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-d5-8",
+        "locomo-conv-26-d5-10",
+        "locomo-conv-26-d5-6",
+        "locomo-conv-26-evt-events_session_12-Melanie-178",
+        "locomo-conv-26-d12-8",
+        "locomo-conv-26-d8-6",
+        "locomo-conv-26-d14-4",
+        "locomo-conv-26-d9-17"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-111",
+      "question": "What creative project do Mel and her kids do together besides pottery?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 233.76178741455078,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-d8-2",
+        "locomo-conv-26-d12-8",
+        "locomo-conv-26-d5-6",
+        "locomo-conv-26-evt-events_session_12-Melanie-178",
+        "locomo-conv-26-d14-4",
+        "locomo-conv-26-d12-2",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-d5-4",
+        "locomo-conv-26-d8-6"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-112",
+      "question": "What did Mel and her kids paint in their latest project in July 2023?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.3333333333333333,
+      "latency_ms": 236.91272735595703,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-d8-6",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-d9-17",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-ss-session_7_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-113",
+      "question": "What did Caroline see at the council meeting for adoption?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 214.9660587310791,
+      "selected_ids": [
+        "locomo-conv-26-d8-9",
+        "locomo-conv-26-evt-events_session_8-Caroline-172",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-evt-events_session_13-Caroline-180",
+        "locomo-conv-26-d17-3",
+        "locomo-conv-26-evt-events_session_19-Caroline-189",
+        "locomo-conv-26-d17-1",
+        "locomo-conv-26-d2-12",
+        "locomo-conv-26-evt-events_session_17-Caroline-185",
+        "locomo-conv-26-ss-session_13_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-114",
+      "question": "What do sunflowers represent according to Caroline?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 221.59409523010254,
+      "selected_ids": [
+        "locomo-conv-26-d11-8",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d16-13",
+        "locomo-conv-26-d11-12",
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-d12-9",
+        "locomo-conv-26-d17-23",
+        "locomo-conv-26-d18-18",
+        "locomo-conv-26-d7-13"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-115",
+      "question": "Why are flowers important to Melanie?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 221.12679481506348,
+      "selected_ids": [
+        "locomo-conv-26-d8-12",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-d4-10",
+        "locomo-conv-26-d2-3",
+        "locomo-conv-26-d3-4",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-d18-21"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-116",
+      "question": "What inspired Caroline's painting for the art show?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 271.32415771484375,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_9_summary",
+        "locomo-conv-26-d9-16",
+        "locomo-conv-26-d14-7",
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-d14-33",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-d17-23"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-117",
+      "question": "How often does Melanie go to the beach with her kids?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 265.8538818359375,
+      "selected_ids": [
+        "locomo-conv-26-d10-8",
+        "locomo-conv-26-d1-18",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-evt-events_session_15-Melanie-183",
+        "locomo-conv-26-evt-events_session_10-Melanie-175",
+        "locomo-conv-26-d15-2",
+        "locomo-conv-26-d16-2",
+        "locomo-conv-26-d6-16",
+        "locomo-conv-26-evt-events_session_6-Melanie-170",
+        "locomo-conv-26-d2-7"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-118",
+      "question": "What did Melanie and her family see during their camping trip last year?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 218.25408935546875,
+      "selected_ids": [
+        "locomo-conv-26-d10-14",
+        "locomo-conv-26-d4-8",
+        "locomo-conv-26-d18-19",
+        "locomo-conv-26-d10-12",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-d6-16",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-evt-events_session_4-Melanie-168",
+        "locomo-conv-26-d18-5",
+        "locomo-conv-26-evt-events_session_18-Melanie-188"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-119",
+      "question": "How did Melanie feel while watching the meteor shower?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 278.43403816223145,
+      "selected_ids": [
+        "locomo-conv-26-d10-14",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-d3-22",
+        "locomo-conv-26-d3-20",
+        "locomo-conv-26-evt-events_session_18-Melanie-187",
+        "locomo-conv-26-d3-4",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-evt-events_session_7-Melanie-171",
+        "locomo-conv-26-d8-28",
+        "locomo-conv-26-d7-24"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-120",
+      "question": "Whose birthday did Melanie celebrate recently?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 242.7349090576172,
+      "selected_ids": [
+        "locomo-conv-26-d11-1",
+        "locomo-conv-26-evt-events_session_11-Melanie-176",
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d6-4",
+        "locomo-conv-26-d13-8",
+        "locomo-conv-26-ss-session_16_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-121",
+      "question": "Who performed at the concert at Melanie's daughter's birthday?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 218.3670997619629,
+      "selected_ids": [
+        "locomo-conv-26-d11-1",
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-evt-events_session_11-Melanie-176",
+        "locomo-conv-26-d15-28",
+        "locomo-conv-26-d10-20",
+        "locomo-conv-26-d19-6",
+        "locomo-conv-26-d14-16",
+        "locomo-conv-26-d18-12",
+        "locomo-conv-26-d19-8",
+        "locomo-conv-26-d3-22"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-122",
+      "question": "Why did Melanie choose to use colors and patterns in her pottery project?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 226.8197536468506,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-d12-8",
+        "locomo-conv-26-d5-8",
+        "locomo-conv-26-d17-8",
+        "locomo-conv-26-d5-10",
+        "locomo-conv-26-d5-4",
+        "locomo-conv-26-d17-16",
+        "locomo-conv-26-d12-2",
+        "locomo-conv-26-evt-events_session_12-Melanie-178",
+        "locomo-conv-26-ss-session_14_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-123",
+      "question": "What pet does Caroline have?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 241.43123626708984,
+      "selected_ids": [
+        "locomo-conv-26-d13-3",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-evt-events_session_13-Caroline-180",
+        "locomo-conv-26-d2-12",
+        "locomo-conv-26-evt-events_session_2-Caroline-166",
+        "locomo-conv-26-d17-3",
+        "locomo-conv-26-evt-events_session_8-Caroline-172",
+        "locomo-conv-26-d18-22"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-124",
+      "question": "What pets does Melanie have?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 271.0239887237549,
+      "selected_ids": [
+        "locomo-conv-26-d13-4",
+        "locomo-conv-26-d7-18",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-d13-10",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d3-14",
+        "locomo-conv-26-d19-2",
+        "locomo-conv-26-evt-events_session_15-Melanie-183",
+        "locomo-conv-26-d11-7",
+        "locomo-conv-26-d16-2"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-125",
+      "question": "Where did Oliver hide his bone once?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 432.2178363800049,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-d7-18",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-d18-5",
+        "locomo-conv-26-d10-8",
+        "locomo-conv-26-evt-events_session_14-Melanie-182",
+        "locomo-conv-26-d8-28",
+        "locomo-conv-26-d15-26"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-126",
+      "question": "What activity did Caroline used to do with her dad?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 261.9738578796387,
+      "selected_ids": [
+        "locomo-conv-26-d13-7",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-d16-1",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d15-11",
+        "locomo-conv-26-evt-events_session_16-Caroline-184",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-d16-9",
+        "locomo-conv-26-d6-3",
+        "locomo-conv-26-d3-11"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-127",
+      "question": "What did Caroline make for a local church?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 253.03101539611816,
+      "selected_ids": [
+        "locomo-conv-26-d16-5",
+        "locomo-conv-26-d16-13",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-d11-8",
+        "locomo-conv-26-d9-2",
+        "locomo-conv-26-evt-events_session_9-Caroline-173",
+        "locomo-conv-26-d14-13",
+        "locomo-conv-26-d4-3",
+        "locomo-conv-26-d15-9"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-128",
+      "question": "What did Caroline find in her neighborhood during her walk?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 297.8799343109131,
+      "selected_ids": [
+        "locomo-conv-26-d14-23",
+        "locomo-conv-26-evt-events_session_14-Caroline-181",
+        "locomo-conv-26-d12-1",
+        "locomo-conv-26-d16-1",
+        "locomo-conv-26-d18-18",
+        "locomo-conv-26-d11-14",
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-d14-1",
+        "locomo-conv-26-evt-events_session_16-Caroline-184",
+        "locomo-conv-26-d19-9"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-129",
+      "question": "Which song motivates Caroline to be courageous?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 427.35886573791504,
+      "selected_ids": [
+        "locomo-conv-26-d15-23",
+        "locomo-conv-26-d17-23",
+        "locomo-conv-26-d3-11",
+        "locomo-conv-26-d14-16",
+        "locomo-conv-26-d1-7",
+        "locomo-conv-26-d7-8",
+        "locomo-conv-26-ss-session_3_summary",
+        "locomo-conv-26-d18-10",
+        "locomo-conv-26-d19-7",
+        "locomo-conv-26-d19-8"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-130",
+      "question": "Which  classical musicians does Melanie enjoy listening to?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 284.6698760986328,
+      "selected_ids": [
+        "locomo-conv-26-d15-28",
+        "locomo-conv-26-d2-5",
+        "locomo-conv-26-d15-26",
+        "locomo-conv-26-d17-13",
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-d13-10",
+        "locomo-conv-26-d12-14",
+        "locomo-conv-26-d16-2",
+        "locomo-conv-26-d15-2",
+        "locomo-conv-26-d3-4"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-131",
+      "question": "Who is Melanie a fan of in terms of modern music?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 232.76591300964355,
+      "selected_ids": [
+        "locomo-conv-26-d15-28",
+        "locomo-conv-26-d5-6",
+        "locomo-conv-26-d3-4",
+        "locomo-conv-26-d8-28",
+        "locomo-conv-26-d12-14",
+        "locomo-conv-26-d1-2",
+        "locomo-conv-26-d7-4",
+        "locomo-conv-26-d3-14",
+        "locomo-conv-26-d11-1",
+        "locomo-conv-26-d11-7"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-132",
+      "question": "How long has Melanie been creating art?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.25,
+      "latency_ms": 256.6101551055908,
+      "selected_ids": [
+        "locomo-conv-26-d16-8",
+        "locomo-conv-26-d3-16",
+        "locomo-conv-26-d14-32",
+        "locomo-conv-26-d16-7",
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-d13-14",
+        "locomo-conv-26-d17-13",
+        "locomo-conv-26-d1-16",
+        "locomo-conv-26-d17-10",
+        "locomo-conv-26-d14-30"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-133",
+      "question": "What precautionary sign did Melanie see at the caf\u00e9?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 496.1261749267578,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-d17-8",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-d7-2",
+        "locomo-conv-26-d6-4",
+        "locomo-conv-26-d18-5",
+        "locomo-conv-26-d5-4",
+        "locomo-conv-26-d3-4"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-134",
+      "question": "What advice does Caroline give for getting started with adoption?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 320.3136920928955,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-d17-7",
+        "locomo-conv-26-evt-events_session_17-Caroline-185",
+        "locomo-conv-26-evt-events_session_13-Caroline-180",
+        "locomo-conv-26-d17-1",
+        "locomo-conv-26-evt-events_session_2-Caroline-166",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-evt-events_session_13-Caroline-179",
+        "locomo-conv-26-d17-3"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-135",
+      "question": "What setback did Melanie face in October 2023?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 321.5141296386719,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-d17-8",
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-ss-session_3_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-136",
+      "question": "What does Melanie do to keep herself busy during her pottery break?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 275.62594413757324,
+      "selected_ids": [
+        "locomo-conv-26-d17-10",
+        "locomo-conv-26-d17-8",
+        "locomo-conv-26-d5-10",
+        "locomo-conv-26-d14-4",
+        "locomo-conv-26-d5-6",
+        "locomo-conv-26-d5-4",
+        "locomo-conv-26-d12-2",
+        "locomo-conv-26-evt-events_session_5-Melanie-169",
+        "locomo-conv-26-d12-8",
+        "locomo-conv-26-d8-2"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-137",
+      "question": "What painting did Melanie show to Caroline on October 13, 2023?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 304.46314811706543,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-ss-session_10_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-138",
+      "question": "What kind of painting did Caroline share with Melanie on October 13, 2023?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 328.1252384185791,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-ss-session_3_summary",
+        "locomo-conv-26-ss-session_10_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-139",
+      "question": "What was the poetry reading that Caroline attended about?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 322.4451541900635,
+      "selected_ids": [
+        "locomo-conv-26-d17-19",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-d4-13",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d1-3",
+        "locomo-conv-26-d7-1",
+        "locomo-conv-26-d5-1",
+        "locomo-conv-26-d8-9",
+        "locomo-conv-26-d11-4",
+        "locomo-conv-26-ss-session_6_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-140",
+      "question": "What did the posters at the poetry reading say?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 322.99304008483887,
+      "selected_ids": [
+        "locomo-conv-26-d17-19",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d8-25",
+        "locomo-conv-26-evt-events_session_14-Caroline-181"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-141",
+      "question": "What does Caroline's drawing symbolize for her?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 203.62424850463867,
+      "selected_ids": [
+        "locomo-conv-26-d11-12",
+        "locomo-conv-26-d11-8",
+        "locomo-conv-26-d14-15",
+        "locomo-conv-26-d16-13",
+        "locomo-conv-26-d4-3",
+        "locomo-conv-26-d13-13",
+        "locomo-conv-26-d12-9",
+        "locomo-conv-26-d11-10",
+        "locomo-conv-26-d16-9",
+        "locomo-conv-26-d9-16"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-142",
+      "question": "How do Melanie and Caroline describe their journey through life together?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 266.1440372467041,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d19-8",
+        "locomo-conv-26-ss-session_3_summary",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-d19-10"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-143",
+      "question": "What happened to Melanie's son on their road trip?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 247.7719783782959,
+      "selected_ids": [
+        "locomo-conv-26-evt-events_session_18-Melanie-187",
+        "locomo-conv-26-d18-1",
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-evt-events_session_18-Melanie-186",
+        "locomo-conv-26-evt-events_session_18-Melanie-188",
+        "locomo-conv-26-d10-14",
+        "locomo-conv-26-d9-1",
+        "locomo-conv-26-d18-19",
+        "locomo-conv-26-ss-session_16_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-144",
+      "question": "How did Melanie's son handle the accident?",
+      "gold_count": 2,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 198.4269618988037,
+      "selected_ids": [
+        "locomo-conv-26-evt-events_session_18-Melanie-187",
+        "locomo-conv-26-d18-1",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-d17-8",
+        "locomo-conv-26-d8-32",
+        "locomo-conv-26-evt-events_session_18-Melanie-186",
+        "locomo-conv-26-evt-events_session_15-Melanie-183",
+        "locomo-conv-26-d1-2",
+        "locomo-conv-26-d18-5"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-145",
+      "question": "How did Melanie feel about her family after the accident?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 236.63878440856934,
+      "selected_ids": [
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-d18-1",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-d3-22",
+        "locomo-conv-26-d3-20",
+        "locomo-conv-26-d8-32",
+        "locomo-conv-26-d2-3",
+        "locomo-conv-26-d8-28",
+        "locomo-conv-26-d14-10",
+        "locomo-conv-26-evt-events_session_10-Melanie-175"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-146",
+      "question": "How did Melanie's children handle the accident?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 217.31281280517578,
+      "selected_ids": [
+        "locomo-conv-26-evt-events_session_18-Melanie-187",
+        "locomo-conv-26-d18-1",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-evt-events_session_15-Melanie-183",
+        "locomo-conv-26-d1-2",
+        "locomo-conv-26-d3-14",
+        "locomo-conv-26-d11-7",
+        "locomo-conv-26-d8-32",
+        "locomo-conv-26-d9-17"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-147",
+      "question": "How did Melanie feel after the accident?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 197.86882400512695,
+      "selected_ids": [
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-d18-1",
+        "locomo-conv-26-d3-22",
+        "locomo-conv-26-d17-8",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-evt-events_session_18-Melanie-187",
+        "locomo-conv-26-d3-20",
+        "locomo-conv-26-d1-18",
+        "locomo-conv-26-d1-16",
+        "locomo-conv-26-d2-3"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-148",
+      "question": "What was Melanie's reaction to her children enjoying the Grand Canyon?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 233.67619514465332,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-d18-5",
+        "locomo-conv-26-d15-2",
+        "locomo-conv-26-evt-events_session_18-Melanie-186",
+        "locomo-conv-26-evt-events_session_15-Melanie-183",
+        "locomo-conv-26-d16-2",
+        "locomo-conv-26-d6-4",
+        "locomo-conv-26-d8-6",
+        "locomo-conv-26-d11-7",
+        "locomo-conv-26-d18-1"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-149",
+      "question": "What do Melanie's family give her?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 226.7630100250244,
+      "selected_ids": [
+        "locomo-conv-26-d8-32",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-d10-12",
+        "locomo-conv-26-d14-10",
+        "locomo-conv-26-evt-events_session_14-Melanie-182",
+        "locomo-conv-26-evt-events_session_11-Melanie-176",
+        "locomo-conv-26-d18-19",
+        "locomo-conv-26-evt-events_session_10-Melanie-175",
+        "locomo-conv-26-d8-28",
+        "locomo-conv-26-evt-events_session_4-Melanie-168"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-150",
+      "question": "How did Melanie feel about her family supporting her?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 256.1187744140625,
+      "selected_ids": [
+        "locomo-conv-26-d8-32",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-ss-session_3_summary",
+        "locomo-conv-26-d3-20",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d3-22",
+        "locomo-conv-26-d2-3",
+        "locomo-conv-26-d8-28",
+        "locomo-conv-26-ss-session_12_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-151",
+      "question": "What did Melanie do after the road trip to relax?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 189.15081024169922,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-d15-26",
+        "locomo-conv-26-d1-16",
+        "locomo-conv-26-d18-1",
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-d18-19",
+        "locomo-conv-26-evt-events_session_18-Melanie-188",
+        "locomo-conv-26-d14-4",
+        "locomo-conv-26-evt-events_session_18-Melanie-187",
+        "locomo-conv-26-d17-8"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-152",
+      "question": "What did Caroline realize after her charity race?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 220.1981544494629,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d6-11",
+        "locomo-conv-26-d19-7",
+        "locomo-conv-26-ss-session_9_summary",
+        "locomo-conv-26-d17-23",
+        "locomo-conv-26-d18-10",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-evt-events_session_2-Caroline-166",
+        "locomo-conv-26-d6-3",
+        "locomo-conv-26-d14-13"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-153",
+      "question": "What are Melanie's plans for the summer with respect to adoption?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 196.03800773620605,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d12-16",
+        "locomo-conv-26-d2-7",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-d11-7",
+        "locomo-conv-26-d19-8",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-d7-4",
+        "locomo-conv-26-d4-10",
+        "locomo-conv-26-evt-events_session_4-Melanie-168"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-154",
+      "question": "What type of individuals does the adoption agency Melanie is considering support?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.16666666666666666,
+      "latency_ms": 235.43190956115723,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-d7-4",
+        "locomo-conv-26-d19-13",
+        "locomo-conv-26-d2-12",
+        "locomo-conv-26-d3-2",
+        "locomo-conv-26-d3-14",
+        "locomo-conv-26-d1-2",
+        "locomo-conv-26-d8-32"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-155",
+      "question": "Why did Melanie choose the adoption agency?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.3333333333333333,
+      "latency_ms": 207.92007446289062,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-d2-12",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-d14-10",
+        "locomo-conv-26-d11-7",
+        "locomo-conv-26-d2-3",
+        "locomo-conv-26-d3-4",
+        "locomo-conv-26-d2-8"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-156",
+      "question": "What is Melanie excited about in her adoption process?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 231.4150333404541,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-d16-4",
+        "locomo-conv-26-d2-7",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d19-1",
+        "locomo-conv-26-d11-7",
+        "locomo-conv-26-d2-3"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-157",
+      "question": "What does Melanie's necklace symbolize?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.2,
+      "latency_ms": 209.28001403808594,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d8-12",
+        "locomo-conv-26-d19-2",
+        "locomo-conv-26-d12-14",
+        "locomo-conv-26-d4-3",
+        "locomo-conv-26-d3-20",
+        "locomo-conv-26-d3-4",
+        "locomo-conv-26-d14-16",
+        "locomo-conv-26-d7-4",
+        "locomo-conv-26-d11-13"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-158",
+      "question": "What country is Melanie's grandma from?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 114.51172828674316,
+      "selected_ids": [
+        "locomo-conv-26-d8-32",
+        "locomo-conv-26-evt-events_session_18-Melanie-186",
+        "locomo-conv-26-d18-5",
+        "locomo-conv-26-d10-12",
+        "locomo-conv-26-evt-events_session_18-Melanie-188",
+        "locomo-conv-26-evt-events_session_11-Melanie-176",
+        "locomo-conv-26-evt-events_session_10-Melanie-175",
+        "locomo-conv-26-evt-events_session_15-Melanie-183",
+        "locomo-conv-26-evt-events_session_14-Melanie-182",
+        "locomo-conv-26-d14-10"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-159",
+      "question": "What was grandma's gift to Melanie?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.2,
+      "latency_ms": 210.0198268890381,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d19-2",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-d10-20",
+        "locomo-conv-26-d4-3",
+        "locomo-conv-26-d12-8",
+        "locomo-conv-26-d5-10",
+        "locomo-conv-26-evt-events_session_11-Melanie-176",
+        "locomo-conv-26-d18-5",
+        "locomo-conv-26-d19-6"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-160",
+      "question": "What was grandpa's gift to Caroline?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 212.1560573577881,
+      "selected_ids": [
+        "locomo-conv-26-d4-3",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-d3-11",
+        "locomo-conv-26-d13-7",
+        "locomo-conv-26-d18-10",
+        "locomo-conv-26-d6-11",
+        "locomo-conv-26-d12-13",
+        "locomo-conv-26-d19-3",
+        "locomo-conv-26-d6-13"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-161",
+      "question": "What is Caroline's hand-painted bowl a reminder of?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 210.64233779907227,
+      "selected_ids": [
+        "locomo-conv-26-d4-5",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d11-12",
+        "locomo-conv-26-d9-16",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-d7-2",
+        "locomo-conv-26-d16-13",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-ss-session_9_summary",
+        "locomo-conv-26-d14-7"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-162",
+      "question": "What did Caroline and her family do while camping?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 285.25328636169434,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-evt-events_session_16-Caroline-184",
+        "locomo-conv-26-d14-1",
+        "locomo-conv-26-d13-7",
+        "locomo-conv-26-d3-11",
+        "locomo-conv-26-evt-events_session_12-Caroline-177",
+        "locomo-conv-26-evt-events_session_14-Caroline-181",
+        "locomo-conv-26-d16-1",
+        "locomo-conv-26-d12-1"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-163",
+      "question": "What kind of counseling and mental health services is Melanie interested in pursuing?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 240.02504348754883,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-d2-1",
+        "locomo-conv-26-d7-5",
+        "locomo-conv-26-d4-11",
+        "locomo-conv-26-d5-3",
+        "locomo-conv-26-d7-24"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-164",
+      "question": "What kind of counseling workshop did Melanie attend recently?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.3333333333333333,
+      "latency_ms": 189.89276885986328,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-d4-13",
+        "locomo-conv-26-d7-2",
+        "locomo-conv-26-d5-4",
+        "locomo-conv-26-d8-2",
+        "locomo-conv-26-d3-4",
+        "locomo-conv-26-d6-4",
+        "locomo-conv-26-d13-8",
+        "locomo-conv-26-d14-10"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-165",
+      "question": "What motivated Melanie to pursue counseling?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 214.8270606994629,
+      "selected_ids": [
+        "locomo-conv-26-d4-15",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d3-14",
+        "locomo-conv-26-d2-3",
+        "locomo-conv-26-d7-8",
+        "locomo-conv-26-d19-8"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-166",
+      "question": "What kind of place does Melanie want to create for people?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 218.98508071899414,
+      "selected_ids": [
+        "locomo-conv-26-d14-10",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-evt-events_session_14-Melanie-182",
+        "locomo-conv-26-evt-events_session_5-Melanie-169",
+        "locomo-conv-26-d11-7",
+        "locomo-conv-26-evt-events_session_15-Melanie-183",
+        "locomo-conv-26-d7-4",
+        "locomo-conv-26-d14-32",
+        "locomo-conv-26-d5-6"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-167",
+      "question": "Did Caroline make the black and white bowl in the photo?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 322.005033493042,
+      "selected_ids": [
+        "locomo-conv-26-d4-5",
+        "locomo-conv-26-d5-8",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d16-13",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-d16-7",
+        "locomo-conv-26-d9-16",
+        "locomo-conv-26-d14-7",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-evt-events_session_10-Caroline-174"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-168",
+      "question": "What are the new shoes that Caroline got used for?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 293.26415061950684,
+      "selected_ids": [
+        "locomo-conv-26-d7-20",
+        "locomo-conv-26-d13-7",
+        "locomo-conv-26-d11-8",
+        "locomo-conv-26-d16-9",
+        "locomo-conv-26-d18-10",
+        "locomo-conv-26-evt-events_session_9-Caroline-173",
+        "locomo-conv-26-d9-2",
+        "locomo-conv-26-d16-1",
+        "locomo-conv-26-d10-3",
+        "locomo-conv-26-d17-23"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-169",
+      "question": "What is Caroline's reason for getting into running?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 232.60211944580078,
+      "selected_ids": [
+        "locomo-conv-26-d12-1",
+        "locomo-conv-26-d14-1",
+        "locomo-conv-26-d17-23",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d4-15",
+        "locomo-conv-26-d7-5",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d5-3",
+        "locomo-conv-26-d3-11",
+        "locomo-conv-26-evt-events_session_3-Caroline-167"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-170",
+      "question": "What does Caroline say running has been great for?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 246.11473083496094,
+      "selected_ids": [
+        "locomo-conv-26-d7-24",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-d12-1",
+        "locomo-conv-26-ss-session_9_summary",
+        "locomo-conv-26-d18-10",
+        "locomo-conv-26-d6-3",
+        "locomo-conv-26-d12-11",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d12-15"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-171",
+      "question": "What did Melanie see at the council meeting for adoption?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 301.2101650238037,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-d8-9",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-evt-events_session_8-Caroline-172",
+        "locomo-conv-26-d3-4",
+        "locomo-conv-26-d11-7",
+        "locomo-conv-26-d7-4",
+        "locomo-conv-26-d16-4"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-172",
+      "question": "What inspired Melanie's painting for the art show?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 431.6067695617676,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_9_summary",
+        "locomo-conv-26-d14-32",
+        "locomo-conv-26-d17-13",
+        "locomo-conv-26-d8-6",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-d13-14",
+        "locomo-conv-26-d1-16"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-173",
+      "question": "What inspired Caroline's sculpture for the art show?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 379.08411026000977,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_9_summary",
+        "locomo-conv-26-d9-16",
+        "locomo-conv-26-d17-23",
+        "locomo-conv-26-d14-7",
+        "locomo-conv-26-d14-33",
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-d9-12",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-ss-session_14_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-174",
+      "question": "How often does Caroline go to the beach with her kids?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 324.72968101501465,
+      "selected_ids": [
+        "locomo-conv-26-d10-8",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-d16-1",
+        "locomo-conv-26-d13-7",
+        "locomo-conv-26-d14-7",
+        "locomo-conv-26-evt-events_session_16-Caroline-184",
+        "locomo-conv-26-d19-6",
+        "locomo-conv-26-d3-1"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-175",
+      "question": "What did Caroline and her family see during their camping trip last year?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 304.77023124694824,
+      "selected_ids": [
+        "locomo-conv-26-d10-14",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-d14-1",
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-evt-events_session_16-Caroline-184",
+        "locomo-conv-26-d18-19",
+        "locomo-conv-26-d4-8",
+        "locomo-conv-26-d12-1",
+        "locomo-conv-26-d18-12"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-176",
+      "question": "How did Caroline feel while watching the meteor shower?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 3754.0669441223145,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-d3-5",
+        "locomo-conv-26-d1-7",
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-d10-14",
+        "locomo-conv-26-d5-1",
+        "locomo-conv-26-d16-9",
+        "locomo-conv-26-d8-21",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-d12-1"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-177",
+      "question": "Why did Caroline choose to use colors and patterns in her pottery project?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 778.3968448638916,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-ss-session_8_summary",
+        "locomo-conv-26-d16-9",
+        "locomo-conv-26-d11-8",
+        "locomo-conv-26-d12-8",
+        "locomo-conv-26-d16-7",
+        "locomo-conv-26-d5-8",
+        "locomo-conv-26-d13-13"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-178",
+      "question": "Is Oscar Melanie's pet?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.16666666666666666,
+      "latency_ms": 207.24797248840332,
+      "selected_ids": [
+        "locomo-conv-26-d13-4",
+        "locomo-conv-26-d7-18",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-d13-10",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d13-3",
+        "locomo-conv-26-d8-32",
+        "locomo-conv-26-d18-5",
+        "locomo-conv-26-d3-14",
+        "locomo-conv-26-evt-events_session_18-Melanie-186"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-179",
+      "question": "Where did Oscar hide his bone once?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 216.60900115966797,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-d13-3",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-d10-8",
+        "locomo-conv-26-d18-5",
+        "locomo-conv-26-evt-events_session_14-Melanie-182",
+        "locomo-conv-26-evt-events_session_18-Melanie-186",
+        "locomo-conv-26-d8-28",
+        "locomo-conv-26-d14-10"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-180",
+      "question": "What activity did Melanie used to do with her dad?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 215.6977653503418,
+      "selected_ids": [
+        "locomo-conv-26-d2-5",
+        "locomo-conv-26-ss-session_13_summary",
+        "locomo-conv-26-d14-10",
+        "locomo-conv-26-d18-1",
+        "locomo-conv-26-d17-8",
+        "locomo-conv-26-d12-16",
+        "locomo-conv-26-ss-session_2_summary",
+        "locomo-conv-26-evt-events_session_11-Melanie-176",
+        "locomo-conv-26-d15-2",
+        "locomo-conv-26-evt-events_session_4-Melanie-168"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-181",
+      "question": "What did Melanie make for a local church?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 210.99281311035156,
+      "selected_ids": [
+        "locomo-conv-26-evt-events_session_14-Melanie-182",
+        "locomo-conv-26-evt-events_session_6-Melanie-170",
+        "locomo-conv-26-d14-10",
+        "locomo-conv-26-evt-events_session_15-Melanie-183",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-d14-32",
+        "locomo-conv-26-d7-4",
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-d12-8",
+        "locomo-conv-26-evt-events_session_5-Melanie-169"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-182",
+      "question": "What did Melanie find in her neighborhood during her walk?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 103.3170223236084,
+      "selected_ids": [
+        "locomo-conv-26-d18-19",
+        "locomo-conv-26-d7-20",
+        "locomo-conv-26-d8-12",
+        "locomo-conv-26-d13-10",
+        "locomo-conv-26-d14-10",
+        "locomo-conv-26-d14-4",
+        "locomo-conv-26-evt-events_session_15-Melanie-183",
+        "locomo-conv-26-evt-events_session_14-Melanie-182",
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-evt-events_session_18-Melanie-188"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-183",
+      "question": "Which song motivates Melanie to be courageous?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.2,
+      "latency_ms": 255.9828758239746,
+      "selected_ids": [
+        "locomo-conv-26-d14-16",
+        "locomo-conv-26-d7-8",
+        "locomo-conv-26-ss-session_3_summary",
+        "locomo-conv-26-d19-8",
+        "locomo-conv-26-d15-23",
+        "locomo-conv-26-d7-4",
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-d8-28",
+        "locomo-conv-26-d15-26",
+        "locomo-conv-26-d3-14"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-184",
+      "question": "What type of instrument does Caroline play?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 339.11776542663574,
+      "selected_ids": [
+        "locomo-conv-26-d15-21",
+        "locomo-conv-26-d15-19",
+        "locomo-conv-26-d5-5",
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-d13-3",
+        "locomo-conv-26-d11-8",
+        "locomo-conv-26-d16-7",
+        "locomo-conv-26-d16-9",
+        "locomo-conv-26-d11-10",
+        "locomo-conv-26-d18-10"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-185",
+      "question": "Which classical musicians does Caroline enjoy listening to?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 431.7009449005127,
+      "selected_ids": [
+        "locomo-conv-26-d15-28",
+        "locomo-conv-26-d15-21",
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-d5-5",
+        "locomo-conv-26-d15-19",
+        "locomo-conv-26-d11-16",
+        "locomo-conv-26-d12-13",
+        "locomo-conv-26-d17-23",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-ss-session_6_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-186",
+      "question": "Who is Caroline a fan of in terms of modern music?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 229.38799858093262,
+      "selected_ids": [
+        "locomo-conv-26-d17-23",
+        "locomo-conv-26-d11-8",
+        "locomo-conv-26-d11-16",
+        "locomo-conv-26-evt-events_session_10-Caroline-174",
+        "locomo-conv-26-d12-13",
+        "locomo-conv-26-d16-5",
+        "locomo-conv-26-d15-21",
+        "locomo-conv-26-d5-5",
+        "locomo-conv-26-d18-10",
+        "locomo-conv-26-d15-11"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-187",
+      "question": "What precautionary sign did Caroline see at the caf\u00e9?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 234.56501960754395,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-ss-session_11_summary",
+        "locomo-conv-26-evt-events_session_14-Caroline-181",
+        "locomo-conv-26-ss-session_15_summary",
+        "locomo-conv-26-ss-session_12_summary",
+        "locomo-conv-26-evt-events_session_16-Caroline-184",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-d12-13",
+        "locomo-conv-26-d17-23",
+        "locomo-conv-26-evt-events_session_12-Caroline-177"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-188",
+      "question": "What setback did Caroline face recently?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 217.26608276367188,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-d17-19",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d1-3",
+        "locomo-conv-26-d7-1",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d11-4",
+        "locomo-conv-26-d14-1"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-189",
+      "question": "What does Caroline do to keep herself busy during her pottery break?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.3333333333333333,
+      "latency_ms": 249.45783615112305,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_14_summary",
+        "locomo-conv-26-ss-session_5_summary",
+        "locomo-conv-26-d17-10",
+        "locomo-conv-26-d17-8",
+        "locomo-conv-26-d12-11",
+        "locomo-conv-26-d12-9",
+        "locomo-conv-26-d16-1",
+        "locomo-conv-26-d13-13",
+        "locomo-conv-26-d5-3",
+        "locomo-conv-26-d15-21"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-190",
+      "question": "What was the poetry reading that Melanie attended about?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 218.86301040649414,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_17_summary",
+        "locomo-conv-26-ss-session_7_summary",
+        "locomo-conv-26-d17-10",
+        "locomo-conv-26-d17-19",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-d7-2",
+        "locomo-conv-26-d5-4",
+        "locomo-conv-26-d2-5",
+        "locomo-conv-26-d14-10",
+        "locomo-conv-26-d3-4"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-191",
+      "question": "What happened to Caroline's son on their road trip?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.14285714285714285,
+      "latency_ms": 294.62194442749023,
+      "selected_ids": [
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-d14-1",
+        "locomo-conv-26-d13-7",
+        "locomo-conv-26-evt-events_session_18-Melanie-187",
+        "locomo-conv-26-d16-15",
+        "locomo-conv-26-d18-1",
+        "locomo-conv-26-d12-1",
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-evt-events_session_14-Caroline-181"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-192",
+      "question": "How did Caroline's son handle the accident?",
+      "gold_count": 2,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 186.4631175994873,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-d13-7",
+        "locomo-conv-26-d16-15",
+        "locomo-conv-26-evt-events_session_18-Melanie-187",
+        "locomo-conv-26-d18-10",
+        "locomo-conv-26-d3-11",
+        "locomo-conv-26-d3-1",
+        "locomo-conv-26-d7-4",
+        "locomo-conv-26-evt-events_session_19-Caroline-189"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-193",
+      "question": "How did Caroline feel about her family after the accident?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 230.3931713104248,
+      "selected_ids": [
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-d6-13",
+        "locomo-conv-26-d3-5",
+        "locomo-conv-26-d18-22",
+        "locomo-conv-26-d6-11",
+        "locomo-conv-26-d1-7",
+        "locomo-conv-26-ss-session_4_summary",
+        "locomo-conv-26-ss-session_10_summary",
+        "locomo-conv-26-d16-15"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-194",
+      "question": "How did Caroline's children handle the accident?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 225.15320777893066,
+      "selected_ids": [
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-d16-15",
+        "locomo-conv-26-d13-7",
+        "locomo-conv-26-d3-11",
+        "locomo-conv-26-d19-3",
+        "locomo-conv-26-d18-10",
+        "locomo-conv-26-ss-session_19_summary",
+        "locomo-conv-26-d19-6",
+        "locomo-conv-26-d2-14"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-195",
+      "question": "How did Caroline feel after the accident?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 192.28386878967285,
+      "selected_ids": [
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-d3-5",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-d1-7",
+        "locomo-conv-26-d14-1",
+        "locomo-conv-26-d8-21",
+        "locomo-conv-26-d16-15",
+        "locomo-conv-26-evt-events_session_14-Caroline-181",
+        "locomo-conv-26-d15-5",
+        "locomo-conv-26-d6-11"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-196",
+      "question": "What was Caroline's reaction to her children enjoying the Grand Canyon?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 0.5,
+      "latency_ms": 227.6761531829834,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-d18-5",
+        "locomo-conv-26-evt-events_session_14-Caroline-181",
+        "locomo-conv-26-d12-1",
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-evt-events_session_12-Caroline-177",
+        "locomo-conv-26-d19-6",
+        "locomo-conv-26-d19-3",
+        "locomo-conv-26-d16-1",
+        "locomo-conv-26-ss-session_19_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-197",
+      "question": "What did Caroline do after the road trip to relax?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 183.3341121673584,
+      "selected_ids": [
+        "locomo-conv-26-d18-2",
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-evt-events_session_14-Caroline-181",
+        "locomo-conv-26-d16-1",
+        "locomo-conv-26-d14-1",
+        "locomo-conv-26-ss-session_1_summary",
+        "locomo-conv-26-d18-18",
+        "locomo-conv-26-evt-events_session_16-Caroline-184",
+        "locomo-conv-26-d12-1",
+        "locomo-conv-26-d16-15"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-26",
+      "question_id": "locomo-conv-26-qa-198",
+      "question": "What does Caroline love most about camping with her family?",
+      "gold_count": 1,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 204.67305183410645,
+      "selected_ids": [
+        "locomo-conv-26-ss-session_18_summary",
+        "locomo-conv-26-ss-session_6_summary",
+        "locomo-conv-26-ss-session_16_summary",
+        "locomo-conv-26-d18-22",
+        "locomo-conv-26-d18-12",
+        "locomo-conv-26-d6-13",
+        "locomo-conv-26-d6-11",
+        "locomo-conv-26-evt-events_session_16-Caroline-184",
+        "locomo-conv-26-d16-1",
+        "locomo-conv-26-d18-10"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-30",
+      "question_id": "locomo-conv-30-qa-0",
+      "question": "When Jon has lost his job as a banker?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 340.1029109954834,
+      "selected_ids": [
+        "locomo-conv-30-d1-2",
+        "locomo-conv-30-evt-events_session_1-Jon-152",
+        "locomo-conv-30-ss-session_1_summary",
+        "locomo-conv-30-d5-10",
+        "locomo-conv-30-d6-4",
+        "locomo-conv-30-d6-11",
+        "locomo-conv-30-d16-6",
+        "locomo-conv-30-d8-1",
+        "locomo-conv-30-d11-3",
+        "locomo-conv-30-evt-events_session_18-Jon-177"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-30",
+      "question_id": "locomo-conv-30-qa-1",
+      "question": "When Gina has lost her job at Door Dash?",
+      "gold_count": 1,
+      "found": true,
+      "hit": 1,
+      "mrr": 1.0,
+      "latency_ms": 174.5600700378418,
+      "selected_ids": [
+        "locomo-conv-30-d1-3",
+        "locomo-conv-30-evt-events_session_1-Gina-154",
+        "locomo-conv-30-ss-session_1_summary",
+        "locomo-conv-30-ss-session_6_summary",
+        "locomo-conv-30-d14-8",
+        "locomo-conv-30-d6-4",
+        "locomo-conv-30-d10-2",
+        "locomo-conv-30-ss-session_16_summary",
+        "locomo-conv-30-ss-session_9_summary",
+        "locomo-conv-30-ss-session_10_summary"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    },
+    {
+      "conv_id": "locomo-conv-30",
+      "question_id": "locomo-conv-30-qa-2",
+      "question": "How do Jon and Gina both like to destress?",
+      "gold_count": 2,
+      "found": false,
+      "hit": 0,
+      "mrr": 0.0,
+      "latency_ms": 174.5903491973877,
+      "selected_ids": [
+        "locomo-conv-30-ss-session_1_summary",
+        "locomo-conv-30-ss-session_6_summary",
+        "locomo-conv-30-ss-session_5_summary",
+        "locomo-conv-30-ss-session_9_summary",
+        "locomo-conv-30-d6-15",
+        "locomo-conv-30-d6-18",
+        "locomo-conv-30-ss-session_11_summary",
+        "locomo-conv-30-ss-session_2_summary",
+        "locomo-conv-30-ss-session_4_summary",
+        "locomo-conv-30-d13-22"
+      ],
+      "layers": [
+        "lexical",
+        "vector",
+        "cross_encoder"
+      ]
+    }
+  ]
+}

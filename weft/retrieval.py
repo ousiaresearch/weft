@@ -269,12 +269,11 @@ def recall(sub, query: str, ctx, scope_hint: str | None = None, limit: int = 5,
                     phrase_parts.append(" OR ".join(q_content))
                 match = " OR ".join(phrase_parts)
             else:
-                # For short queries (2-3 terms), use NEAR to require proximity.
-                # For longer queries, fall back to loose OR to avoid over-restriction.
-                if 1 < len(q_content) <= 3:
-                    match = f"{' NEAR/5 '.join(q_content)}"
-                else:
-                    match = " OR ".join(f'"{t}"' for t in q_content)
+                # Use quoted OR for both short and long queries.
+                # NEAR/N is not supported by this FTS5 build and produced a
+                # syntax error that was silently swallowed, leaving candidates
+                # empty for 2-3 term queries.
+                match = " OR ".join(f'"{t}"' for t in q_content)
             ranked.append(sub.fts_candidates(match, ctx, q_pool, scopes=readable))
         if q_vector and embedder is not None:
             ranked.append(sub.vector_candidates(q_embedding, ctx, q_pool, scopes=readable, model_id=embedder.model_id))

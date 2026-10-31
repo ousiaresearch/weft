@@ -65,13 +65,17 @@ def score_recall(result, gold_ids):
     return hit, mrr, found
 
 
-def run_mode(ds, mode, embedder=None):
-    """Run recall in given mode over first SAMPLE_SIZE QA pairs."""
+def run_mode(ds, mode, embedder=None, details_path=None):
+    """Run recall in given mode over first SAMPLE_SIZE QA pairs.
+
+    If details_path is provided, write per-QA results for offline analysis.
+    """
     hits = []
     mrrs = []
     latencies = []
     layer_counts = {}
     processed = 0
+    details = []
 
     for sample in ds:
         if processed >= SAMPLE_SIZE:
@@ -109,13 +113,26 @@ def run_mode(ds, mode, embedder=None):
                     token_getter=token_getter if mode == "enhanced" else None,
                 )
                 latency = time.time() - t0
-                hit, mrr, _ = score_recall(result, gold_ids)
+                hit, mrr, found = score_recall(result, gold_ids)
                 hits.append(hit)
                 mrrs.append(mrr)
                 latencies.append(latency)
                 for layer in result.layers:
                     layer_counts[layer] = layer_counts.get(layer, 0) + 1
                 processed += 1
+                if details_path is not None:
+                    details.append({
+                        "conv_id": conv_id,
+                        "question_id": qa.question_id,
+                        "question": qa.question,
+                        "gold_count": len(gold_ids),
+                        "found": found,
+                        "hit": hit,
+                        "mrr": mrr,
+                        "latency_ms": latency * 1000,
+                        "selected_ids": result.selected_ids[:10],
+                        "layers": result.layers,
+                    })
             except Exception as e:
                 print(f"[bench] {conv_id} {qa.question_id} failed: {e}", flush=True)
 
@@ -123,7 +140,7 @@ def run_mode(ds, mode, embedder=None):
 
     if not hits:
         return {"processed": 0}
-    return {
+    result = {
         "processed": len(hits),
         "hit_at_k": sum(hits) / len(hits),
         "mrr": sum(mrrs) / len(mrrs),
@@ -131,6 +148,14 @@ def run_mode(ds, mode, embedder=None):
         "p95_latency_ms": sorted(latencies)[int(len(latencies) * 0.95)] * 1000,
         "layer_counts": layer_counts,
     }
+    if details_path is not None and details:
+        Path(details_path).write_text(json.dumps({
+            "mode": mode,
+            "sample_size": SAMPLE_SIZE,
+            "details": details,
+        }, indent=2) + "\n")
+        print(f"[bench] Wrote details to {details_path}", flush=True)
+    return result
 
 
 def main():
@@ -148,13 +173,15 @@ def main():
 
     print(f"\n[bench] Running baseline (lexical-only) on {SAMPLE_SIZE} QA...", flush=True)
     t0 = time.time()
-    baseline = run_mode(ds, "baseline", embedder)
+    baseline_details = REPO / "benchmarks" / "local-baseline-details.json"
+    baseline = run_mode(ds, "baseline", embedder, details_path=str(baseline_details))
     baseline["elapsed_s"] = time.time() - t0
     print(json.dumps(baseline, indent=2), flush=True)
 
     print(f"\n[bench] Running enhanced (hybrid + cross-encoder + query expansion)...", flush=True)
     t0 = time.time()
-    enhanced = run_mode(ds, "enhanced", embedder)
+    enhanced_details = REPO / "benchmarks" / "local-enhanced-details.json"
+    enhanced = run_mode(ds, "enhanced", embedder, details_path=str(enhanced_details))
     enhanced["elapsed_s"] = time.time() - t0
     print(json.dumps(enhanced, indent=2), flush=True)
 
