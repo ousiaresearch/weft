@@ -118,35 +118,98 @@ def _fact_to_claim(fact: dict[str, Any], source_id: str, scope: str, index: int)
     )
 
 
-def extract_facts(sub: Substrate, ctx: ScopeContext, scope: str, limit: int = 100) -> list[Record]:
+def extract_facts(sub: Substrate, ctx: ScopeContext, scope: str, limit: int = 100, window_size: int = 1) -> list[Record]:
     """Extract facts from Observations and Sources in a scope.
-    
+
     Returns list of new Claim records. Does not write to substrate.
     Fail-closed: returns [] on any error.
     """
     try:
         records = [
             row for row in sub._conn.execute(
-                "SELECT record_id, payload FROM records WHERE scope = ? AND record_type IN ('Observation', 'Source')",
+                "SELECT record_id, payload, created_at FROM records WHERE scope = ? AND record_type IN ('Observation', 'Source')",
                 (scope,)
             ).fetchall()
         ]
     except Exception:
         return []
     
+    # P1: group turn-derived records by conversation_id so we can extract facts
+    # from windows of adjacent turns rather than isolated lines.
+    turn_windows: list[list[tuple[str, dict, float]]] = []
+    standalone: list[tuple[str, dict, float]] = []
+    conv_groups: dict[str, list[tuple[str, dict, float]]] = {}
+    for obs_id, payload_json, created_at in records[:limit]:
+        try:
+            payload = json.loads(payload_json)
+            conv_id = (payload.get("provenance") or {}).get("conversation_id")
+            item = (obs_id, payload, created_at)
+            if conv_id and window_size > 1:
+                conv_groups.setdefault(conv_id, []).append(item)
+            else:
+                standalone.append(item)
+        except Exception:
+            standalone.append((obs_id, {"text": ""}, created_at))
+    
+    for conv_id, items in conv_groups.items():
+        items.sort(key=lambda x: x[2] or 0)
+        for i in range(0, len(items), window_size):
+            turn_windows.append(items[i:i + window_size])
+    
+    # Process windows first, then standalone records.
+    work_items = turn_windows + [[item] for item in standalone]
+    if len(work_items) > limit:
+        work_items = work_items[:limit]
+    
     claims: list[Record] = []
     seen_hashes: set[str] = set()
     
-    for obs_id, payload_json in records[:limit]:
+    for window in work_items:
         try:
-            payload = json.loads(payload_json)
-            text = payload.get("text", "")
-            if not text:
+            window_texts = []
+            window_source_ids = []
+            for obs_id, payload, created_at in window:
+                text = payload.get("text", "")
+                if not text:
+                    continue
+                window_source_ids.append(obs_id)
+                
+                # P1: prepend context header so extraction LLM grounds facts in
+                # speaker, timestamp, and scope rather than isolated text.
+                header_parts = [f"[Record ID: {obs_id}"]
+                if created_at:
+                    try:
+                        header_parts.append(f"| Created: {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(created_at))}")
+                    except Exception:
+                        pass
+                speaker = (payload.get("provenance") or {}).get("speaker")
+                if speaker:
+                    header_parts.append(f"| Speaker: {speaker}")
+                header_parts.append(f"| Scope: {scope}]")
+                context_header = " ".join(header_parts) + "\n\n"
+                window_texts.append(context_header + text)
+            
+            if not window_texts:
                 continue
             
-            facts = _extract_facts(text, scope)
+            batch_text = "\n\n---\n\n".join(window_texts)
+            facts = _extract_facts(batch_text, scope)
+            
             for i, fact in enumerate(facts):
-                claim = _fact_to_claim(fact, obs_id, scope, i)
+                # Attribute each extracted fact to the first source in the window
+                # that contains the predicate or object string as a rough heuristic.
+                src_id = window_source_ids[0]
+                for wid, wtext in zip(window_source_ids, window_texts):
+                    pred = fact.get("predicate", "").lower()
+                    obj = fact.get("object", "").lower()
+                    if pred and pred in wtext.lower():
+                        src_id = wid
+                        break
+                    if obj and obj in wtext.lower():
+                        src_id = wid
+                        break
+                
+                claim = _fact_to_claim(fact, src_id, scope, i)
                 claim_hash = claim.payload["text"].lower().strip()
                 
                 if claim_hash in seen_hashes:
