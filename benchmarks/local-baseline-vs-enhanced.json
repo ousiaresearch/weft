@@ -1,30 +1,30 @@
 {
-  "generated": "2026-10-31T18:33:45Z",
-  "sample_size": 200,
+  "generated": "2026-10-31T19:05:01Z",
+  "sample_size": 20,
   "baseline": {
-    "processed": 200,
-    "hit_at_k": 0.625,
-    "mrr": 0.45541269841269844,
-    "p50_latency_ms": 38.10405731201172,
-    "p95_latency_ms": 39.45183753967285,
+    "processed": 20,
+    "hit_at_k": 0.55,
+    "mrr": 0.44749999999999995,
+    "p50_latency_ms": 37.81771659851074,
+    "p95_latency_ms": 39.173126220703125,
     "layer_counts": {
-      "lexical": 200,
-      "graph_boost": 197
+      "lexical": 20,
+      "graph_boost": 20
     },
-    "elapsed_s": 21.835311889648438
+    "elapsed_s": 10.58896517753601
   },
   "enhanced": {
-    "processed": 200,
-    "hit_at_k": 0.69,
-    "mrr": 0.47330357142857143,
-    "p50_latency_ms": 309.1731071472168,
-    "p95_latency_ms": 381.79612159729004,
+    "processed": 20,
+    "hit_at_k": 0.65,
+    "mrr": 0.55,
+    "p50_latency_ms": 528.831958770752,
+    "p95_latency_ms": 1947.4947452545166,
     "layer_counts": {
-      "lexical": 200,
-      "vector": 200,
-      "cross_encoder": 200,
-      "graph_boost": 197
+      "lexical": 20,
+      "vector": 20,
+      "cross_encoder": 20,
+      "graph_boost": 20
     },
-    "elapsed_s": 76.79065585136414
+    "elapsed_s": 20.383363008499146
   }
 }
