@@ -149,7 +149,14 @@ ds = _load_dataset()
 print(f"[run] Loaded {len(ds)} conversations", flush=True)
 
 # Generative QA prompt
-QA_PROMPT = """Answer the question based ONLY on the provided context. If the context does not contain sufficient information to answer the question, respond with "I don't know."
+QA_PROMPT = """You are a precise research assistant. Answer the question using ONLY the provided context excerpts.
+
+Rules:
+- If the context contains the answer, provide it directly and concisely.
+- If the context does not contain sufficient information, respond with exactly "I don't know."
+- Do not use outside knowledge.
+- Do not speculate or infer beyond what is explicitly stated.
+- If multiple excerpts provide relevant information, synthesize them into one coherent answer.
 
 Context:
 {context}
@@ -159,23 +166,30 @@ Question: {question}
 Answer:"""
 
 # Judge prompt
-JUDGE_PROMPT = """You are an impartial judge evaluating whether a generated answer correctly addresses a question based on the provided context.
+JUDGE_PROMPT = """You are an expert evaluator assessing whether a generated answer correctly addresses a question based on the provided context.
 
 Question: {question}
 Gold Answer: {gold_answer}
 Generated Answer: {generated_answer}
 
-Instructions:
-- Determine if the generated answer is correct given the context and gold answer.
-- Consider paraphrases, synonyms, and equivalent expressions as correct.
-- Answer with ONLY a JSON object: {{"correct": true/false, "score": 0.0-1.0, "reason": "brief explanation"}}
-- "correct": true if the generated answer matches the gold answer, false otherwise.
-- "score": 1.0 if fully correct, 0.0 if completely incorrect, or a fractional value for partial matches.
-"""
+Context:
+{context}
+
+Evaluation Criteria:
+1. Correctness: Does the generated answer match the gold answer given the context?
+2. Evidence: Is the answer supported by the context?
+3. Precision: Is the answer concise and directly responsive?
+
+Scoring:
+- 1.0: Fully correct, matches gold answer precisely or with acceptable paraphrase.
+- 0.7: Partially correct - captures key information but missing details or has minor inaccuracies.
+- 0.0: Incorrect, unsupported by context, or completely misses the question.
+
+Respond with ONLY a JSON object: {"correct": true/false, "score": float, "reason": "brief explanation"}"""
 
 def generate_answer(question: str, context: str) -> str:
     """Generate an answer given the question and context."""
-    prompt = QA_PROMPT.format(context=context[:4000], question=question)
+    prompt = QA_PROMPT.format(context=context[:8000], question=question)
     try:
         resp = requests.post(
             f"{BASE_URL}/chat/completions",
@@ -183,7 +197,7 @@ def generate_answer(question: str, context: str) -> str:
             json={
                 "model": ANSWER_MODEL,
                 "messages": [{"role": "user", "content": prompt}],
-                "max_tokens": 100,
+                "max_tokens": 150,
                 "temperature": 0.0
             },
             timeout=30
@@ -210,7 +224,7 @@ def judge_answer(question: str, gold_answer: str, generated_answer: str) -> dict
                 json={
                     "model": JUDGE_MODEL,
                     "messages": [{"role": "user", "content": prompt}],
-                    "max_tokens": 150,
+                    "max_tokens": 200,
                     "temperature": 0.0
                 },
                 timeout=30
