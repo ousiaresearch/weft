@@ -14,41 +14,31 @@ from typing import Sequence
 logger = logging.getLogger(__name__)
 
 
-def expand_query(token_getter, query: str, n: int = 3) -> list[str]:
-    """Generate alternative phrasings for a query.
+def _local_expand_query(query: str, n: int = 3) -> list[str]:
+    """Local fallback: generate paraphrases with a small seq2seq model.
 
-    Returns [original, alt1, alt2, ...] up to n+1 total.
-    Fail-closed: returns [query] on any error.
+    Uses google/flan-t5-small if available. Returns [query] on any error.
     """
-    token = token_getter()
-    if not token:
-        return [query]
-
-    prompt = (
-        f"Generate {n} alternative ways to ask the following question, "
-        f"preserving the same meaning but using different wording, synonyms, "
-        f"or paraphrases. Return ONLY a JSON array of strings.\n\n"
-        f"Original: {query}\n\n"
-        f"Alternatives:"
-    )
     try:
-        import urllib.request
-        req = urllib.request.Request(
-            "https://tokenharbor.ai/v1/chat/completions",
-            data=json.dumps({
-                "model": "deepseek-v4.1-flash",
-                "messages": [{"role": "user", "content": prompt}],
-                "max_tokens": 150,
-                "temperature": 0.7,
-            }).encode(),
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/json",
-            },
+        from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+        import torch
+
+        model_name = "google/flan-t5-small"
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+        prompt = (
+            f"Generate {n} alternative ways to ask the following question, "
+            f"preserving the same meaning but using different wording, synonyms, "
+            f"or paraphrases. Return ONLY a JSON array of strings.\n\n"
+            f"Original: {query}\n\n"
+            f"Alternatives:"
         )
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            result = json.loads(resp.read().decode())
-        text = result["choices"][0]["message"]["content"].strip()
+        inputs = tokenizer(prompt, return_tensors="pt")
+        with torch.no_grad():
+            outputs = model.generate(**inputs, max_new_tokens=150, temperature=0.7)
+        text = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
+
         start = text.find("[")
         end = text.rfind("]") + 1
         if start >= 0 and end > start:
@@ -64,49 +54,121 @@ def expand_query(token_getter, query: str, n: int = 3) -> list[str]:
                         break
                 return out
     except Exception as e:
-        logger.warning("Query expansion failed: %s", e)
+        logger.warning("Local query expansion failed: %s", e)
     return [query]
+
+
+def expand_query(token_getter, query: str, n: int = 3) -> list[str]:
+    """Generate alternative phrasings for a query.
+
+    Tries TokenHarbor first; falls back to local flan-t5-small if no token
+    or network fails. Returns [original, alt1, alt2, ...] up to n+1 total.
+    Fail-closed: returns [query] on any error.
+    """
+    token = token_getter()
+    if token:
+        prompt = (
+            f"Generate {n} alternative ways to ask the following question, "
+            f"preserving the same meaning but using different wording, synonyms, "
+            f"or paraphrases. Return ONLY a JSON array of strings.\n\n"
+            f"Original: {query}\n\n"
+            f"Alternatives:"
+        )
+        try:
+            import urllib.request
+            req = urllib.request.Request(
+                "https://tokenharbor.ai/v1/chat/completions",
+                data=json.dumps({
+                    "model": "deepseek-v4.1-flash",
+                    "messages": [{"role": "user", "content": prompt}],
+                    "max_tokens": 150,
+                    "temperature": 0.7,
+                }).encode(),
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json",
+                },
+            )
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                result = json.loads(resp.read().decode())
+            text = result["choices"][0]["message"]["content"].strip()
+            start = text.find("[")
+            end = text.rfind("]") + 1
+            if start >= 0 and end > start:
+                alts = json.loads(text[start:end])
+                if isinstance(alts, list):
+                    seen = {query}
+                    out = [query]
+                    for alt in alts:
+                        if isinstance(alt, str) and alt.strip() and alt.strip() not in seen:
+                            out.append(alt.strip())
+                            seen.add(alt.strip())
+                        if len(out) >= n + 1:
+                            break
+                    return out
+        except Exception as e:
+            logger.warning("TokenHarbor query expansion failed: %s", e)
+
+    # Local fallback
+    return _local_expand_query(query, n)
 
 
 def expand_query_hyde(token_getter, query: str) -> list[str]:
     """P1: HyDE-style expansion — generate a hypothetical answer to the query.
 
-    Returns [original, hypothetical_answer] so vector recall can match the
-    answer text against the corpus, not just the question text.
+    Tries TokenHarbor first; falls back to local flan-t5-small. Returns
+    [original, hypothetical_answer] so vector recall can match the answer
+    text against the corpus, not just the question text.
     Fail-closed: returns [query] on any error.
     """
     token = token_getter()
-    if not token:
-        return [query]
+    if token:
+        try:
+            import urllib.request
+            req = urllib.request.Request(
+                "https://tokenharbor.ai/v1/chat/completions",
+                data=json.dumps({
+                    "model": "deepseek-v4.1-flash",
+                    "messages": [{"role": "user", "content": prompt}],
+                    "max_tokens": 120,
+                    "temperature": 0.3,
+                }).encode(),
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json",
+                },
+            )
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                result = json.loads(resp.read().decode())
+            text = result["choices"][0]["message"]["content"].strip()
+            if text:
+                return [query, text]
+        except Exception as e:
+            logger.warning("TokenHarbor HyDE expansion failed: %s", e)
 
-    prompt = (
-        "Write a brief, factual hypothetical answer to the following question. "
-        "Do not hedge or say 'I don't know'. Keep it to 2-3 sentences.\n\n"
-        f"Question: {query}\n\n"
-        "Hypothetical answer:"
-    )
+    # Local fallback
     try:
-        import urllib.request
-        req = urllib.request.Request(
-            "https://tokenharbor.ai/v1/chat/completions",
-            data=json.dumps({
-                "model": "deepseek-v4.1-flash",
-                "messages": [{"role": "user", "content": prompt}],
-                "max_tokens": 120,
-                "temperature": 0.3,
-            }).encode(),
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/json",
-            },
+        from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+        import torch
+
+        model_name = "google/flan-t5-small"
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+        prompt = (
+            "Write a brief, factual hypothetical answer to the following question. "
+            "Do not hedge or say 'I don't know'. Keep it to 2-3 sentences.\n\n"
+            f"Question: {query}\n\n"
+            "Hypothetical answer:"
         )
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            result = json.loads(resp.read().decode())
-        text = result["choices"][0]["message"]["content"].strip()
+        inputs = tokenizer(prompt, return_tensors="pt")
+        with torch.no_grad():
+            outputs = model.generate(**inputs, max_new_tokens=120, temperature=0.3)
+        text = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
         if text:
             return [query, text]
     except Exception as e:
-        logger.warning("HyDE expansion failed: %s", e)
+        logger.warning("Local HyDE expansion failed: %s", e)
     return [query]
 
 
